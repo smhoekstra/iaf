@@ -1,6 +1,9 @@
 /*
  * $Log: ClassUtils.java,v $
- * Revision 1.11  2007-07-18 13:35:30  europe\L190409
+ * Revision 1.10.2.1  2007-08-03 09:52:30  europe\L190409
+ * copied from head
+ *
+ * Revision 1.11  2007/07/18 13:35:30  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * try to get a resource as a URL
  * no replacemen of space to %20 for jar-entries
  *
@@ -44,7 +47,7 @@ import org.apache.log4j.Logger;
  *
  */
 public class ClassUtils {
-	public static final String version = "$RCSfile: ClassUtils.java,v $ $Revision: 1.11 $ $Date: 2007-07-18 13:35:30 $";
+	public static final String version = "$RCSfile: ClassUtils.java,v $ $Revision: 1.10.2.1 $ $Date: 2007-08-03 09:52:30 $";
 	private static Logger log = LogUtil.getLogger(ClassUtils.class);
 
     /**

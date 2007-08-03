@@ -1,6 +1,9 @@
 /*
  * $Log: XmlValidator.java,v $
- * Revision 1.23  2007-07-19 07:30:00  europe\L190409
+ * Revision 1.20.2.1  2007-08-03 09:52:50  europe\L190409
+ * copied from head
+ *
+ * Revision 1.23  2007/07/19 07:30:00  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * put remark about spaces in javadoc
  *
  * Revision 1.22  2007/07/16 11:34:47  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -138,7 +141,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
  * @author Johan Verrips IOS / Jaco de Groot (***@dynasol.nl)
  */
 public class XmlValidator extends FixedForwardPipe {
-	public static final String version="$RCSfile: XmlValidator.java,v $ $Revision: 1.23 $ $Date: 2007-07-19 07:30:00 $";
+	public static final String version="$RCSfile: XmlValidator.java,v $ $Revision: 1.20.2.1 $ $Date: 2007-08-03 09:52:50 $";
 
     private String schemaLocation = null;
     private String noNamespaceSchemaLocation = null;
