@@ -2,7 +2,10 @@
  * Created on 18-sep-07
  * 
  * $Log: JmsListener.java,v $
- * Revision 1.25.4.6  2007-10-04 12:01:21  europe\M00035F
+ * Revision 1.25.4.7  2007-10-12 09:09:06  europe\M00035F
+ * Fix compilation-problems after code-merge
+ *
+ * Revision 1.25.4.6  2007/10/04 12:01:21  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Work on EJB version of IBIS
  *
  * Revision 1.25.4.5  2007/10/01 09:16:18  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -49,7 +52,7 @@ import nl.nn.adapterframework.core.PipeLineResult;
  * 
  */
 public class JmsListener extends JMSFacade implements IPushingListener {
-    public static final String version="$RCSfile: JmsListener.java,v $ $Revision: 1.25.4.6 $ $Date: 2007-10-04 12:01:21 $";
+    public static final String version="$RCSfile: JmsListener.java,v $ $Revision: 1.25.4.7 $ $Date: 2007-10-12 09:09:06 $";
 
     private final static String THREAD_CONTEXT_SESSION_KEY="session";
     private final static String THREAD_CONTEXT_SESSION_OWNER_FLAG_KEY="isSessionOwner";
@@ -555,4 +558,8 @@ public class JmsListener extends JMSFacade implements IPushingListener {
         this.listenerPort = listenerPort;
     }
 
+    public String getLogPrefix() {
+        return super.getLogPrefix();
+    }
+    
 }

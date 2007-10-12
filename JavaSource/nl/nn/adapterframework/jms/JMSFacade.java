@@ -1,6 +1,9 @@
 /*
  * $Log: JMSFacade.java,v $
- * Revision 1.26.4.3  2007-10-10 14:30:42  europe\L190409
+ * Revision 1.26.4.4  2007-10-12 09:09:07  europe\M00035F
+ * Fix compilation-problems after code-merge
+ *
+ * Revision 1.26.4.3  2007/10/10 14:30:42  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * synchronize with HEAD (4.8-alpha1)
  *
  * Revision 1.28  2007/10/10 08:42:39  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -124,7 +127,7 @@ import org.apache.commons.lang.StringUtils;
  * @version Id
  */
 public class JMSFacade extends JNDIBase implements INamedObject, HasPhysicalDestination, IXAEnabled {
-	public static final String version="$RCSfile: JMSFacade.java,v $ $Revision: 1.26.4.3 $ $Date: 2007-10-10 14:30:42 $";
+	public static final String version="$RCSfile: JMSFacade.java,v $ $Revision: 1.26.4.4 $ $Date: 2007-10-12 09:09:07 $";
 
 	public static final String MODE_PERSISTENT="PERSISTENT";
 	public static final String MODE_NON_PERSISTENT="NON_PERSISTENT";
@@ -207,7 +210,7 @@ public class JMSFacade extends JNDIBase implements INamedObject, HasPhysicalDest
 		return "["+getName()+"] ";
 	}
 
- 	private String getConnectionFactoryName() throws JmsException {
+ 	public String getConnectionFactoryName() throws JmsException {
 		String result;
 		if (useTopicFunctions) {
 			result = isTransacted() ? getTopicConnectionFactoryNameXA() : getTopicConnectionFactoryName();
