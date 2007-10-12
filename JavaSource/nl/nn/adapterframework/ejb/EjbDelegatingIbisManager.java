@@ -1,6 +1,9 @@
 /*
  * $Log: EjbDelegatingIbisManager.java,v $
- * Revision 1.1.2.4  2007-10-10 14:30:43  europe\L190409
+ * Revision 1.1.2.5  2007-10-12 09:45:42  europe\M00035F
+ * Add 'XPathUtil' interface with multiple implementations (both direct XPath API using, and indirect Transform API using) and remove the code from the EjbDelegatingIbisManager
+ *
+ * Revision 1.1.2.4  2007/10/10 14:30:43  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * synchronize with HEAD (4.8-alpha1)
  *
  * Revision 1.2  2007/10/10 09:48:23  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -10,19 +13,14 @@
  */
 package nl.nn.adapterframework.ejb;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
 import nl.nn.adapterframework.configuration.Configuration;
 import nl.nn.adapterframework.configuration.IbisManager;
 import nl.nn.adapterframework.core.IAdapter;
+import nl.nn.adapterframework.util.XPathUtil;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.ejb.access.LocalStatelessSessionProxyFactoryBean;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 /**
  * @author  Tim van der Leeuw
@@ -40,6 +38,7 @@ public class EjbDelegatingIbisManager implements IbisManager, BeanFactoryAware {
     private String configurationName;
     private IbisManager ibisManager;
     private BeanFactory beanFactory;
+    private XPathUtil xPathUtil;
     
     protected synchronized IbisManager getIbisManager() {
         if (this.ibisManager == null) {
@@ -84,11 +83,7 @@ public class EjbDelegatingIbisManager implements IbisManager, BeanFactoryAware {
 
     public void loadConfigurationFile(String configurationFile) {
         try {
-            XPath xpath = XPathFactory.newInstance().newXPath();
-            InputSource inputSource = new InputSource(configurationFile);
-            NodeList nodes = (NodeList) xpath.evaluate(CONFIG_NAME_XPATH, inputSource, XPathConstants.NODESET);
-            Node item = nodes.item(0);
-            setConfigurationName(item.getNodeValue());
+            setConfigurationName(xPathUtil.parseXpathToString(CONFIG_NAME_XPATH, configurationFile));
             log.info("Extracted configuration-name '" + getConfigurationName()
                     + "' from configuration-file '" + configurationFile + "'");
         } catch (Exception ex) {
@@ -119,6 +114,14 @@ public class EjbDelegatingIbisManager implements IbisManager, BeanFactoryAware {
 
     public int getDeploymentMode() {
         return IbisManager.DEPLOYMENT_MODE_EJB;
+    }
+
+    public XPathUtil getXPathUtil() {
+        return xPathUtil;
+    }
+
+    public void setXPathUtil(XPathUtil xPathUtil) {
+        this.xPathUtil = xPathUtil;
     }
 
 }
