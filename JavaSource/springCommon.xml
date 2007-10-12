@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   $Log: springCommon.xml,v $
-  Revision 1.1.2.2  2007-10-10 14:30:45  europe\L190409
+  Revision 1.1.2.3  2007-10-12 14:29:31  europe\M00035F
+  Several fixes and improvements to get EJB deployment mode running
+
+  Revision 1.1.2.2  2007/10/10 14:30:45  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
   synchronize with HEAD (4.8-alpha1)
 
   Revision 1.2  2007/10/10 07:54:12  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -62,10 +65,6 @@
     
     <bean name="pipeExecutor" class="nl.nn.adapterframework.txsupport.SpringTxPipeExecutor"
         autowire="byName" scope="singleton">
-    </bean>
-    
-    <bean name="jmsConfigurator" class="nl.nn.adapterframework.unmanaged.SpringJmsConfigurator"
-        autowire="byName" scope="prototype">
     </bean>
     
     <bean name="listenerContainer" class="nl.nn.adapterframework.receivers.PullingListenerContainer"

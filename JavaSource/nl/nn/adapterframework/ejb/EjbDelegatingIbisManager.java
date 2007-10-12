@@ -1,6 +1,9 @@
 /*
  * $Log: EjbDelegatingIbisManager.java,v $
- * Revision 1.1.2.5  2007-10-12 09:45:42  europe\M00035F
+ * Revision 1.1.2.6  2007-10-12 14:29:31  europe\M00035F
+ * Several fixes and improvements to get EJB deployment mode running
+ *
+ * Revision 1.1.2.5  2007/10/12 09:45:42  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Add 'XPathUtil' interface with multiple implementations (both direct XPath API using, and indirect Transform API using) and remove the code from the EjbDelegatingIbisManager
  *
  * Revision 1.1.2.4  2007/10/10 14:30:43  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -30,7 +33,7 @@ import org.springframework.ejb.access.LocalStatelessSessionProxyFactoryBean;
 public class EjbDelegatingIbisManager implements IbisManager, BeanFactoryAware {
     private final static Logger log = Logger.getLogger(EjbDelegatingIbisManager.class);
     
-    private static final String FACTORY_BEAN_ID = "@ibisManagerEjb";
+    private static final String FACTORY_BEAN_ID = "&ibisManagerEjb";
     private static final String JNDI_NAME_PREFIX = "ejb/ibis/IbisManager/";
     
     private final static String CONFIG_NAME_XPATH = "/child::*/@configurationName";
@@ -42,6 +45,10 @@ public class EjbDelegatingIbisManager implements IbisManager, BeanFactoryAware {
     
     protected synchronized IbisManager getIbisManager() {
         if (this.ibisManager == null) {
+            if (configurationName == null) {
+                log.error("Cannot look up the IbisManager implementation when configuration-name not yet read from the configuration file");
+                return null;
+            }
             // Look it up via EJB, using JNDI Name based on configuration name
             LocalStatelessSessionProxyFactoryBean factoryBean = 
                     (LocalStatelessSessionProxyFactoryBean) beanFactory.getBean(FACTORY_BEAN_ID);
@@ -54,7 +61,13 @@ public class EjbDelegatingIbisManager implements IbisManager, BeanFactoryAware {
     }
     
     public Configuration getConfiguration() {
-        return getIbisManager().getConfiguration();
+        IbisManager mngr = getIbisManager();
+        if (mngr == null) {
+            log.error("Cannot look up the configuration when the IbisManager is not set");
+            return null;
+        } else {
+            return mngr.getConfiguration();
+        }
     }
 
     public void handleAdapter(String action, String adapterName, String receiverName, String commandIssuedBy) {
@@ -84,6 +97,12 @@ public class EjbDelegatingIbisManager implements IbisManager, BeanFactoryAware {
     public void loadConfigurationFile(String configurationFile) {
         try {
             setConfigurationName(xPathUtil.parseXpathToString(CONFIG_NAME_XPATH, configurationFile));
+            if (getConfigurationName() == null) {
+                log.error("Can not start the Ibis WEB front-end because no configuration-name can be extracted from the configuration-file '"
+                    + configurationFile + "'");
+                throw new IllegalStateException("Configuration-name loaded from configuration-file '"
+                    + configurationFile + "' is null; this means that the Ibis WEB front can not be started.");
+            }
             log.info("Extracted configuration-name '" + getConfigurationName()
                     + "' from configuration-file '" + configurationFile + "'");
         } catch (Exception ex) {

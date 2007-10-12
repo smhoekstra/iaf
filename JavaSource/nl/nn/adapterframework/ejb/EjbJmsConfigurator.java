@@ -1,6 +1,9 @@
 /*
  * $Log: EjbJmsConfigurator.java,v $
- * Revision 1.1.2.3  2007-10-10 14:30:43  europe\L190409
+ * Revision 1.1.2.4  2007-10-12 14:29:31  europe\M00035F
+ * Several fixes and improvements to get EJB deployment mode running
+ *
+ * Revision 1.1.2.3  2007/10/10 14:30:43  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * synchronize with HEAD (4.8-alpha1)
  *
  * Revision 1.2  2007/10/10 09:48:23  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -52,6 +55,8 @@ public class EjbJmsConfigurator implements IJmsConfigurator {
             String destinationName = (String) getAdminService().getAttribute(listenerPortMBean, "jmsDestJNDIName");
             Context ctx = new InitialContext();
             this.destination = (Destination) ctx.lookup(destinationName);
+        } catch (ConfigurationException ex) {
+            throw ex;
         } catch (Exception ex) {
             throw new ConfigurationException(ex);
         }

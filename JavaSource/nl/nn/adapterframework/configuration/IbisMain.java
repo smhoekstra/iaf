@@ -1,6 +1,9 @@
 /*
  * $Log: IbisMain.java,v $
- * Revision 1.1.2.7  2007-10-10 14:30:40  europe\L190409
+ * Revision 1.1.2.8  2007-10-12 14:29:31  europe\M00035F
+ * Several fixes and improvements to get EJB deployment mode running
+ *
+ * Revision 1.1.2.7  2007/10/10 14:30:40  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * synchronize with HEAD (4.8-alpha1)
  *
  * Revision 1.2  2007/10/09 15:29:43  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -25,6 +28,12 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
 /**
+ * Main entry point for creating and starting Ibis instances from
+ * the configuration file.
+ * 
+ * This class can not be created from the Spring context, because it
+ * is the place where the Spring context is created.
+ * 
  * 
  * 
  * @author  Tim van der Leeuw
@@ -38,7 +47,6 @@ public class IbisMain {
     public static final String DFLT_SPRING_CONTEXT = "/springContext.xml";
     
     protected ListableBeanFactory beanFactory;
-    protected Configuration configuration;
     protected IbisManager ibisManager;
     
 	public static void main(String[] args) {
@@ -49,6 +57,11 @@ public class IbisMain {
                 IbisMain.DFLT_AUTOSTART);
 	}
     
+    /**
+     * Initialize Ibis with all default parameters
+     * 
+     * @return
+     */
     public boolean initConfig() {
         return initConfig(
                 IbisMain.DFLT_SPRING_CONTEXT,
@@ -56,6 +69,20 @@ public class IbisMain {
                 IbisMain.DFLT_AUTOSTART);
     }
     
+    /**
+     * Initalize Ibis with the given parameters, substituting default
+     * values when <code>null</code> is passed in.
+     * 
+     * This method creates the Spring context, and loads the configuration
+     * file. After executing this method, the BeanFactory, IbisManager and Configuration
+     * properties are available and the Ibis instance can be started and
+     * stopped.
+     * 
+     * @param springContext
+     * @param configurationFile
+     * @param autoStart
+     * @return
+     */
     public boolean initConfig(
             String springContext,
             String configurationFile,
@@ -77,7 +104,6 @@ public class IbisMain {
         ibisManager = (IbisManager) beanFactory.getBean("ibisManager");
         
         ibisManager.loadConfigurationFile(configurationFile);
-        configuration = ibisManager.getConfiguration();
         
         if (autoStart.equalsIgnoreCase("TRUE")) {
             log.info("* IBIS Startup: Starting adapters");
@@ -119,7 +145,7 @@ public class IbisMain {
 	 * @return
 	 */
 	public Configuration getConfiguration() {
-		return configuration;
+		return ibisManager.getConfiguration();
 	}
 
 	/**
@@ -127,13 +153,6 @@ public class IbisMain {
 	 */
 	public void setBeanFactory(ListableBeanFactory factory) {
 		beanFactory = factory;
-	}
-
-	/**
-	 * @param configuration
-	 */
-	public void setConfiguration(Configuration configuration) {
-		this.configuration = configuration;
 	}
 
 	/**
