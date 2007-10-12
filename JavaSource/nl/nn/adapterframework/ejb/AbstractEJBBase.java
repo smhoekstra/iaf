@@ -1,6 +1,9 @@
 /*
  * $Log: AbstractEJBBase.java,v $
- * Revision 1.1.2.2  2007-10-10 14:30:43  europe\L190409
+ * Revision 1.1.2.3  2007-10-12 11:53:42  europe\M00035F
+ * Add variable to indicate to MDB if it's transactions are container-managed, or bean-managed
+ *
+ * Revision 1.1.2.2  2007/10/10 14:30:43  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * synchronize with HEAD (4.8-alpha1)
  *
  * Revision 1.2  2007/10/09 16:07:37  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -61,12 +64,12 @@ abstract public class AbstractEJBBase {
         return context;
     }
     
-    protected String getContextVariable(String varName) {
+    protected Object getContextVariable(String varName) throws JndiLookupFailureException {
         try {
             if (!varName.startsWith(COMP_ENV_JNDI_PREFIX)) {
                 varName = COMP_ENV_JNDI_PREFIX + varName;
             }
-            return (String) getContext().lookup(varName);
+            return getContext().lookup(varName);
         } catch (NamingException ex) {
             throw new JndiLookupFailureException(varName, ex);
         }

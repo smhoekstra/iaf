@@ -1,6 +1,9 @@
 /*
  * $Log: GenericMDB.java,v $
- * Revision 1.1.2.4  2007-10-10 14:30:43  europe\L190409
+ * Revision 1.1.2.5  2007-10-12 11:53:42  europe\M00035F
+ * Add variable to indicate to MDB if it's transactions are container-managed, or bean-managed
+ *
+ * Revision 1.1.2.4  2007/10/10 14:30:43  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * synchronize with HEAD (4.8-alpha1)
  *
  * Revision 1.2  2007/10/10 09:48:23  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -22,6 +25,7 @@ import nl.nn.adapterframework.core.ListenerException;
 import nl.nn.adapterframework.jms.JmsListener;
 import nl.nn.adapterframework.receivers.GenericReceiver;
 import org.apache.log4j.Logger;
+import org.springframework.jndi.JndiLookupFailureException;
 
 /**
  * @author  Tim van der Leeuw
@@ -33,6 +37,7 @@ public class GenericMDB extends AbstractEJBBase implements MessageDrivenBean, Me
     
     protected MessageDrivenContext ejbContext;
     protected JmsListener listener;
+    protected boolean containerManagedTransactions;
     
     public void setMessageDrivenContext(MessageDrivenContext ejbContext) throws EJBException {
         log.info("Received EJB-MDB Context");
@@ -42,6 +47,7 @@ public class GenericMDB extends AbstractEJBBase implements MessageDrivenBean, Me
     public void ejbCreate() {
         log.info("Creating MDB");
         this.listener = retrieveJmsListener();
+        this.containerManagedTransactions = retrieveTransactionType();
     }
     
     public void ejbRemove() throws EJBException {
@@ -64,23 +70,58 @@ public class GenericMDB extends AbstractEJBBase implements MessageDrivenBean, Me
             throw new UnsupportedOperationException("Not supported yet.");
         } catch (ListenerException ex) {
             log.error(ex, ex);
-            this.ejbContext.setRollbackOnly();
+            rollbackTransaction();
         } finally {
             this.listener.destroyThreadContext(threadContext);
         }
     }
 
-    private JmsListener retrieveJmsListener() {
-        String adapterName = getContextVariable("adapterName");
-        String receiverName = getContextVariable("receiverName");
+    protected boolean retrieveTransactionType() {
+        try {
+            Boolean txType = (Boolean) getContextVariable("containerTransactions");
+            if (txType == null) {
+                log.warn("Value of variable 'containerTransactions' in Bean JNDI context is null, assuming bean-managed transactions");
+                return false;
+            } else {
+                return txType.booleanValue();
+            }
+        } catch (JndiLookupFailureException e) {
+            log.error("Cannot look up variable 'containerTransactions' in Bean JNDI context; assuming bean-managed transactions", e);
+            return false;
+        }
+    }
+
+    protected JmsListener retrieveJmsListener() {
+        String adapterName = (String) getContextVariable("adapterName");
+        String receiverName = (String) getContextVariable("receiverName");
         return retrieveJmsListener(receiverName, adapterName);
     }
 
-    private JmsListener retrieveJmsListener(String receiverName, String adapterName) {
+    protected JmsListener retrieveJmsListener(String receiverName, String adapterName) {
         IAdapter adapter = config.getRegisteredAdapter(adapterName);
         GenericReceiver receiver = (GenericReceiver) adapter.getReceiverByName(receiverName);
         JmsListener l = (JmsListener) receiver.getListener();
         return l;
+    }
+
+    protected void rollbackTransaction() throws IllegalStateException {
+        if (containerManagedTransactions) {
+            this.ejbContext.setRollbackOnly();
+        } else {
+            try {
+                this.ejbContext.getUserTransaction().setRollbackOnly();
+            } catch (Exception ex) {
+                log.error("Cannot roll back user-transactions, must be using container-managed transactions without being properly configured for it?", ex);
+                // Try the container-maanged way
+                try {
+                    this.ejbContext.setRollbackOnly();
+                } catch (IllegalStateException e) {
+                    log.error("After failing to rolll back user-transaction, also failing to roll back container-transaction.", e);
+                }
+                throw new IllegalStateException("Cannot roll back user-transaction; must be using container-managed transactions? Error-message: ["
+                        + ex.getMessage() + "]");
+            }
+        }
     }
     
     
