@@ -1,6 +1,9 @@
 /*
  * $Log: ActionBase.java,v $
- * Revision 1.4.4.3  2007-10-10 14:30:38  europe\L190409
+ * Revision 1.4.4.4  2007-10-15 09:20:23  europe\M00035F
+ * Update logging
+ *
+ * Revision 1.4.4.3  2007/10/10 14:30:38  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * synchronize with HEAD (4.8-alpha1)
  *
  * Revision 1.5  2007/10/10 07:29:54  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -46,7 +49,7 @@ import org.apache.struts.util.MessageResources;
  * @see     org.apache.struts.action.Action
  */
 public abstract class ActionBase extends Action {
-	public static final String version="$RCSfile: ActionBase.java,v $ $Revision: 1.4.4.3 $ $Date: 2007-10-10 14:30:38 $";
+	public static final String version="$RCSfile: ActionBase.java,v $ $Revision: 1.4.4.4 $ $Date: 2007-10-15 09:20:23 $";
 	protected Logger log = LogUtil.getLogger(this);
 
     protected Locale locale;
@@ -148,7 +151,7 @@ public abstract class ActionBase extends Action {
         log = LogUtil.getLogger(this); // logging category for this class
  
         if (null == config) {
-            log.info("configuration not present in context. Configuration probably add errors. see log");
+            log.info("initAction(): configuration not present in context. Configuration probably has errors. see log");
         }
     }
 

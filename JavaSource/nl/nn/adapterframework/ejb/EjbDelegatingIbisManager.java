@@ -1,6 +1,9 @@
 /*
  * $Log: EjbDelegatingIbisManager.java,v $
- * Revision 1.1.2.6  2007-10-12 14:29:31  europe\M00035F
+ * Revision 1.1.2.7  2007-10-15 09:20:16  europe\M00035F
+ * Update logging
+ *
+ * Revision 1.1.2.6  2007/10/12 14:29:31  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Several fixes and improvements to get EJB deployment mode running
  *
  * Revision 1.1.2.5  2007/10/12 09:45:42  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -19,6 +22,7 @@ package nl.nn.adapterframework.ejb;
 import nl.nn.adapterframework.configuration.Configuration;
 import nl.nn.adapterframework.configuration.IbisManager;
 import nl.nn.adapterframework.core.IAdapter;
+import nl.nn.adapterframework.util.LogUtil;
 import nl.nn.adapterframework.util.XPathUtil;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.BeanFactory;
@@ -31,7 +35,7 @@ import org.springframework.ejb.access.LocalStatelessSessionProxyFactoryBean;
  * @version Id
  */
 public class EjbDelegatingIbisManager implements IbisManager, BeanFactoryAware {
-    private final static Logger log = Logger.getLogger(EjbDelegatingIbisManager.class);
+    private final static Logger log = LogUtil.getLogger(EjbDelegatingIbisManager.class);
     
     private static final String FACTORY_BEAN_ID = "&ibisManagerEjb";
     private static final String JNDI_NAME_PREFIX = "ejb/ibis/IbisManager/";
@@ -66,7 +70,15 @@ public class EjbDelegatingIbisManager implements IbisManager, BeanFactoryAware {
             log.error("Cannot look up the configuration when the IbisManager is not set");
             return null;
         } else {
-            return mngr.getConfiguration();
+            Configuration cfg = mngr.getConfiguration();
+            if (cfg == null) {
+                log.error("Retrieved null configuration object from real IbisManager");
+            } else {
+                log.info("Configuration retrieved from real IbisManager: configuration-name '"
+                        + cfg.getConfigurationName() + "', nr of adapters: "
+                        + cfg.getRegisteredAdapters().size());
+            }
+            return cfg;
         }
     }
 
