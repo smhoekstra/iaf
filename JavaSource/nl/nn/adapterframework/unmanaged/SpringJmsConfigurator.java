@@ -21,6 +21,7 @@ import nl.nn.adapterframework.jms.JmsException;
 import nl.nn.adapterframework.jms.JmsListener;
 import nl.nn.adapterframework.receivers.GenericReceiver;
 import nl.nn.adapterframework.util.Counter;
+import nl.nn.adapterframework.util.LogUtil;
 import org.apache.log4j.Logger;
 
 import org.springframework.beans.BeansException;
@@ -49,11 +50,11 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 public class SpringJmsConfigurator 
         extends AbstractJmsConfigurator
         implements IJmsConfigurator, BeanFactoryAware, ExceptionListener {
-    private static final Logger log = Logger.getLogger(SpringJmsConfigurator.class);
+    private static final Logger log = LogUtil.getLogger(SpringJmsConfigurator.class);
     public static final TransactionDefinition TXSUPPORTS = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_SUPPORTS);
     public static final TransactionDefinition TXMANDATORY = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_MANDATORY);
     
-    public static final String version="$RCSfile: SpringJmsConfigurator.java,v $ $Revision: 1.1.2.8 $ $Date: 2007-10-05 12:46:36 $";
+    public static final String version="$RCSfile: SpringJmsConfigurator.java,v $ $Revision: 1.1.2.9 $ $Date: 2007-10-15 11:35:52 $";
     
     private PlatformTransactionManager txManager;
     private BeanFactory beanFactory;

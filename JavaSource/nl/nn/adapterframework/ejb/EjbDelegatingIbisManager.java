@@ -1,6 +1,9 @@
 /*
  * $Log: EjbDelegatingIbisManager.java,v $
- * Revision 1.1.2.8  2007-10-15 09:51:57  europe\M00035F
+ * Revision 1.1.2.9  2007-10-15 11:35:51  europe\M00035F
+ * Fix direct retrieving of Logger w/o using the LogUtil
+ *
+ * Revision 1.1.2.8  2007/10/15 09:51:57  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Add back transaction-management to BrowseExecute action
  *
  * Revision 1.1.2.7  2007/10/15 09:20:16  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -45,6 +48,7 @@ public class EjbDelegatingIbisManager implements IbisManager, BeanFactoryAware {
     private static final String JNDI_NAME_PREFIX = "ejb/ibis/IbisManager/";
     
     private final static String CONFIG_NAME_XPATH = "/child::*/@configurationName";
+//    private final static String CONFIG_NAME_XPATH = "//@configurationName";
     
     private String configurationName;
     private IbisManager ibisManager;

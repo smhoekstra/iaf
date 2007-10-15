@@ -1,6 +1,9 @@
 /*
  * $Log: IbisMultiSourceExpander.java,v $
- * Revision 1.1.2.3  2007-10-10 14:30:41  europe\L190409
+ * Revision 1.1.2.4  2007-10-15 11:35:52  europe\M00035F
+ * Fix direct retrieving of Logger w/o using the LogUtil
+ *
+ * Revision 1.1.2.3  2007/10/10 14:30:41  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * synchronize with HEAD (4.8-alpha1)
  *
  * Revision 1.2  2007/10/09 15:29:43  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -14,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import nl.nn.adapterframework.util.LogUtil;
 
 import org.apache.commons.digester.substitution.VariableExpander;
 import org.apache.log4j.Logger;
@@ -26,17 +30,17 @@ import org.apache.log4j.Logger;
  * @version Id
  */
 public class IbisMultiSourceExpander implements VariableExpander {
-    private final static Logger log = Logger.getLogger(IbisMultiSourceExpander.class);
+    private final static Logger log = LogUtil.getLogger(IbisMultiSourceExpander.class);
     
     private List sources = new ArrayList();
     private boolean environmentFallback = false;
     
-	/**
-	 * 
-	 */
-	public IbisMultiSourceExpander() {
-		super();
-	}
+        /**
+         * 
+         */
+        public IbisMultiSourceExpander() {
+                super();
+        }
     
     public IbisMultiSourceExpander(boolean environmentFallback) {
         this();
@@ -47,10 +51,10 @@ public class IbisMultiSourceExpander implements VariableExpander {
         sources.add(source);
     }
     
-	/* (non-Javadoc)
-	 * @see org.apache.commons.digester.substitution.VariableExpander#expand(java.lang.String)
-	 */
-	public String expand(String inp) {
+        /* (non-Javadoc)
+         * @see org.apache.commons.digester.substitution.VariableExpander#expand(java.lang.String)
+         */
+        public String expand(String inp) {
         if (log.isDebugEnabled()) {
             log.debug("Requested to expand input-string [" + inp + "]");
         }
@@ -103,20 +107,20 @@ public class IbisMultiSourceExpander implements VariableExpander {
         if (log.isDebugEnabled()) {
             log.debug("Input-string [" + inp + "] expanded to [" + resultString + "]");
         }
-		return resultString;
-	}
+                return resultString;
+        }
 
-	/**
-	 * @param varName
-	 * @return
-	 */
-	public String getValue(String varName) {
+        /**
+         * @param varName
+         * @return
+         */
+        public String getValue(String varName) {
         for (Iterator iter = sources.iterator(); iter.hasNext();) {
-			Map source = (Map) iter.next();
-			if (source.containsKey(varName)) {
+                        Map source = (Map) iter.next();
+                        if (source.containsKey(varName)) {
                 return String.valueOf(source.get(varName));
-			}
-		}
+                        }
+                }
         // Variable not found in any of the sources;
         // get it from environment.
         if (environmentFallback) {
@@ -126,33 +130,33 @@ public class IbisMultiSourceExpander implements VariableExpander {
                 + varName + "]");
             return null;
         }
-	}
-	/**
-	 * @return
-	 */
-	public boolean isEnvironmentFallback() {
-		return environmentFallback;
-	}
+        }
+        /**
+         * @return
+         */
+        public boolean isEnvironmentFallback() {
+                return environmentFallback;
+        }
 
-	/**
-	 * @return
-	 */
-	public List getSources() {
-		return sources;
-	}
+        /**
+         * @return
+         */
+        public List getSources() {
+                return sources;
+        }
 
-	/**
-	 * @param b
-	 */
-	public void setEnvironmentFallback(boolean b) {
-		environmentFallback = b;
-	}
+        /**
+         * @param b
+         */
+        public void setEnvironmentFallback(boolean b) {
+                environmentFallback = b;
+        }
 
-	/**
-	 * @param list
-	 */
-	public void setSources(List list) {
-		sources = list;
-	}
+        /**
+         * @param list
+         */
+        public void setSources(List list) {
+                sources = list;
+        }
 
 }

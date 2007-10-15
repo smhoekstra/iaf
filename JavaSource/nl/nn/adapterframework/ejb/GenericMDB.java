@@ -1,6 +1,9 @@
 /*
  * $Log: GenericMDB.java,v $
- * Revision 1.1.2.5  2007-10-12 11:53:42  europe\M00035F
+ * Revision 1.1.2.6  2007-10-15 11:35:51  europe\M00035F
+ * Fix direct retrieving of Logger w/o using the LogUtil
+ *
+ * Revision 1.1.2.5  2007/10/12 11:53:42  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Add variable to indicate to MDB if it's transactions are container-managed, or bean-managed
  *
  * Revision 1.1.2.4  2007/10/10 14:30:43  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -24,6 +27,7 @@ import nl.nn.adapterframework.core.IAdapter;
 import nl.nn.adapterframework.core.ListenerException;
 import nl.nn.adapterframework.jms.JmsListener;
 import nl.nn.adapterframework.receivers.GenericReceiver;
+import nl.nn.adapterframework.util.LogUtil;
 import org.apache.log4j.Logger;
 import org.springframework.jndi.JndiLookupFailureException;
 
@@ -33,7 +37,7 @@ import org.springframework.jndi.JndiLookupFailureException;
  * @version Id
  */
 public class GenericMDB extends AbstractEJBBase implements MessageDrivenBean, MessageListener {
-    private final static Logger log = Logger.getLogger(GenericMDB.class);
+    private final static Logger log = LogUtil.getLogger(GenericMDB.class);
     
     protected MessageDrivenContext ejbContext;
     protected JmsListener listener;
