@@ -1,6 +1,9 @@
 /*
  * $Log: PipeLine.java,v $
- * Revision 1.45.2.5  2007-10-10 14:30:40  europe\L190409
+ * Revision 1.45.2.6  2007-10-15 14:08:01  europe\M00035F
+ * No longer use JtaUtil to look up transaction status and tx attribute compatibility, since the Jta UserTransaction cannot be looked up when running in EJB container under Container-Managed transactions.
+ *
+ * Revision 1.45.2.5  2007/10/10 14:30:40  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * synchronize with HEAD (4.8-alpha1)
  *
  * Revision 1.49  2007/10/10 07:57:40  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -234,7 +237,7 @@ import org.apache.log4j.Logger;
  * @author  Johan Verrips
  */
 public class PipeLine {
-	public static final String version = "$RCSfile: PipeLine.java,v $ $Revision: 1.45.2.5 $ $Date: 2007-10-10 14:30:40 $";
+	public static final String version = "$RCSfile: PipeLine.java,v $ $Revision: 1.45.2.6 $ $Date: 2007-10-15 14:08:01 $";
     private Logger log = LogUtil.getLogger(this);
 	private Logger durationLog = LogUtil.getLogger("LongDurationMessages");
     
@@ -428,18 +431,16 @@ public class PipeLine {
 		}
 		pipeLineSession.set(message, messageId);
         
-        boolean compatible;
-		if (log.isDebugEnabled()) log.debug("evaluating transaction status ["+JtaUtil.displayTransactionStatus()+"], transaction attribute ["+getTransactionAttribute()+"], messageId ["+messageId+"]");
-		try {
-			compatible=JtaUtil.transactionStateCompatible(getTransactionAttributeNum());
-		} catch (Exception t) {
-			throw new PipeRunException(null,"exception evaluating transaction status, transaction attribute ["+getTransactionAttribute()+"], messageId ["+messageId+"]",t);
-		}
-		if (!compatible) {
-			throw new PipeRunException(null,"transaction state ["+JtaUtil.displayTransactionStatus()+"] not compatible with transaction attribute ["+getTransactionAttribute()+"], messageId ["+messageId+"]");
-		}
 		if (log.isDebugEnabled()) log.debug("PipeLine transactionAttribute ["+getTransactionAttribute()+"]");
-        return runPipeLineObeyingTransactionAttribute(message, messageId, pipeLineSession);
+        try {
+            return runPipeLineObeyingTransactionAttribute(
+                message,
+                messageId,
+                pipeLineSession);
+        } catch (RuntimeException e) {
+            throw new PipeRunException(null, "RuntimeException calling PipeLine with tx attribute '"
+                + getTransactionAttribute() + "'", e);
+        }
 	}
     
     protected PipeLineResult runPipeLineObeyingTransactionAttribute(String messageId, String message, PipeLineSession session) throws PipeRunException {
@@ -618,6 +619,10 @@ public class PipeLine {
 				} catch (PipeRunException pre) {
 					TracingUtil.exceptionEvent(pipeToRun);
 					throw pre;
+				} catch (RuntimeException re) {
+					TracingUtil.exceptionEvent(pipeToRun);
+					throw new PipeRunException(pipeToRun, "Uncaught runtime exception running pipe '"
+                            + pipeToRun.getName() + "'", re);
 				} finally {
 					TracingUtil.afterEvent(pipeToRun);
 					if (pe!=null) {
