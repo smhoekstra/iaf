@@ -1,6 +1,9 @@
 /*
  * $Log: IbisManager.java,v $
- * Revision 1.1.2.4  2007-10-10 14:30:41  europe\L190409
+ * Revision 1.1.2.5  2007-10-15 09:51:57  europe\M00035F
+ * Add back transaction-management to BrowseExecute action
+ *
+ * Revision 1.1.2.4  2007/10/10 14:30:41  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * synchronize with HEAD (4.8-alpha1)
  *
  * Revision 1.2  2007/10/09 15:29:43  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -11,6 +14,7 @@
 package nl.nn.adapterframework.configuration;
 
 import nl.nn.adapterframework.core.IAdapter;
+import org.springframework.transaction.PlatformTransactionManager;
 
 /**
  * 
@@ -38,4 +42,5 @@ public interface IbisManager {
     
     String getDeploymentModeString();
     int getDeploymentMode();
+    PlatformTransactionManager getTransactionManager();
 }

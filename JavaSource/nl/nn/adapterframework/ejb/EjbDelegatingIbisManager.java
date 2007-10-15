@@ -1,6 +1,9 @@
 /*
  * $Log: EjbDelegatingIbisManager.java,v $
- * Revision 1.1.2.7  2007-10-15 09:20:16  europe\M00035F
+ * Revision 1.1.2.8  2007-10-15 09:51:57  europe\M00035F
+ * Add back transaction-management to BrowseExecute action
+ *
+ * Revision 1.1.2.7  2007/10/15 09:20:16  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Update logging
  *
  * Revision 1.1.2.6  2007/10/12 14:29:31  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -28,6 +31,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.ejb.access.LocalStatelessSessionProxyFactoryBean;
+import org.springframework.transaction.PlatformTransactionManager;
 
 /**
  * @author  Tim van der Leeuw
@@ -46,6 +50,7 @@ public class EjbDelegatingIbisManager implements IbisManager, BeanFactoryAware {
     private IbisManager ibisManager;
     private BeanFactory beanFactory;
     private XPathUtil xPathUtil;
+    private PlatformTransactionManager transactionManager;
     
     protected synchronized IbisManager getIbisManager() {
         if (this.ibisManager == null) {
@@ -155,4 +160,11 @@ public class EjbDelegatingIbisManager implements IbisManager, BeanFactoryAware {
         this.xPathUtil = xPathUtil;
     }
 
+    public PlatformTransactionManager getTransactionManager() {
+        return this.transactionManager;
+    }
+
+    public void setTransactionManager(PlatformTransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
+    }
 }

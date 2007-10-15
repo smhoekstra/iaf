@@ -1,6 +1,9 @@
 /*
  * $Log: IbisManagerEjbBean.java,v $
- * Revision 1.1.2.2  2007-10-10 14:30:43  europe\L190409
+ * Revision 1.1.2.3  2007-10-15 09:51:57  europe\M00035F
+ * Add back transaction-management to BrowseExecute action
+ *
+ * Revision 1.1.2.2  2007/10/10 14:30:43  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * synchronize with HEAD (4.8-alpha1)
  *
  * Revision 1.2  2007/10/09 16:07:37  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -19,6 +22,7 @@ import nl.nn.adapterframework.configuration.Configuration;
 import nl.nn.adapterframework.configuration.IbisManager;
 import nl.nn.adapterframework.core.IAdapter;
 import org.apache.log4j.Logger;
+import org.springframework.transaction.PlatformTransactionManager;
 
 /**
  * EJB layer around the IbisManager implementation which is defined in the
@@ -94,6 +98,10 @@ public class IbisManagerEjbBean extends AbstractEJBBase implements SessionBean, 
 
     public int getDeploymentMode() {
         return manager.getDeploymentMode();
+    }
+
+    public PlatformTransactionManager getTransactionManager() {
+        return manager.getTransactionManager();
     }
 
 }
