@@ -18,13 +18,13 @@ public class XPathUtilJaxp extends AbstractXPathUtil implements XPathUtil {
      * Parse XML file 'in' using given XPath expression and
      * return the result as a list of strings.
      */
-    public List parseXpath(String xpathExpression, InputStream in) throws IbisException {
+    public String parseXpathToString(String xpathExpression, InputStream in) throws IbisException {
         try {
             XPath xpath = XPathFactory.newInstance().newXPath();
             InputSource inputSource = new InputSource(in);
             NodeList nodes = (NodeList) xpath.evaluate(xpathExpression, inputSource, XPathConstants.NODESET);
             List result = makeListFromNodeList(nodes);
-            return result;
+            return listToString(result);
         } catch (Exception ex) {
             throw new IbisException("Cannot parse XPath expression '" + xpathExpression
                 + "' against XML file", ex);
