@@ -1,6 +1,9 @@
 /*
  * $Log: IbisManagerEjbBean.java,v $
- * Revision 1.1.2.4  2007-10-15 11:35:51  europe\M00035F
+ * Revision 1.1.2.5  2007-10-15 14:01:19  europe\M00035F
+ * Add some logging so we can trace that the bean exists
+ *
+ * Revision 1.1.2.4  2007/10/15 11:35:51  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Fix direct retrieving of Logger w/o using the LogUtil
  *
  * Revision 1.1.2.3  2007/10/15 09:51:57  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -44,7 +47,13 @@ public class IbisManagerEjbBean extends AbstractEJBBase implements SessionBean, 
     
     SessionContext sessionContext;
     
+    public IbisManagerEjbBean() {
+        super();
+        log.info("Created IbisManagerEjbBean instance");
+    }
+    
     public void setSessionContext(SessionContext sessionContext) throws EJBException, RemoteException {
+        log.info("Set session context for IbisManagerEjb");
         this.sessionContext = sessionContext;
     }
     
