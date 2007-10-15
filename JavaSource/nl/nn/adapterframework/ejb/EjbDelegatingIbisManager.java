@@ -1,6 +1,9 @@
 /*
  * $Log: EjbDelegatingIbisManager.java,v $
- * Revision 1.1.2.9  2007-10-15 11:35:51  europe\M00035F
+ * Revision 1.1.2.10  2007-10-15 14:02:00  europe\M00035F
+ * Look up bean in component local namespace instead of global JNDI namespace, since former didn't work as expected
+ *
+ * Revision 1.1.2.9  2007/10/15 11:35:51  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Fix direct retrieving of Logger w/o using the LogUtil
  *
  * Revision 1.1.2.8  2007/10/15 09:51:57  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -45,10 +48,9 @@ public class EjbDelegatingIbisManager implements IbisManager, BeanFactoryAware {
     private final static Logger log = LogUtil.getLogger(EjbDelegatingIbisManager.class);
     
     private static final String FACTORY_BEAN_ID = "&ibisManagerEjb";
-    private static final String JNDI_NAME_PREFIX = "ejb/ibis/IbisManager/";
+    private static final String JNDI_NAME_PREFIX = "java:comp/env/ejb/IbisManager";
     
     private final static String CONFIG_NAME_XPATH = "/child::*/@configurationName";
-//    private final static String CONFIG_NAME_XPATH = "//@configurationName";
     
     private String configurationName;
     private IbisManager ibisManager;
@@ -65,7 +67,8 @@ public class EjbDelegatingIbisManager implements IbisManager, BeanFactoryAware {
             // Look it up via EJB, using JNDI Name based on configuration name
             LocalStatelessSessionProxyFactoryBean factoryBean = 
                     (LocalStatelessSessionProxyFactoryBean) beanFactory.getBean(FACTORY_BEAN_ID);
-            String beanJndiName = JNDI_NAME_PREFIX + configurationName.replace(' ', '-');
+//            String beanJndiName = JNDI_NAME_PREFIX + configurationName.replace(' ', '-');
+            String beanJndiName = JNDI_NAME_PREFIX;
             factoryBean.setJndiName(beanJndiName);
             this.ibisManager = (IbisManager) factoryBean.getObject();
             log.info("Looked up IbisManagerEjb at JNDI location '" + beanJndiName + "'");
