@@ -1,6 +1,9 @@
 /*
  * $Log: AbstractEJBBase.java,v $
- * Revision 1.1.2.3  2007-10-12 11:53:42  europe\M00035F
+ * Revision 1.1.2.4  2007-10-15 08:37:29  europe\M00035F
+ * Use LogUtil for retrieving logging-instance
+ *
+ * Revision 1.1.2.3  2007/10/12 11:53:42  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Add variable to indicate to MDB if it's transactions are container-managed, or bean-managed
  *
  * Revision 1.1.2.2  2007/10/10 14:30:43  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -19,6 +22,7 @@ import javax.naming.NamingException;
 import nl.nn.adapterframework.configuration.Configuration;
 import nl.nn.adapterframework.configuration.IbisMain;
 import nl.nn.adapterframework.configuration.IbisManager;
+import nl.nn.adapterframework.util.LogUtil;
 import org.apache.log4j.Logger;
 import org.springframework.jndi.JndiLookupFailureException;
 
@@ -30,7 +34,7 @@ import org.springframework.jndi.JndiLookupFailureException;
  */
 abstract public class AbstractEJBBase {
     public static final String COMP_ENV_JNDI_PREFIX = "java:comp/env/";
-    private final static Logger log = Logger.getLogger(AbstractEJBBase.class);
+    private final static Logger log = LogUtil.getLogger(AbstractEJBBase.class);
     
     protected static IbisMain main;
     protected static IbisManager manager;
