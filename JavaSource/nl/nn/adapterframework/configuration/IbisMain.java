@@ -1,6 +1,9 @@
 /*
  * $Log: IbisMain.java,v $
- * Revision 1.1.2.9  2007-10-15 08:35:29  europe\M00035F
+ * Revision 1.1.2.10  2007-10-15 13:01:00  europe\M00035F
+ * Suppress message that Ibis internal MBean server is running when it isn't
+ *
+ * Revision 1.1.2.9  2007/10/15 08:35:29  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Fix NPE in ConfigurationServlet
  *
  * Revision 1.1.2.8  2007/10/12 14:29:31  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -131,8 +134,10 @@ public class IbisMain {
 		  server.invoke(html.getObjectName(), "start", new Object[0], new String[0]);
         } catch (ReflectionException e ) {
             log.error("Requested JMX Server MBean can not be created; JMX not available.");
+            return;
         } catch (Exception e) {
 		    log.error("Error with jmx:",e);
+            return;
 		}
 		log.info("MBean server up and running. Monitor your application by pointing your browser to http://localhost:8082");
 	}
