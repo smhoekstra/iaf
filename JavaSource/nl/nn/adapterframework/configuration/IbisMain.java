@@ -1,6 +1,9 @@
 /*
  * $Log: IbisMain.java,v $
- * Revision 1.1.2.8  2007-10-12 14:29:31  europe\M00035F
+ * Revision 1.1.2.9  2007-10-15 08:35:29  europe\M00035F
+ * Fix NPE in ConfigurationServlet
+ *
+ * Revision 1.1.2.8  2007/10/12 14:29:31  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Several fixes and improvements to get EJB deployment mode running
  *
  * Revision 1.1.2.7  2007/10/10 14:30:40  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -105,7 +108,7 @@ public class IbisMain {
         
         ibisManager.loadConfigurationFile(configurationFile);
         
-        if (autoStart.equalsIgnoreCase("TRUE")) {
+        if ("TRUE".equalsIgnoreCase(autoStart)) {
             log.info("* IBIS Startup: Starting adapters");
             ibisManager.startIbis();
         }
