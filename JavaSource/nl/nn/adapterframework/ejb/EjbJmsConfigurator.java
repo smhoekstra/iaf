@@ -1,6 +1,9 @@
 /*
  * $Log: EjbJmsConfigurator.java,v $
- * Revision 1.1.2.4  2007-10-12 14:29:31  europe\M00035F
+ * Revision 1.1.2.5  2007-10-15 08:36:31  europe\M00035F
+ * Fix lookup of JMX MBean for ListenerPort
+ *
+ * Revision 1.1.2.4  2007/10/12 14:29:31  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Several fixes and improvements to get EJB deployment mode running
  *
  * Revision 1.1.2.3  2007/10/10 14:30:43  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -86,14 +89,16 @@ public class EjbJmsConfigurator implements IJmsConfigurator {
         try {
             // Get the admin service
             AdminService as = getAdminService();
+            String listenerPortName = getListenerPortName(jmsListener);
             
             // Create ObjectName instance to search for
-            Hashtable queryProperties = new Hashtable();
-            String listenerPortName = getListenerPortName(jmsListener);
-            queryProperties.put("name",listenerPortName);
-            queryProperties.put("type", "ListenerPort");
-            ObjectName queryName = new ObjectName("WebSphere", queryProperties);
+//            Hashtable queryProperties = new Hashtable();
+//            queryProperties.put("name",listenerPortName);
+//            queryProperties.put("type", "ListenerPort");
+//            ObjectName queryName = new ObjectName("WebSphere", queryProperties);
             
+            ObjectName queryName = new ObjectName("WebSphere:type=ListenerPort,name="
+                    + listenerPortName + ",*");
             // Query AdminService for the name
             Set names = as.queryNames(queryName, null);
             
