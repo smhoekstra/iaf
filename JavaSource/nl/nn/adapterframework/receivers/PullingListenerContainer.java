@@ -1,6 +1,9 @@
 /*
  * $Log: PullingListenerContainer.java,v $
- * Revision 1.3  2007-10-16 13:02:09  europe\M00035F
+ * Revision 1.2.2.1  2007-10-16 13:32:59  europe\M00035F
+ * Merge changes from HEAD
+ *
+ * Revision 1.3  2007/10/16 13:02:09  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Add ReceiverBaseSpring from EJB branch
  *
  * Revision 1.2  2007/10/10 08:53:18  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>

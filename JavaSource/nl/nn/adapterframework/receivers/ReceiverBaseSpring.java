@@ -1,6 +1,9 @@
 /*
  * $Log: ReceiverBaseSpring.java,v $
- * Revision 1.1  2007-10-16 13:02:09  europe\M00035F
+ * Revision 1.1.2.1  2007-10-16 13:32:59  europe\M00035F
+ * Merge changes from HEAD
+ *
+ * Revision 1.1  2007/10/16 13:02:09  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Add ReceiverBaseSpring from EJB branch
  *
  * Revision 1.44.2.12  2007/09/28 13:38:13  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -323,7 +326,7 @@ public class ReceiverBaseSpring implements IReceiver, IReceiverStatistics, IMess
 	private final static TransactionDefinition TXREQUIRED = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRED);
 	private final static TransactionDefinition TXSUPPORTS = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_SUPPORTS);
     
-	public static final String version="$RCSfile: ReceiverBaseSpring.java,v $ $Revision: 1.1 $ $Date: 2007-10-16 13:02:09 $";
+	public static final String version="$RCSfile: ReceiverBaseSpring.java,v $ $Revision: 1.1.2.1 $ $Date: 2007-10-16 13:32:59 $";
 	protected Logger log = LogUtil.getLogger(this);
     
 	private BeanFactory beanFactory;

@@ -1,6 +1,9 @@
 /*
  * $Log: ReceiverBase.java,v $
- * Revision 1.54  2007-10-16 12:40:36  europe\L190409
+ * Revision 1.53.2.1  2007-10-16 13:32:59  europe\M00035F
+ * Merge changes from HEAD
+ *
+ * Revision 1.54  2007/10/16 12:40:36  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * moved code to ReceiverBaseClassic
  *
  * Revision 1.53  2007/10/10 08:53:00  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
