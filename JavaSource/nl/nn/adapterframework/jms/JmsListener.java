@@ -1,6 +1,9 @@
 /*
  * $Log: JmsListener.java,v $
- * Revision 1.28  2007-10-16 09:52:35  europe\M00035F
+ * Revision 1.28.2.1  2007-10-16 14:18:08  europe\M00035F
+ * Apply changes required to use Spring based JmsListener, Receiver and to disable JtaUtil for commits, tx status checking
+ *
+ * Revision 1.28  2007/10/16 09:52:35  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Change over JmsListener to a 'switch-class' to facilitate smoother switchover from older version to spring version
  *
  * 
@@ -73,6 +76,6 @@ package nl.nn.adapterframework.jms;
  * @author Gerrit van Brakel
  * @since 4.0.1, since 4.8 as 'switch'-class
  */
-public class JmsListener extends PullingJmsListener {
+public class JmsListener extends PushingJmsListener {
 
 }

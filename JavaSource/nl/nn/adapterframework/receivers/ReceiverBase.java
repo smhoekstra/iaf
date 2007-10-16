@@ -1,6 +1,9 @@
 /*
  * $Log: ReceiverBase.java,v $
- * Revision 1.53.2.1  2007-10-16 13:32:59  europe\M00035F
+ * Revision 1.53.2.2  2007-10-16 14:18:09  europe\M00035F
+ * Apply changes required to use Spring based JmsListener, Receiver and to disable JtaUtil for commits, tx status checking
+ *
+ * Revision 1.53.2.1  2007/10/16 13:32:59  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Merge changes from HEAD
  *
  * Revision 1.54  2007/10/16 12:40:36  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -255,5 +258,5 @@ import nl.nn.adapterframework.util.TracingEventNumbers;
  * @author     Gerrit van Brakel
  * @since 4.2
  */
-public class ReceiverBase extends ReceiverBaseClassic {
+public class ReceiverBase extends ReceiverBaseSpring {
 }

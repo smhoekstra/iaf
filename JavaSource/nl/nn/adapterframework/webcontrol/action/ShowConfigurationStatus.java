@@ -1,6 +1,9 @@
 /*
  * $Log: ShowConfigurationStatus.java,v $
- * Revision 1.10  2007-10-08 12:26:12  europe\L190409
+ * Revision 1.10.2.1  2007-10-16 14:18:09  europe\M00035F
+ * Apply changes required to use Spring based JmsListener, Receiver and to disable JtaUtil for commits, tx status checking
+ *
+ * Revision 1.10  2007/10/08 12:26:12  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * corrected date formatting
  *
  * Revision 1.9  2007/10/02 09:19:50  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -54,7 +57,7 @@ import org.apache.struts.action.ActionMapping;
  * @version Id
  */
 public final class ShowConfigurationStatus extends ActionBase {
-	public static final String version = "$RCSfile: ShowConfigurationStatus.java,v $ $Revision: 1.10 $ $Date: 2007-10-08 12:26:12 $";
+	public static final String version = "$RCSfile: ShowConfigurationStatus.java,v $ $Revision: 1.10.2.1 $ $Date: 2007-10-16 14:18:09 $";
 
 	public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
@@ -105,7 +108,7 @@ public final class ShowConfigurationStatus extends ActionBase {
 							String pd = ((HasPhysicalDestination)rb.getListener()).getPhysicalDestinationName();
 							receiverXML.addAttribute("listenerDestination", pd);
 						}
-						receiverXML.addAttribute("hasInprocessStorage", ""+(rb.getInProcessStorage()!=null));
+						receiverXML.addAttribute("hasInprocessStorage", "false");
 						receiverXML.addAttribute("hasErrorStorage", ""+(rb.getErrorStorage()!=null));
 						receiverXML.addAttribute("hasMessageLog", ""+(rb.getMessageLog()!=null));
 					}

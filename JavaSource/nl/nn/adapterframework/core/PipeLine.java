@@ -1,6 +1,9 @@
 /*
  * $Log: PipeLine.java,v $
- * Revision 1.50  2007-10-16 07:51:52  europe\L190409
+ * Revision 1.50.2.1  2007-10-16 14:18:09  europe\M00035F
+ * Apply changes required to use Spring based JmsListener, Receiver and to disable JtaUtil for commits, tx status checking
+ *
+ * Revision 1.50  2007/10/16 07:51:52  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * fixed argument order in pipelineexecute
  *
  * Revision 1.49  2007/10/10 07:57:40  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -234,7 +237,7 @@ import org.apache.log4j.Logger;
  * @author  Johan Verrips
  */
 public class PipeLine {
-	public static final String version = "$RCSfile: PipeLine.java,v $ $Revision: 1.50 $ $Date: 2007-10-16 07:51:52 $";
+	public static final String version = "$RCSfile: PipeLine.java,v $ $Revision: 1.50.2.1 $ $Date: 2007-10-16 14:18:09 $";
     private Logger log = LogUtil.getLogger(this);
 	private Logger durationLog = LogUtil.getLogger("LongDurationMessages");
     
@@ -426,7 +429,6 @@ public class PipeLine {
 		if (message == null) {
 			throw new PipeRunException(null, "Pipeline of adapter ["+ owner.getName()+"] received null message");
 		}
-		// TODO: check where this comes from
 		//pipeLineSession.set(message, messageId);
         
         boolean compatible;
@@ -440,7 +442,15 @@ public class PipeLine {
 			throw new PipeRunException(null,"transaction state ["+JtaUtil.displayTransactionStatus()+"] not compatible with transaction attribute ["+getTransactionAttribute()+"], messageId ["+messageId+"]");
 		}
 		if (log.isDebugEnabled()) log.debug("PipeLine transactionAttribute ["+getTransactionAttribute()+"]");
-        return runPipeLineObeyingTransactionAttribute(messageId, message, pipeLineSession);
+        try {
+            return runPipeLineObeyingTransactionAttribute(
+                messageId,
+                message,
+                pipeLineSession);
+        } catch (RuntimeException e) {
+            throw new PipeRunException(null, "RuntimeException calling PipeLine with tx attribute '"
+                + getTransactionAttribute() + "'", e);
+        }
 	}
     
     protected PipeLineResult runPipeLineObeyingTransactionAttribute(String messageId, String message, PipeLineSession session) throws PipeRunException {
@@ -619,6 +629,10 @@ public class PipeLine {
 				} catch (PipeRunException pre) {
 					TracingUtil.exceptionEvent(pipeToRun);
 					throw pre;
+				} catch (RuntimeException re) {
+					TracingUtil.exceptionEvent(pipeToRun);
+					throw new PipeRunException(pipeToRun, "Uncaught runtime exception running pipe '"
+                            + pipeToRun.getName() + "'", re);
 				} finally {
 					TracingUtil.afterEvent(pipeToRun);
 					if (pe!=null) {
