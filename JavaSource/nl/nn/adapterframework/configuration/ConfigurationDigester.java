@@ -1,6 +1,6 @@
 /*
  * $Log: ConfigurationDigester.java,v $
- * Revision 1.17.2.1  2007-10-16 13:32:59  europe\M00035F
+ * Revision 1.17.2.2  2007-10-17 14:19:08  europe\M00035F
  * Merge changes from HEAD
  *
  * Revision 1.18  2007/10/16 13:18:30  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -100,7 +100,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
  * @see Configuration
  */
 abstract public class ConfigurationDigester implements BeanFactoryAware {
-	public static final String version = "$RCSfile: ConfigurationDigester.java,v $ $Revision: 1.17.2.1 $ $Date: 2007-10-16 13:32:59 $";
+	public static final String version = "$RCSfile: ConfigurationDigester.java,v $ $Revision: 1.17.2.2 $ $Date: 2007-10-17 14:19:08 $";
     protected static Logger log = LogUtil.getLogger(ConfigurationDigester.class);
 
 	private static final String CONFIGURATION_FILE_DEFAULT  = "Configuration.xml";

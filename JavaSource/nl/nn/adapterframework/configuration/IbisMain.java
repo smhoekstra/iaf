@@ -1,6 +1,6 @@
 /*
  * $Log: IbisMain.java,v $
- * Revision 1.4.2.1  2007-10-16 13:32:59  europe\M00035F
+ * Revision 1.4.2.2  2007-10-17 14:19:08  europe\M00035F
  * Merge changes from HEAD
  *
  * Revision 1.6  2007/10/16 13:18:03  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>

@@ -1,7 +1,13 @@
 /*
  * $Log: PipeLine.java,v $
- * Revision 1.50.2.1  2007-10-16 14:18:09  europe\M00035F
+ * Revision 1.50.2.2  2007-10-17 14:19:07  europe\M00035F
+ * Merge changes from HEAD
+ *
+ * Revision 1.50.2.1  2007/10/16 14:18:09  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Apply changes required to use Spring based JmsListener, Receiver and to disable JtaUtil for commits, tx status checking
+ *
+ * Revision 1.51  2007/10/17 09:27:02  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
+ * restore setting of message and messageId in the pipelinesession
  *
  * Revision 1.50  2007/10/16 07:51:52  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * fixed argument order in pipelineexecute
@@ -237,7 +243,7 @@ import org.apache.log4j.Logger;
  * @author  Johan Verrips
  */
 public class PipeLine {
-	public static final String version = "$RCSfile: PipeLine.java,v $ $Revision: 1.50.2.1 $ $Date: 2007-10-16 14:18:09 $";
+	public static final String version = "$RCSfile: PipeLine.java,v $ $Revision: 1.50.2.2 $ $Date: 2007-10-17 14:19:07 $";
     private Logger log = LogUtil.getLogger(this);
 	private Logger durationLog = LogUtil.getLogger("LongDurationMessages");
     
@@ -429,7 +435,8 @@ public class PipeLine {
 		if (message == null) {
 			throw new PipeRunException(null, "Pipeline of adapter ["+ owner.getName()+"] received null message");
 		}
-		//pipeLineSession.set(message, messageId);
+		// store message and messageId in the pipeLineSession
+		pipeLineSession.set(message, messageId);
         
         boolean compatible;
 		if (log.isDebugEnabled()) log.debug("evaluating transaction status ["+JtaUtil.displayTransactionStatus()+"], transaction attribute ["+getTransactionAttribute()+"], messageId ["+messageId+"]");

@@ -1,6 +1,6 @@
 /*
  * $Log: ReceiverBaseClassic.java,v $
- * Revision 1.1.2.1  2007-10-16 13:32:59  europe\M00035F
+ * Revision 1.1.2.2  2007-10-17 14:19:07  europe\M00035F
  * Merge changes from HEAD
  *
  * Revision 1.1  2007/10/16 12:40:36  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -308,7 +308,7 @@ import org.apache.log4j.Logger;
  * @since 4.2
  */
 public class ReceiverBaseClassic implements IReceiver, IReceiverStatistics, Runnable, IMessageHandler, IbisExceptionListener, HasSender, TracingEventNumbers {
-	public static final String version="$RCSfile: ReceiverBaseClassic.java,v $ $Revision: 1.1.2.1 $ $Date: 2007-10-16 13:32:59 $";
+	public static final String version="$RCSfile: ReceiverBaseClassic.java,v $ $Revision: 1.1.2.2 $ $Date: 2007-10-17 14:19:07 $";
 	protected Logger log = LogUtil.getLogger(this);
  
  	public static final String RCV_SHUTDOWN_MONITOR_EVENT_MSG ="RCVCLOSED Ibis Receiver shut down";
