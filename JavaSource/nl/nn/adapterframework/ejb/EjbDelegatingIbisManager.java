@@ -1,6 +1,9 @@
 /*
  * $Log: EjbDelegatingIbisManager.java,v $
- * Revision 1.5  2007-10-16 09:12:27  europe\M00035F
+ * Revision 1.5.2.1  2007-10-17 11:42:57  europe\M00035F
+ * Fix name by which EJB was looked up
+ *
+ * Revision 1.5  2007/10/16 09:12:27  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Merge with changes from EJB branch in preparation for creating new EJB brance
  *
  * Revision 1.4  2007/10/16 08:31:53  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -55,7 +58,7 @@ public class EjbDelegatingIbisManager implements IbisManager, BeanFactoryAware {
     private final static Logger log = LogUtil.getLogger(EjbDelegatingIbisManager.class);
     
     private static final String FACTORY_BEAN_ID = "&ibisManagerEjb";
-    private static final String JNDI_NAME_PREFIX = "java:comp/ejb/IbisManager";
+    private static final String JNDI_NAME_PREFIX = "java:comp/env/ejb/IbisManager";
     
     private IbisManager ibisManager;
     private BeanFactory beanFactory;
