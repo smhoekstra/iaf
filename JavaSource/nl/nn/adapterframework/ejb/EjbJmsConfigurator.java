@@ -1,6 +1,9 @@
 /*
  * $Log: EjbJmsConfigurator.java,v $
- * Revision 1.4  2007-10-16 09:52:35  europe\M00035F
+ * Revision 1.4.2.1  2007-10-23 09:46:11  europe\M00035F
+ * Add TODO item
+ *
+ * Revision 1.4  2007/10/16 09:52:35  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Change over JmsListener to a 'switch-class' to facilitate smoother switchover from older version to spring version
  *
  * Revision 1.3  2007/10/15 13:08:38  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -61,6 +64,7 @@ public class EjbJmsConfigurator implements IJmsConfigurator {
         try {
             this.jmsListener = jmsListener;
             this.listenerPortMBean = lookupListenerPortMBean(jmsListener);
+            // TODO: Verification that the ListenerPort is configured same as JmsListener
             String destinationName = (String) getAdminService().getAttribute(listenerPortMBean, "jmsDestJNDIName");
             Context ctx = new InitialContext();
             this.destination = (Destination) ctx.lookup(destinationName);
