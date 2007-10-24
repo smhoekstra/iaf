@@ -1,6 +1,6 @@
 /*
  * $Log: IfsaProviderListener.java,v $
- * Revision 1.2.2.1  2007-10-17 14:19:07  europe\M00035F
+ * Revision 1.2.2.2  2007-10-24 09:39:50  europe\M00035F
  * Merge changes from HEAD
  *
  * Revision 1.3  2007/10/17 09:32:49  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -209,7 +209,7 @@ import com.ing.ifsa.IFSATextMessage;
  * @version Id
  */
 public class IfsaProviderListener extends IfsaFacade implements IPullingListener, INamedObject, RunStateEnquiring {
-	public static final String version = "$RCSfile: IfsaProviderListener.java,v $ $Revision: 1.2.2.1 $ $Date: 2007-10-17 14:19:07 $";
+	public static final String version = "$RCSfile: IfsaProviderListener.java,v $ $Revision: 1.2.2.2 $ $Date: 2007-10-24 09:39:50 $";
 
     private final static String THREAD_CONTEXT_SESSION_KEY = "session";
     private final static String THREAD_CONTEXT_RECEIVER_KEY = "receiver";

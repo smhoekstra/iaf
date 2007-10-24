@@ -1,7 +1,13 @@
 /*
  * $Log: PullingListenerContainer.java,v $
- * Revision 1.2.2.2  2007-10-17 14:19:07  europe\M00035F
+ * Revision 1.2.2.3  2007-10-24 09:39:49  europe\M00035F
  * Merge changes from HEAD
+ *
+ * Revision 1.5  2007/10/18 15:56:11  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
+ * added pollInterval handling
+ *
+ * Revision 1.4  2007/10/17 10:49:37  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
+ * added getter and setter for txManager
  *
  * Revision 1.4  2007/10/17 10:49:37  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * added getter and setter for txManager
@@ -164,6 +170,12 @@ public class PullingListenerContainer implements Runnable {
                     if (txStatus != null && !txStatus.isCompleted()) {
                         txManager.rollback(txStatus);
                     }
+					if (receiver.getPollInterval()>0) {
+						for (int i=0; i<receiver.getPollInterval() && receiver.isInRunState(RunStateEnum.STARTED); i++) {
+							Thread.sleep(1000);
+						}
+					}
+
                 }
             }
         } catch (Throwable e) {

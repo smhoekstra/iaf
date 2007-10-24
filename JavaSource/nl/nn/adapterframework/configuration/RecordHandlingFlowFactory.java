@@ -1,7 +1,14 @@
 /*
  * $Log: RecordHandlingFlowFactory.java,v $
- * Revision 1.2  2007-10-09 15:29:43  europe\L190409
+ * Revision 1.2.2.1  2007-10-24 09:39:48  europe\M00035F
+ * Merge changes from HEAD
+ *
+ * Revision 1.3  2007/10/24 07:13:21  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
+ * Rename abstract method 'getBeanName()' to 'getSuggestedBeanName()' since it better reflects the role of the method in the class.
+ *
+ * Revision 1.2  2007/10/09 15:29:43  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * Direct copy from Ibis-EJB:
+
  * first version in HEAD
  *
  */
@@ -20,7 +27,7 @@ public class RecordHandlingFlowFactory
     /* (non-Javadoc)
      * @see nl.nn.adapterframework.configuration.AbstractSpringPoweredDigesterFactory#getBeanName()
      */
-    public String getBeanName() {
+    public String getSuggestedBeanName() {
         return "proto-RecordHandlingFlow";
     }
 

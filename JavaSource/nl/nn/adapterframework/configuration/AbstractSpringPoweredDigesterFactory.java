@@ -1,6 +1,21 @@
 /*
  * $Log: AbstractSpringPoweredDigesterFactory.java,v $
- * Revision 1.2  2007-10-09 16:02:37  europe\L190409
+ * Revision 1.2.2.1  2007-10-24 09:39:47  europe\M00035F
+ * Merge changes from HEAD
+ *
+ * Revision 1.6  2007/10/24 08:04:23  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
+ * Add logging for case when classname of Listener implementation is replaced
+ *
+ * Revision 1.5  2007/10/24 07:13:21  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
+ * Rename abstract method 'getBeanName()' to 'getSuggestedBeanName()' since it better reflects the role of the method in the class.
+ *
+ * Revision 1.4  2007/10/23 14:16:20  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
+ * Add some logging for improved debugging
+ *
+ * Revision 1.3  2007/10/22 14:38:35  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
+ * Refactor to better allow subclasses to override the createObject() method
+ *
+ * Revision 1.2  2007/10/09 16:02:37  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * Direct copy from Ibis-EJB:
  * first version in HEAD
  *
@@ -14,8 +29,14 @@
  */
 package nl.nn.adapterframework.configuration;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import nl.nn.adapterframework.util.LogUtil;
+
 import org.apache.commons.digester.AbstractObjectCreationFactory;
 import org.apache.commons.digester.ObjectCreationFactory;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -52,6 +73,7 @@ public abstract class AbstractSpringPoweredDigesterFactory
     implements ObjectCreationFactory {
 
     public static ListableBeanFactory factory;
+    protected final Logger log = LogUtil.getLogger(this);
     
     /**
      * 
@@ -61,20 +83,21 @@ public abstract class AbstractSpringPoweredDigesterFactory
     }
     
     /**
-     * Get the name of the bean which should be retrieved from
+     * Suggest the name of the bean which should be retrieved from
      * the Spring BeanFactory.
      * 
      * If a className attribute has also been specified in the XML,
      * then that takes precedence over finding a bean with given
-     * beanName.
+     * suggestedBeanName.
      * 
      * If for the className multiple bean-definitions are found in
      * the factory, then a bean is selected from those with this
-     * given bean-name. If no such bean exists, an error is thrown.
+     * given suggestedBeanName. If no such bean exists, an error is thrown
+     * because the factory can not select between multiple beans.
      * 
      * @return
      */
-    abstract public String getBeanName();
+    abstract public String getSuggestedBeanName();
     
     /**
      * Return <code>true</code> is only prototype beans from the
@@ -97,12 +120,12 @@ public abstract class AbstractSpringPoweredDigesterFactory
      * An object is created according to the following rules:
      * <ol>
      * <li>If <em>no</em> attribute 'className' is given in the configuration file,
-     * then the bean named with method getBeanName() is created from the
+     * then the bean named with method getSuggestedBeanName() is created from the
      * Spring context.</li>
      * <li>If exactly 1 bean of type given by 'className' attribute can be
      * found in the Spring context, an instance of that bean is created
      * from the Spring factory.<br/>
-     * The value returned by method getBeanName() is, in this case, 
+     * The value returned by method getSuggestedBeanName() is, in this case, 
      * not relevant.</li>
      * <li>If multiple beans of type given by 'className' attribute are
      * defined in the Spring context, then an instance is created whose 
@@ -124,13 +147,63 @@ public abstract class AbstractSpringPoweredDigesterFactory
      * @see org.apache.commons.digester.ObjectCreationFactory#createObject(org.xml.sax.Attributes)
      */
     public Object createObject(Attributes attrs) throws Exception {
-        String className = attrs.getValue("className");
+    	Map attrMap = copyAttrsToMap(attrs);
+        return createObject(attrMap);
+    }
+    
+    /**
+     * Create Object from Spring factory, but using the attributes
+     * from the XML converted to a Map. This is so that sub-classes
+     * can override this method and change attributes in the map
+     * before creating the object from the Spring factory.
+     * 
+     * @param attrs
+     * @return
+     * @throws Exception
+     */
+    protected Object createObject(Map attrs) throws Exception {
+        String className = (String) attrs.get("className");
+        if (log.isDebugEnabled()) {
+            log.debug(
+                "CreateObject: Element=["
+                    + getDigester().getCurrentElementName()
+                    + "], name=["
+                    + attrs.get("name")
+                    + "], Configured ClassName=["
+                    + className
+                    + "], Suggested Spring Bean Name=["
+                    + getSuggestedBeanName()
+                    + "]");
+        }
+        return createBeanFromClassName(className);
+    }
+
+    /**
+     * Given a class-name, create a bean. The classname-parameter can be
+     * <code>null</code>, in which case the bean is created using the
+     * bean-name returned by <code>getBeanName()</code>.
+     * 
+     * 
+     * @param className
+     * @return
+     * @throws ClassNotFoundException
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     * @throws ConfigurationException
+     */
+    protected Object createBeanFromClassName(String className)
+        throws
+            ClassNotFoundException,
+            InstantiationException,
+            IllegalAccessException,
+            ConfigurationException {
+        
         String beanName;
         Class beanClass;
         
         // No explicit classname given; get bean from Spring Factory
         if (className == null) {
-            beanName = getBeanName();
+            beanName = getSuggestedBeanName();
             beanClass = null;
         } else {
             // Get all beans matching the classname given
@@ -142,34 +215,47 @@ public abstract class AbstractSpringPoweredDigesterFactory
             } else if (matchingBeans.length > 1) {
                 // multiple beans; find if there's one with the
                 // same name as from 'getBeanName'.
-                beanName = getBeanName();
+                beanName = getSuggestedBeanName();
             } else {
                 // No beans matching the type.
                 // Create instance, and if the instance implements
                 // Spring's BeanFactoryAware interface, use it to
                 // set BeanFactory attribute on this Bean.
-                Object o = beanClass.newInstance();
-                if (factory instanceof AutowireCapableBeanFactory) {
-                    ((AutowireCapableBeanFactory)factory)
-                        .autowireBeanProperties(
-                            o, 
-                            AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
-                            false);
-                    o = ((AutowireCapableBeanFactory)factory).initializeBean(o, getBeanName());
-                } else if (o instanceof BeanFactoryAware) {
-                    ((BeanFactoryAware)o).setBeanFactory(factory);
-                }
-                return o;
+                return createBeanAndAutoWire(beanClass);
             }
         }
         
         // Only accept prototype-beans!
         if (isPrototypesOnly() && !factory.isPrototype(beanName)) {
-            throw new Exception("Beans created from the BeanFactory must be prototype-beans, bean '"
+            throw new ConfigurationException("Beans created from the BeanFactory must be prototype-beans, bean '"
                 + beanName + "' of class '" + className + "' is not.");
         }
         
         return factory.getBean(beanName, beanClass);
+    }
+
+    protected Object createBeanAndAutoWire(Class beanClass)
+        throws InstantiationException, IllegalAccessException {
+        Object o = beanClass.newInstance();
+        if (factory instanceof AutowireCapableBeanFactory) {
+            ((AutowireCapableBeanFactory)factory)
+                .autowireBeanProperties(
+                    o, 
+                    AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
+                    false);
+            o = ((AutowireCapableBeanFactory)factory).initializeBean(o, getSuggestedBeanName());
+        } else if (o instanceof BeanFactoryAware) {
+            ((BeanFactoryAware)o).setBeanFactory(factory);
+        }
+        return o;
+    }
+    
+    protected Map copyAttrsToMap(Attributes attrs) {
+    	Map map = new HashMap(attrs.getLength());
+    	for (int i=0;i<attrs.getLength();++i) {
+    		map.put(attrs.getQName(i), attrs.getValue(i));
+    	}
+    	return map;
     }
 
 }

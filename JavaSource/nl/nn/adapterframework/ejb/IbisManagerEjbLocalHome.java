@@ -1,6 +1,9 @@
 /*
  * $Log: IbisManagerEjbLocalHome.java,v $
- * Revision 1.2  2007-10-09 16:07:37  europe\L190409
+ * Revision 1.2.2.1  2007-10-24 09:39:47  europe\M00035F
+ * Merge changes from HEAD
+ *
+ * Revision 1.2  2007/10/09 16:07:37  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * Direct copy from Ibis-EJB:
  * first version in HEAD
  *

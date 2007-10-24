@@ -1,6 +1,9 @@
 /*
  * $Log: ReceiverBase.java,v $
- * Revision 1.53.2.2  2007-10-16 14:18:09  europe\M00035F
+ * Revision 1.53.2.3  2007-10-24 09:39:49  europe\M00035F
+ * Merge changes from HEAD
+ *
+ * Revision 1.53.2.2  2007/10/16 14:18:09  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Apply changes required to use Spring based JmsListener, Receiver and to disable JtaUtil for commits, tx status checking
  *
  * Revision 1.53.2.1  2007/10/16 13:32:59  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -112,7 +115,7 @@
  * introduced RunStateEnquiries
  *
  * Revision 1.20  2005/10/26 08:52:31  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
- * allow for transacted="true" without inProcessStorage, (ohne Gewähr!)
+ * allow for transacted="true" without inProcessStorage, (ohne Gewï¿½hr!)
  *
  * Revision 1.19  2005/10/17 11:29:24  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * fixed nullpointerexception in startRunning

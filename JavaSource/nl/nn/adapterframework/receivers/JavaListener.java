@@ -1,6 +1,9 @@
 /*
  * $Log: JavaListener.java,v $
- * Revision 1.25.4.1  2007-10-17 14:19:07  europe\M00035F
+ * Revision 1.25.4.2  2007-10-24 09:39:48  europe\M00035F
+ * Merge changes from HEAD
+ *
+ * Revision 1.25.4.1  2007/10/17 14:19:07  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Merge changes from HEAD
  *
  * Revision 1.26  2007/10/17 09:08:00  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -145,7 +148,7 @@ import org.apache.log4j.Logger;
  * @version Id
  */
 public class JavaListener implements IPushingListener, RequestProcessor, HasPhysicalDestination {
-	public static final String version="$RCSfile: JavaListener.java,v $ $Revision: 1.25.4.1 $ $Date: 2007-10-17 14:19:07 $";
+	public static final String version="$RCSfile: JavaListener.java,v $ $Revision: 1.25.4.2 $ $Date: 2007-10-24 09:39:48 $";
 	protected Logger log = LogUtil.getLogger(this);
 	
 	private String name;

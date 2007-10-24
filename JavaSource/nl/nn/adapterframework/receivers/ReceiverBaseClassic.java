@@ -1,7 +1,13 @@
 /*
  * $Log: ReceiverBaseClassic.java,v $
- * Revision 1.1.2.2  2007-10-17 14:19:07  europe\M00035F
+ * Revision 1.1.2.3  2007-10-24 09:39:49  europe\M00035F
  * Merge changes from HEAD
+ *
+ * Revision 1.3  2007/10/23 13:07:35  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
+ * Fix another NPE when no inProcessStorage is defined
+ *
+ * Revision 1.2  2007/10/23 12:53:20  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
+ * Fix NPE when no error-storage and no inprocess-storage have been defined, but only an error-sender
  *
  * Revision 1.1  2007/10/16 12:40:36  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * moved code to ReceiverBaseClassic
@@ -109,7 +115,7 @@
  * introduced RunStateEnquiries
  *
  * Revision 1.20  2005/10/26 08:52:31  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
- * allow for transacted="true" without inProcessStorage, (ohne Gewähr!)
+ * allow for transacted="true" without inProcessStorage, (ohne Gewï¿½hr!)
  *
  * Revision 1.19  2005/10/17 11:29:24  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * fixed nullpointerexception in startRunning
@@ -308,7 +314,7 @@ import org.apache.log4j.Logger;
  * @since 4.2
  */
 public class ReceiverBaseClassic implements IReceiver, IReceiverStatistics, Runnable, IMessageHandler, IbisExceptionListener, HasSender, TracingEventNumbers {
-	public static final String version="$RCSfile: ReceiverBaseClassic.java,v $ $Revision: 1.1.2.2 $ $Date: 2007-10-17 14:19:07 $";
+	public static final String version="$RCSfile: ReceiverBaseClassic.java,v $ $Revision: 1.1.2.3 $ $Date: 2007-10-24 09:39:49 $";
 	protected Logger log = LogUtil.getLogger(this);
  
  	public static final String RCV_SHUTDOWN_MONITOR_EVENT_MSG ="RCVCLOSED Ibis Receiver shut down";
@@ -590,7 +596,7 @@ public class ReceiverBaseClassic implements IReceiver, IReceiverStatistics, Runn
 //					if (errorStorage!=null && !(errorStorage instanceof IXAEnabled && ((IXAEnabled)errorStorage).isTransacted())) {
 //						warn("Receiver ["+getName()+"] sets transacted=true, but errorStorage is not. Transactional integrity is not guaranteed"); 
 //					}
-					if (errorStorage==inProcessStorage) {
+					if (errorStorage != null && errorStorage==inProcessStorage) {
 						info("Receiver ["+getName()+"] has errorStorage in inProcessStorage, setting inProcessStorage's type to 'errorStorage'");
 						errorStorage.setType("E"); 
 					}
@@ -1028,7 +1034,10 @@ public class ReceiverBaseClassic implements IReceiver, IReceiverStatistics, Runn
 			return;
 		}
 		try {
-			getInProcessStorage().deleteMessage(inProcessMessageId);
+			ITransactionalStorage inProcessStorage = getInProcessStorage();
+            if (inProcessStorage != null) {
+                inProcessStorage.deleteMessage(inProcessMessageId);
+            }
 			if (errorSender!=null) {
 				errorSender.sendMessage(correlationId, message);
 			} 
