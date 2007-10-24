@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   $Log: springUnmanagedDeployment.xml,v $
-  Revision 1.2.2.2  2007-10-24 09:39:50  europe\M00035F
+  Revision 1.2.2.3  2007-10-24 15:04:44  europe\M00035F
+  Let runstate of receivers/listeners follow the state of WebSphere ListenerPorts if they are changed outside the control of IBIS.
+
+  Revision 1.2.2.2  2007/10/24 09:39:50  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
   Merge changes from HEAD
 
   Revision 1.4  2007/10/24 08:08:08  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -23,6 +26,14 @@
             http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd
             ">
 
+    <!-- Scheduler (Quartz) -->
+    <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean"
+        autowire="byName">
+        <!-- Auto-wiring wires up bean named taskExecutor as threadpool implementation -->
+        <property name="autoStartup" value="false"/>
+        <property name="transactionManager" ref="txManager"/>
+    </bean>
+    
     <!-- IBIS Beans -->
     <bean name="ibisManager" class="nl.nn.adapterframework.unmanaged.DefaultIbisManager"
         autowire="byName">

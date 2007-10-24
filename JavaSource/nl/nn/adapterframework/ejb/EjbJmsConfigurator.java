@@ -1,6 +1,9 @@
 /*
  * $Log: EjbJmsConfigurator.java,v $
- * Revision 1.4.2.1  2007-10-23 09:46:11  europe\M00035F
+ * Revision 1.4.2.2  2007-10-24 15:04:44  europe\M00035F
+ * Let runstate of receivers/listeners follow the state of WebSphere ListenerPorts if they are changed outside the control of IBIS.
+ *
+ * Revision 1.4.2.1  2007/10/23 09:46:11  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Add TODO item
  *
  * Revision 1.4  2007/10/16 09:52:35  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -27,11 +30,14 @@ package nl.nn.adapterframework.ejb;
 
 import com.ibm.websphere.management.AdminService;
 import com.ibm.websphere.management.AdminServiceFactory;
-import java.util.Hashtable;
 import java.util.Set;
 import javax.jms.Destination;
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.ReflectionException;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import nl.nn.adapterframework.configuration.Configuration;
@@ -55,6 +61,8 @@ public class EjbJmsConfigurator implements IJmsConfigurator {
     private AdminService adminService;
     private Destination destination;
     private Configuration configuration;
+    private boolean closed;
+    private ListenerPortPoller listenerPortPoller;
     
     public Destination getDestination() {
         return destination;
@@ -68,6 +76,10 @@ public class EjbJmsConfigurator implements IJmsConfigurator {
             String destinationName = (String) getAdminService().getAttribute(listenerPortMBean, "jmsDestJNDIName");
             Context ctx = new InitialContext();
             this.destination = (Destination) ctx.lookup(destinationName);
+            
+            closed = isListenerPortClosed();
+            
+            listenerPortPoller.registerEjbJmsConfigurator(this);
         } catch (ConfigurationException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -78,6 +90,10 @@ public class EjbJmsConfigurator implements IJmsConfigurator {
     public void openJmsReceiver() throws ListenerException {
         try {
             getAdminService().invoke(listenerPortMBean, "start", null, null);
+            // Register again, to be sure, b/c a registration can have been
+            // removed by some other controlling code.
+            listenerPortPoller.registerEjbJmsConfigurator(this);
+            closed = false;
         } catch (Exception ex) {
             throw new ListenerException(ex);
         }
@@ -86,8 +102,18 @@ public class EjbJmsConfigurator implements IJmsConfigurator {
     public void closeJmsReceiver() throws ListenerException {
         try {
             getAdminService().invoke(listenerPortMBean, "stop", null, null);
+            closed = true;
         } catch (Exception ex) {
             throw new ListenerException(ex);
+        }
+    }
+
+    public boolean isListenerPortClosed() throws ConfigurationException {
+        try {
+            return !((Boolean)getAdminService().getAttribute(listenerPortMBean, "started")).booleanValue();
+        } catch (Exception ex) {
+            throw new ConfigurationException("Failure enquiring on state of Listener Port MBean '"
+                    + listenerPortMBean + "'", ex);
         }
     }
     
@@ -168,6 +194,22 @@ public class EjbJmsConfigurator implements IJmsConfigurator {
 
     public void setConfiguration(Configuration configuration) {
         this.configuration = configuration;
+    }
+
+    public boolean isClosed() {
+        return closed;
+    }
+
+    public PushingJmsListener getJmsListener() {
+        return jmsListener;
+    }
+
+    public ListenerPortPoller getListenerPortPoller() {
+        return listenerPortPoller;
+    }
+
+    public void setListenerPortPoller(ListenerPortPoller listenerPortPoller) {
+        this.listenerPortPoller = listenerPortPoller;
     }
 
 }

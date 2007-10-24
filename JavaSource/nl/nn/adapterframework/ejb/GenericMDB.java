@@ -1,6 +1,9 @@
 /*
  * $Log: GenericMDB.java,v $
- * Revision 1.4  2007-10-16 09:52:35  europe\M00035F
+ * Revision 1.4.2.1  2007-10-24 15:04:43  europe\M00035F
+ * Let runstate of receivers/listeners follow the state of WebSphere ListenerPorts if they are changed outside the control of IBIS.
+ *
+ * Revision 1.4  2007/10/16 09:52:35  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Change over JmsListener to a 'switch-class' to facilitate smoother switchover from older version to spring version
  *
  * Revision 1.3  2007/10/15 13:08:38  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -77,7 +80,6 @@ public class GenericMDB extends AbstractEJBBase implements MessageDrivenBean, Me
             GenericReceiver receiver = (GenericReceiver) this.listener.getHandler();
             this.listener.populateThreadContext(threadContext, null);
             receiver.processRawMessage(listener, rawMessage, threadContext);
-            throw new UnsupportedOperationException("Not supported yet.");
         } catch (ListenerException ex) {
             log.error(ex, ex);
             rollbackTransaction();

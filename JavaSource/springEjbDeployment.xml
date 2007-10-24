@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   $Log: springEjbDeployment.xml,v $
-  Revision 1.3  2007-10-15 13:17:14  europe\L190409
+  Revision 1.3.2.1  2007-10-24 15:04:44  europe\M00035F
+  Let runstate of receivers/listeners follow the state of WebSphere ListenerPorts if they are changed outside the control of IBIS.
+
+  Revision 1.3  2007/10/15 13:17:14  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
   added transactionManager property
 
   Revision 1.1.2.3  2007/10/15 09:51:58  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -24,7 +27,7 @@
             ">
 
     <!-- IBIS Beans -->
-    <bean name="ibisManager" class="nl.nn.adapterframework.unmanaged.DefaultIbisManager"
+    <bean id="ibisManager" class="nl.nn.adapterframework.unmanaged.DefaultIbisManager"
         autowire="byName">
         <property name="deploymentMode">
             <util:constant static-field="nl.nn.adapterframework.configuration.IbisManager.DEPLOYMENT_MODE_EJB"/>
@@ -32,7 +35,39 @@
         <property name="transactionManager" ref="txManager"/>
     </bean>
     
-    <bean name="jmsConfigurator" class="nl.nn.adapterframework.ejb.EjbJmsConfigurator"
+    <bean id="listenerPortPoller" class="nl.nn.adapterframework.ejb.ListenerPortPoller"
+        autowire="byName" scope="singleton">
+    </bean>
+    
+    <bean id="jmsConfigurator" class="nl.nn.adapterframework.ejb.EjbJmsConfigurator"
         autowire="byName" scope="prototype">
+    </bean>
+    
+    <!-- set up Quartz Job to run the ListenerPortPoller every 5 secodns -->
+    <bean id="portPollerJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="listenerPortPoller" />
+        <property name="targetMethod" value="poll" />
+    </bean>
+    
+    <bean id="portPollerTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+        <!-- see the job definition above -->
+        <property name="jobDetail" ref="portPollerJob" />
+        <!-- 10 seconds -->
+        <property name="startDelay" value="10000" />
+        <!-- repeat every 5 seconds -->
+        <property name="repeatInterval" value="5000" />
+    </bean>
+
+    <!-- Scheduler (Quartz) -->
+    <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean"
+        autowire="byName">
+        <!-- Auto-wiring wires up bean named taskExecutor as threadpool implementation -->
+        <property name="autoStartup" value="false"/>
+        <property name="transactionManager" ref="txManager"/>
+        <property name="triggers">
+            <list>
+                <ref bean="portPollerTrigger" />
+            </list>
+        </property>
     </bean>
 </beans>
