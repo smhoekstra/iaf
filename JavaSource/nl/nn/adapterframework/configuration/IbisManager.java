@@ -1,6 +1,11 @@
 /*
  * $Log: IbisManager.java,v $
- * Revision 1.3  2007-10-16 09:12:27  europe\M00035F
+ * Revision 1.3.2.1  2007-10-25 08:36:58  europe\M00035F
+ * Add shutdown method for IBIS which shuts down the scheduler too, and which unregisters all EjbJmsConfigurators from the ListenerPortPoller.
+ * Unregister JmsListener from ListenerPortPoller during ejbRemove method.
+ * Both changes are to facilitate more proper shutdown of the IBIS adapters.
+ *
+ * Revision 1.3  2007/10/16 09:12:27  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Merge with changes from EJB branch in preparation for creating new EJB brance
  *
  * Revision 1.1.2.5  2007/10/15 09:51:57  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -36,6 +41,7 @@ public interface IbisManager {
     Configuration getConfiguration();
     void handleAdapter(String action, String adapterName, String receiverName, String commandIssuedBy);
     void startIbis();
+    void shutdownIbis();
     void startAdapters();
     void stopAdapters();
     void startAdapter(IAdapter adapter);

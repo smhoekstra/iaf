@@ -1,6 +1,11 @@
 /*
  * $Log: DefaultIbisManager.java,v $
- * Revision 1.3  2007-10-16 09:12:27  europe\M00035F
+ * Revision 1.3.2.1  2007-10-25 08:36:58  europe\M00035F
+ * Add shutdown method for IBIS which shuts down the scheduler too, and which unregisters all EjbJmsConfigurators from the ListenerPortPoller.
+ * Unregister JmsListener from ListenerPortPoller during ejbRemove method.
+ * Both changes are to facilitate more proper shutdown of the IBIS adapters.
+ *
+ * Revision 1.3  2007/10/16 09:12:27  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Merge with changes from EJB branch in preparation for creating new EJB brance
  *
  * Revision 1.1.2.4  2007/10/15 09:51:58  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -26,6 +31,7 @@ import nl.nn.adapterframework.configuration.ConfigurationDigester;
 import nl.nn.adapterframework.configuration.IbisManager;
 import nl.nn.adapterframework.core.IAdapter;
 import nl.nn.adapterframework.core.IReceiver;
+import nl.nn.adapterframework.ejb.ListenerPortPoller;
 import nl.nn.adapterframework.pipes.IbisLocalSender;
 import nl.nn.adapterframework.scheduler.JobDef;
 import nl.nn.adapterframework.scheduler.SchedulerHelper;
@@ -45,15 +51,16 @@ import org.springframework.transaction.PlatformTransactionManager;
  * @version Id
  */
 public class DefaultIbisManager implements IbisManager {
-	protected Logger log=LogUtil.getLogger(this);
+    protected Logger log=LogUtil.getLogger(this);
 	
     public static final String DFLT_DIGESTER_RULES = "digester-rules.xml";
     
     private Configuration configuration;
     private ConfigurationDigester configurationDigester;
-	private SchedulerHelper schedulerHelper;
+    private SchedulerHelper schedulerHelper;
     private int deploymentMode;
     private PlatformTransactionManager transactionManager;
+    private ListenerPortPoller listenerPortPoller;
     
     protected final String[] deploymentModes = new String[] {DEPLOYMENT_MODE_UNMANAGED_STRING, DEPLOYMENT_MODE_EJB_STRING};
     
@@ -80,6 +87,14 @@ public class DefaultIbisManager implements IbisManager {
     public void startIbis() {
         startAdapters();
         startScheduledJobs();
+    }
+
+    public void shutdownIbis() {
+        stopAdapters();
+        shutdownScheduler();
+        if (listenerPortPoller != null) {
+            listenerPortPoller.clear();
+        }
     }
     
     /**
@@ -144,6 +159,15 @@ public class DefaultIbisManager implements IbisManager {
 //          ServiceDispatcher.getInstance().dispatchRequest(receiverName, "");
         }
     }
+    
+    public void shutdownScheduler() {
+        try {
+            schedulerHelper.getScheduler().shutdown();
+        } catch (SchedulerException e) {
+            log.error("Could not stop scheduler", e);
+        }
+    }
+    
     public void startScheduledJobs() {
         List scheduledJobs = configuration.getScheduledJobs();
         // TODO: ScheduleHelper: non-static class injected via Spring
@@ -156,12 +180,12 @@ public class DefaultIbisManager implements IbisManager {
                 log.error("Could not schedule job ["+jobdef.getName()+"]",e);
             }
 			
-		}
+        }
         try {
-			schedulerHelper.startScheduler();
-		} catch (SchedulerException e) {
+                schedulerHelper.startScheduler();
+        } catch (SchedulerException e) {
             log.error("Could not start scheduler", e);
-		}
+        }
     }
     
 	/* (non-Javadoc)
@@ -282,4 +306,11 @@ public class DefaultIbisManager implements IbisManager {
         this.transactionManager = transactionManager;
     }
 
+    public ListenerPortPoller getListenerPortPoller() {
+        return listenerPortPoller;
+    }
+
+    public void setListenerPortPoller(ListenerPortPoller listenerPortPoller) {
+        this.listenerPortPoller = listenerPortPoller;
+    }
 }

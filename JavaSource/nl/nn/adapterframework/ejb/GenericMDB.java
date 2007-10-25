@@ -1,6 +1,11 @@
 /*
  * $Log: GenericMDB.java,v $
- * Revision 1.4.2.1  2007-10-24 15:04:43  europe\M00035F
+ * Revision 1.4.2.2  2007-10-25 08:36:57  europe\M00035F
+ * Add shutdown method for IBIS which shuts down the scheduler too, and which unregisters all EjbJmsConfigurators from the ListenerPortPoller.
+ * Unregister JmsListener from ListenerPortPoller during ejbRemove method.
+ * Both changes are to facilitate more proper shutdown of the IBIS adapters.
+ *
+ * Revision 1.4.2.1  2007/10/24 15:04:43  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Let runstate of receivers/listeners follow the state of WebSphere ListenerPorts if they are changed outside the control of IBIS.
  *
  * Revision 1.4  2007/10/16 09:52:35  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -51,6 +56,7 @@ public class GenericMDB extends AbstractEJBBase implements MessageDrivenBean, Me
     protected MessageDrivenContext ejbContext;
     protected PushingJmsListener listener;
     protected boolean containerManagedTransactions;
+    protected ListenerPortPoller listenerPortPoller;
     
     public void setMessageDrivenContext(MessageDrivenContext ejbContext) throws EJBException {
         log.info("Received EJB-MDB Context");
@@ -65,6 +71,8 @@ public class GenericMDB extends AbstractEJBBase implements MessageDrivenBean, Me
     
     public void ejbRemove() throws EJBException {
         log.info("Removing MDB");
+        listenerPortPoller.unregisterEjbJmsConfigurator(
+                (EjbJmsConfigurator)listener.getJmsConfigurator());
     }
 
     public void onMessage(Message rawMessage) {
@@ -134,6 +142,14 @@ public class GenericMDB extends AbstractEJBBase implements MessageDrivenBean, Me
                         + ex.getMessage() + "]");
             }
         }
+    }
+
+    public ListenerPortPoller getListenerPortPoller() {
+        return listenerPortPoller;
+    }
+
+    public void setListenerPortPoller(ListenerPortPoller listenerPortPoller) {
+        this.listenerPortPoller = listenerPortPoller;
     }
     
     

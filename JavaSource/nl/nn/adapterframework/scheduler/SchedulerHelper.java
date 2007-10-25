@@ -1,7 +1,13 @@
 /*
  * $Log: SchedulerHelper.java,v $
- * Revision 1.4  2007-10-10 09:40:07  europe\L190409
+ * Revision 1.4.2.1  2007-10-25 08:36:58  europe\M00035F
+ * Add shutdown method for IBIS which shuts down the scheduler too, and which unregisters all EjbJmsConfigurators from the ListenerPortPoller.
+ * Unregister JmsListener from ListenerPortPoller during ejbRemove method.
+ * Both changes are to facilitate more proper shutdown of the IBIS adapters.
+ *
+ * Revision 1.4  2007/10/10 09:40:07  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * Direct copy from Ibis-EJB:
+
  * version using IbisManager
  *
  * Revision 1.3  2007/02/26 16:50:09  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -36,7 +42,7 @@ import org.quartz.Trigger;
  * @author John Dekker
  */
 public class SchedulerHelper {
-	protected static Logger log = LogUtil.getLogger(SchedulerHelper.class);
+    protected static Logger log = LogUtil.getLogger(SchedulerHelper.class);
 	
     private Scheduler scheduler;
     

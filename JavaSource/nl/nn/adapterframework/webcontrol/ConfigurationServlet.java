@@ -1,7 +1,13 @@
 /*
  * $Log: ConfigurationServlet.java,v $
- * Revision 1.11  2007-10-10 09:43:13  europe\L190409
+ * Revision 1.11.2.1  2007-10-25 08:36:58  europe\M00035F
+ * Add shutdown method for IBIS which shuts down the scheduler too, and which unregisters all EjbJmsConfigurators from the ListenerPortPoller.
+ * Unregister JmsListener from ListenerPortPoller during ejbRemove method.
+ * Both changes are to facilitate more proper shutdown of the IBIS adapters.
+ *
+ * Revision 1.11  2007/10/10 09:43:13  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * Direct copy from Ibis-EJB:
+
  * version using IbisManager
  *
  * Revision 1.10.2.6  2007/10/05 13:09:34  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -49,7 +55,6 @@ import nl.nn.adapterframework.configuration.IbisMain;
 import nl.nn.adapterframework.configuration.IbisManager;
 import nl.nn.adapterframework.core.IAdapter;
 import nl.nn.adapterframework.util.AppConstants;
-import nl.nn.adapterframework.util.ClassUtils;
 import nl.nn.adapterframework.util.LogUtil;
 import nl.nn.adapterframework.util.RunStateEnum;
 
@@ -72,7 +77,7 @@ import org.apache.log4j.Logger;
  * @version Id
  */
 public class ConfigurationServlet extends HttpServlet {
-	public static final String version = "$RCSfile: ConfigurationServlet.java,v $ $Revision: 1.11 $ $Date: 2007-10-10 09:43:13 $";
+	public static final String version = "$RCSfile: ConfigurationServlet.java,v $ $Revision: 1.11.2.1 $ $Date: 2007-10-25 08:36:58 $";
     protected Logger log = LogUtil.getLogger(this);
 
 	public static final String KEY_MANAGER = "KEY_MANAGER";
@@ -120,7 +125,7 @@ public class ConfigurationServlet extends HttpServlet {
         try {
             IbisManager ibisManager = getIbisManager();
             if (ibisManager != null) {
-				ibisManager.stopAdapters();
+				ibisManager.shutdownIbis();
             } else {
             	log.error("Cannot find configuration to shutdown");
             }

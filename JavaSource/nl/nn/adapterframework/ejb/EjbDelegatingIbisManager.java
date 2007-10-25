@@ -1,6 +1,11 @@
 /*
  * $Log: EjbDelegatingIbisManager.java,v $
- * Revision 1.5.2.2  2007-10-24 15:04:44  europe\M00035F
+ * Revision 1.5.2.3  2007-10-25 08:36:57  europe\M00035F
+ * Add shutdown method for IBIS which shuts down the scheduler too, and which unregisters all EjbJmsConfigurators from the ListenerPortPoller.
+ * Unregister JmsListener from ListenerPortPoller during ejbRemove method.
+ * Both changes are to facilitate more proper shutdown of the IBIS adapters.
+ *
+ * Revision 1.5.2.2  2007/10/24 15:04:44  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Let runstate of receivers/listeners follow the state of WebSphere ListenerPorts if they are changed outside the control of IBIS.
  *
  * Revision 1.5.2.1  2007/10/17 11:42:57  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -103,6 +108,10 @@ public class EjbDelegatingIbisManager implements IbisManager, BeanFactoryAware {
         // Not implemented for this case, since the Ibis will be auto-started from EJB container
     }
 
+    public void shutdownIbis() {
+        getIbisManager().shutdownIbis();
+    }
+    
     public void startAdapters() {
         getIbisManager().startAdapters();
     }
