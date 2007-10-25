@@ -1,6 +1,9 @@
 /*
  * $Log: EjbJmsConfigurator.java,v $
- * Revision 1.4.2.2  2007-10-24 15:04:44  europe\M00035F
+ * Revision 1.4.2.3  2007-10-25 09:48:21  europe\M00035F
+ * Remove unused imports
+ *
+ * Revision 1.4.2.2  2007/10/24 15:04:44  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Let runstate of receivers/listeners follow the state of WebSphere ListenerPorts if they are changed outside the control of IBIS.
  *
  * Revision 1.4.2.1  2007/10/23 09:46:11  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -32,12 +35,8 @@ import com.ibm.websphere.management.AdminService;
 import com.ibm.websphere.management.AdminServiceFactory;
 import java.util.Set;
 import javax.jms.Destination;
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.management.ReflectionException;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import nl.nn.adapterframework.configuration.Configuration;
