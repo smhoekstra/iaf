@@ -1,6 +1,9 @@
 /*
  * $Log: AbstractEJBBase.java,v $
- * Revision 1.3  2007-10-15 13:08:38  europe\L190409
+ * Revision 1.3.2.1  2007-10-29 10:29:13  europe\M00035F
+ * Refactor: pullup a number of methods to abstract base class so they can be shared with new IFSA Session EJBs
+ *
+ * Revision 1.3  2007/10/15 13:08:38  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * EJB updates
  *
  * Revision 1.1.2.4  2007/10/15 08:37:29  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -19,6 +22,7 @@
  */
 package nl.nn.adapterframework.ejb;
 
+import javax.ejb.EJBContext;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -47,6 +51,8 @@ abstract public class AbstractEJBBase {
     
     static {
         // Do static initializations, including setting up Spring
+        // NB: This MUST me done statically, not from an instance.
+        
         log.info("<** - **> Starting initialization of IBIS Framework from EJB");
         main = new IbisMain();
         
@@ -57,6 +63,8 @@ abstract public class AbstractEJBBase {
         config = main.getConfiguration();
         manager.startIbis();
     }
+    
+    abstract EJBContext getEJBContext();
     
     protected Context getContext() {
         synchronized (this) {

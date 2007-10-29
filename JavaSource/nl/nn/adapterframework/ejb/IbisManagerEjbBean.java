@@ -1,6 +1,9 @@
 /*
  * $Log: IbisManagerEjbBean.java,v $
- * Revision 1.4.2.1  2007-10-25 08:36:58  europe\M00035F
+ * Revision 1.4.2.2  2007-10-29 10:29:13  europe\M00035F
+ * Refactor: pullup a number of methods to abstract base class so they can be shared with new IFSA Session EJBs
+ *
+ * Revision 1.4.2.1  2007/10/25 08:36:58  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Add shutdown method for IBIS which shuts down the scheduler too, and which unregisters all EjbJmsConfigurators from the ListenerPortPoller.
  * Unregister JmsListener from ListenerPortPoller during ejbRemove method.
  * Both changes are to facilitate more proper shutdown of the IBIS adapters.
@@ -29,6 +32,7 @@ package nl.nn.adapterframework.ejb;
 
 import java.rmi.RemoteException;
 import javax.ejb.CreateException;
+import javax.ejb.EJBContext;
 import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
@@ -127,6 +131,13 @@ public class IbisManagerEjbBean extends AbstractEJBBase implements SessionBean, 
 
     public PlatformTransactionManager getTransactionManager() {
         return manager.getTransactionManager();
+    }
+
+    /* (non-Javadoc)
+     * @see nl.nn.adapterframework.ejb.AbstractEJBBase#getEJBContext()
+     */
+    EJBContext getEJBContext() {
+        return this.sessionContext;
     }
 
 }

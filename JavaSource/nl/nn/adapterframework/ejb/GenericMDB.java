@@ -1,6 +1,9 @@
 /*
  * $Log: GenericMDB.java,v $
- * Revision 1.4.2.2  2007-10-25 08:36:57  europe\M00035F
+ * Revision 1.4.2.3  2007-10-29 10:29:13  europe\M00035F
+ * Refactor: pullup a number of methods to abstract base class so they can be shared with new IFSA Session EJBs
+ *
+ * Revision 1.4.2.2  2007/10/25 08:36:57  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Add shutdown method for IBIS which shuts down the scheduler too, and which unregisters all EjbJmsConfigurators from the ListenerPortPoller.
  * Unregister JmsListener from ListenerPortPoller during ejbRemove method.
  * Both changes are to facilitate more proper shutdown of the IBIS adapters.
@@ -32,32 +35,27 @@ package nl.nn.adapterframework.ejb;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.ejb.EJBContext;
 import javax.ejb.EJBException;
 import javax.ejb.MessageDrivenBean;
 import javax.ejb.MessageDrivenContext;
 import javax.jms.Message;
 import javax.jms.MessageListener;
-import nl.nn.adapterframework.core.IAdapter;
+
 import nl.nn.adapterframework.core.ListenerException;
 import nl.nn.adapterframework.jms.PushingJmsListener;
 import nl.nn.adapterframework.receivers.GenericReceiver;
-import nl.nn.adapterframework.util.LogUtil;
-import org.apache.log4j.Logger;
-import org.springframework.jndi.JndiLookupFailureException;
 
 /**
  * @author  Tim van der Leeuw
  * @since   4.8
  * @version Id
  */
-public class GenericMDB extends AbstractEJBBase implements MessageDrivenBean, MessageListener {
-    private final static Logger log = LogUtil.getLogger(GenericMDB.class);
+public class GenericMDB extends AbstractListenerConnectingEJB implements MessageDrivenBean, MessageListener {
     
     protected MessageDrivenContext ejbContext;
     protected PushingJmsListener listener;
-    protected boolean containerManagedTransactions;
-    protected ListenerPortPoller listenerPortPoller;
-    
     public void setMessageDrivenContext(MessageDrivenContext ejbContext) throws EJBException {
         log.info("Received EJB-MDB Context");
         this.ejbContext = ejbContext;
@@ -96,60 +94,17 @@ public class GenericMDB extends AbstractEJBBase implements MessageDrivenBean, Me
         }
     }
 
-    protected boolean retrieveTransactionType() {
-        try {
-            Boolean txType = (Boolean) getContextVariable("containerTransactions");
-            if (txType == null) {
-                log.warn("Value of variable 'containerTransactions' in Bean JNDI context is null, assuming bean-managed transactions");
-                return false;
-            } else {
-                return txType.booleanValue();
-            }
-        } catch (JndiLookupFailureException e) {
-            log.error("Cannot look up variable 'containerTransactions' in Bean JNDI context; assuming bean-managed transactions", e);
-            return false;
-        }
-    }
-
     protected PushingJmsListener retrieveJmsListener() {
         String adapterName = (String) getContextVariable("adapterName");
         String receiverName = (String) getContextVariable("receiverName");
-        return retrieveJmsListener(receiverName, adapterName);
+        return (PushingJmsListener) retrieveListener(receiverName, adapterName);
     }
 
-    protected PushingJmsListener retrieveJmsListener(String receiverName, String adapterName) {
-        IAdapter adapter = config.getRegisteredAdapter(adapterName);
-        GenericReceiver receiver = (GenericReceiver) adapter.getReceiverByName(receiverName);
-        PushingJmsListener l = (PushingJmsListener) receiver.getListener();
-        return l;
-    }
-
-    protected void rollbackTransaction() throws IllegalStateException {
-        if (containerManagedTransactions) {
-            this.ejbContext.setRollbackOnly();
-        } else {
-            try {
-                this.ejbContext.getUserTransaction().setRollbackOnly();
-            } catch (Exception ex) {
-                log.error("Cannot roll back user-transactions, must be using container-managed transactions without being properly configured for it?", ex);
-                // Try the container-maanged way
-                try {
-                    this.ejbContext.setRollbackOnly();
-                } catch (IllegalStateException e) {
-                    log.error("After failing to rolll back user-transaction, also failing to roll back container-transaction.", e);
-                }
-                throw new IllegalStateException("Cannot roll back user-transaction; must be using container-managed transactions? Error-message: ["
-                        + ex.getMessage() + "]");
-            }
-        }
-    }
-
-    public ListenerPortPoller getListenerPortPoller() {
-        return listenerPortPoller;
-    }
-
-    public void setListenerPortPoller(ListenerPortPoller listenerPortPoller) {
-        this.listenerPortPoller = listenerPortPoller;
+    /* (non-Javadoc)
+     * @see nl.nn.adapterframework.ejb.AbstractEJBBase#getEJBContext()
+     */
+    EJBContext getEJBContext() {
+        return this.ejbContext;
     }
     
     
