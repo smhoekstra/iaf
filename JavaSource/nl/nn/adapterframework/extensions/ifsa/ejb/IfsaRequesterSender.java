@@ -1,6 +1,9 @@
 /*
  * $Log: IfsaRequesterSender.java,v $
- * Revision 1.1.2.1  2007-10-25 15:03:44  europe\M00035F
+ * Revision 1.1.2.2  2007-10-29 09:33:00  europe\M00035F
+ * Refactor: pullup a number of methods to abstract base class so they can be shared between IFSA parts
+ *
+ * Revision 1.1.2.1  2007/10/25 15:03:44  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Begin work on implementing IFSA-EJB
  *
  * 
@@ -18,7 +21,6 @@ import com.ing.ifsa.api.ServiceReply;
 import com.ing.ifsa.api.ServiceRequest;
 import com.ing.ifsa.api.ServiceURI;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import nl.nn.adapterframework.configuration.ConfigurationException;
 import nl.nn.adapterframework.core.HasPhysicalDestination;
@@ -32,8 +34,6 @@ import nl.nn.adapterframework.parameters.Parameter;
 import nl.nn.adapterframework.parameters.ParameterList;
 import nl.nn.adapterframework.parameters.ParameterResolutionContext;
 import nl.nn.adapterframework.parameters.ParameterValueList;
-import nl.nn.adapterframework.util.LogUtil;
-import org.apache.log4j.Logger;
 
 /**
  * IFSA Request sender for FF and RR requests implemented using the IFSA
@@ -43,19 +43,7 @@ import org.apache.log4j.Logger;
  * @version Id
  */
 public class IfsaRequesterSender extends IfsaEjbBase implements ISenderWithParameters, INamedObject, HasPhysicalDestination {
-    // TODO: Pull up most properties to new abstract base class
-    protected Logger log = LogUtil.getLogger(this);
-
     protected ParameterList paramList = null;
-    private String name;
-    private String applicationId;
-    private String serviceId;
-    // TODO: Do we need polishedServiceId? Not using now; discus w/Gerrit; also risk of replacing the ':' in URL-Protocol? (IFSA://Service/...)
-    private String polishedServiceId=null;
-    private IfsaMessageProtocolEnum messageProtocol;
-
-    private long timeOut = -1; // when set (>=0), overrides IFSA-expiry
-
     public void configure() throws ConfigurationException {
         if (paramList!=null) {
             paramList.configure();
@@ -87,11 +75,6 @@ public class IfsaRequesterSender extends IfsaEjbBase implements ISenderWithParam
             }
         }
         return params;
-    }
-
-    protected String getLogPrefix() {
-        return "IfsaRequester["+ getName()+ 
-                "] of Application [" + getApplicationId()+"] ";  
     }
 
     public boolean isSynchronous() {
@@ -172,105 +155,11 @@ public class IfsaRequesterSender extends IfsaEjbBase implements ISenderWithParam
         }
     }
         
-    protected void addUdzMapToRequest(Map udzMap, ServiceRequest request) {
-        if (udzMap == null) {
-            return;
-        }
-        for (Iterator it = udzMap.entrySet().iterator(); it.hasNext();) {
-            Map.Entry entry = (Map.Entry)it.next();
-            request.setUserDefinedZone(entry.getKey(), entry.getValue());
-        }
-    }
-
     public void addParameter(Parameter p) {
         if (paramList==null) {
             paramList=new ParameterList();
         }
         paramList.add(p);
-    }
-
-    public String getPhysicalDestinationName() {
-        String result = null;
-
-        try {
-            result = getServiceId();
-//            log.debug("obtaining connection and servicequeue for "+result);
-//            if (getServiceQueue() != null) {
-//                result += " ["+ getServiceQueue().getQueueName()+"]";
-//            }
-        } catch (Throwable t) {
-            log.warn(getLogPrefix()+"got exception in getPhysicalDestinationName", t);
-        }
-        return result;
-    }
-
-    public String getApplicationId() {
-        return applicationId;
-    }
-
-    public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
-    }
-
-    public String getMessageProtocol() {
-        return messageProtocol.getName();
-    }
-    
-    public IfsaMessageProtocolEnum getMessageProtocolEnum() {
-        return messageProtocol;
-    }
-
-    /**
-     * Method logs a warning when the newMessageProtocol is not <code>FF</code>
-     * or <code>RR</code>.
-     * <p>When the messageProtocol equals to FF, transacted is set to true</p>
-     * <p>Creation date: (08-05-2003 9:03:53)</p>
-     * @see IfsaMessageProtocolEnum
-     * @param newMessageProtocol String
-     */
-    public void setMessageProtocol(String newMessageProtocol) {
-        if (null==IfsaMessageProtocolEnum.getEnum(newMessageProtocol)) {
-            throw new IllegalArgumentException(getLogPrefix()+
-            "illegal messageProtocol ["
-                + newMessageProtocol
-                + "] specified, it should be one of the values "
-                + IfsaMessageProtocolEnum.getNames());
-
-        }
-        messageProtocol = IfsaMessageProtocolEnum.getEnum(newMessageProtocol);
-        log.debug(getLogPrefix()+"message protocol set to "+messageProtocol.getName());
-    }
- 
-    public String getPolishedServiceId() {
-        return polishedServiceId;
-    }
-
-    public void setPolishedServiceId(String polishedServiceId) {
-        this.polishedServiceId = polishedServiceId;
-    }
-
-    public String getServiceId() {
-        return serviceId;
-    }
-
-    public void setServiceId(String serviceId) {
-        this.serviceId = serviceId;
-    }
-
-    public long getTimeOut() {
-        return timeOut;
-    }
-
-    public void setTimeOut(long timeOut) {
-        this.timeOut = timeOut;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
 }

@@ -1,6 +1,9 @@
 /*
  * $Log: IfsaProviderListener.java,v $
- * Revision 1.1.2.1  2007-10-25 15:03:44  europe\M00035F
+ * Revision 1.1.2.2  2007-10-29 09:33:00  europe\M00035F
+ * Refactor: pullup a number of methods to abstract base class so they can be shared between IFSA parts
+ *
+ * Revision 1.1.2.1  2007/10/25 15:03:44  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Begin work on implementing IFSA-EJB
  *
  * 
@@ -11,7 +14,6 @@ package nl.nn.adapterframework.extensions.ifsa.ejb;
 import java.util.Map;
 import nl.nn.adapterframework.configuration.ConfigurationException;
 import nl.nn.adapterframework.core.IMessageHandler;
-import nl.nn.adapterframework.core.INamedObject;
 import nl.nn.adapterframework.core.IPushingListener;
 import nl.nn.adapterframework.core.IbisExceptionListener;
 import nl.nn.adapterframework.core.ListenerException;
@@ -22,11 +24,9 @@ import nl.nn.adapterframework.core.PipeLineResult;
  * @author Tim van der Leeuw
  * @version Id
  */
-public class IfsaProviderListener extends IfsaEjbBase implements IPushingListener, INamedObject {
+public class IfsaProviderListener extends IfsaEjbBase implements IPushingListener {
     private IMessageHandler handler;
     private IbisExceptionListener exceptionListener;
-    private String name;
-    
     public void setHandler(IMessageHandler handler) {
         this.handler = handler;
     }
@@ -58,14 +58,6 @@ public class IfsaProviderListener extends IfsaEjbBase implements IPushingListene
     public void afterMessageProcessed(PipeLineResult processResult, Object rawMessage, Map context) throws ListenerException {
         // Nothing to do here
         return;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public IbisExceptionListener getExceptionListener() {
