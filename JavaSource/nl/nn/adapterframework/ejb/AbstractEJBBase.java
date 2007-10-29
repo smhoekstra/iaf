@@ -1,6 +1,9 @@
 /*
  * $Log: AbstractEJBBase.java,v $
- * Revision 1.3.2.1  2007-10-29 10:29:13  europe\M00035F
+ * Revision 1.3.2.2  2007-10-29 10:37:25  europe\M00035F
+ * Fix method visibility error
+ *
+ * Revision 1.3.2.1  2007/10/29 10:29:13  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Refactor: pullup a number of methods to abstract base class so they can be shared with new IFSA Session EJBs
  *
  * Revision 1.3  2007/10/15 13:08:38  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -64,7 +67,7 @@ abstract public class AbstractEJBBase {
         manager.startIbis();
     }
     
-    abstract EJBContext getEJBContext();
+    abstract protected EJBContext getEJBContext();
     
     protected Context getContext() {
         synchronized (this) {
