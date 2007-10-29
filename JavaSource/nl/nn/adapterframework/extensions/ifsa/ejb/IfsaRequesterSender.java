@@ -1,6 +1,9 @@
 /*
  * $Log: IfsaRequesterSender.java,v $
- * Revision 1.1.2.2  2007-10-29 09:33:00  europe\M00035F
+ * Revision 1.1.2.3  2007-10-29 12:25:34  europe\M00035F
+ * Create EJb Beans required to connect to IFSA J2EE implementation as an IFSA Provider application
+ *
+ * Revision 1.1.2.2  2007/10/29 09:33:00  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Refactor: pullup a number of methods to abstract base class so they can be shared between IFSA parts
  *
  * Revision 1.1.2.1  2007/10/25 15:03:44  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -48,15 +51,18 @@ public class IfsaRequesterSender extends IfsaEjbBase implements ISenderWithParam
         if (paramList!=null) {
             paramList.configure();
         }
-        throw new UnsupportedOperationException("Not supported yet.");
+        
+        log.info(getLogPrefix()+" configured sender on "+getPhysicalDestinationName());
+        
+//        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void open() throws SenderException {
-        throw new UnsupportedOperationException("Not supported yet.");
+//        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void close() throws SenderException {
-        throw new UnsupportedOperationException("Not supported yet.");
+//        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     protected Map convertParametersToMap(ParameterResolutionContext prc) throws SenderException {
@@ -115,8 +121,7 @@ public class IfsaRequesterSender extends IfsaEjbBase implements ISenderWithParam
                 }
 
                 // Use remaining params as outgoing UDZs
-                udzMap = new HashMap();
-                udzMap.putAll(params);
+                udzMap = new HashMap(params);
                 udzMap.remove("serviceId");
                 udzMap.remove("occurrence");
             } else {
