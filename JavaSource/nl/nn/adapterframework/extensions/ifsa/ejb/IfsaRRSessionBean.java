@@ -1,6 +1,9 @@
 /*
  * $Log: IfsaRRSessionBean.java,v $
- * Revision 1.1.2.1  2007-10-29 12:25:34  europe\M00035F
+ * Revision 1.1.2.2  2007-11-01 10:35:24  europe\M00035F
+ * Add remote interfaces for IFSA Session beans, since that is what's expected by the IFSA libraries
+ *
+ * Revision 1.1.2.1  2007/10/29 12:25:34  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Create EJb Beans required to connect to IFSA J2EE implementation as an IFSA Provider application
  *
  * 
@@ -15,8 +18,6 @@ import com.ing.ifsa.api.ServiceRequest;
 import com.ing.ifsa.exceptions.ServiceException;
 import java.rmi.RemoteException;
 import javax.ejb.SessionBean;
-import nl.nn.adapterframework.core.ListenerException;
-import nl.nn.adapterframework.receivers.GenericReceiver;
 
 /**
  *
