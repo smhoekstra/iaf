@@ -1,10 +1,13 @@
 /*
  * $Log: CustomIfsaRRReceiverMDB.java,v $
- * Revision 1.1.2.1  2007-11-02 11:47:06  europe\M00035F
+ * Revision 1.1.2.2  2007-11-02 13:01:09  europe\M00035F
+ * Add JavaDoc comment
+ *
+ * Revision 1.1.2.1  2007/11/02 11:47:06  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Add custom versions of IFSA MDB Receiver beans, and subclass of IFSA ServiceLocatorEJB
  *
  *
- * $Id: CustomIfsaRRReceiverMDB.java,v 1.1.2.1 2007-11-02 11:47:06 europe\M00035F Exp $
+ * $Id: CustomIfsaRRReceiverMDB.java,v 1.1.2.2 2007-11-02 13:01:09 europe\M00035F Exp $
  *
  */
 package nl.nn.adapterframework.extensions.ifsa.ejb;
@@ -15,7 +18,8 @@ import javax.jms.Message;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * IfsaReceiverMDB for RequestReply services
+ * 
  * @author Tim van der Leeuw
  * @version Id
  */
