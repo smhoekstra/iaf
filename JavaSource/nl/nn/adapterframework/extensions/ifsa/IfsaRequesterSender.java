@@ -1,6 +1,9 @@
 /*
  * $Log: IfsaRequesterSender.java,v $
- * Revision 1.30  2007-10-16 08:21:13  europe\L190409
+ * Revision 1.30.2.1  2007-11-02 13:13:06  europe\M00035F
+ * Switch to IFSA - EJB implementation
+ *
+ * Revision 1.30  2007/10/16 08:21:13  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * added original javadoc
  *
  * Revision 1.29  2007/10/16 08:15:42  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -40,6 +43,6 @@ package nl.nn.adapterframework.extensions.ifsa;
  * @since   4.2, switch class: 4.8
  * @version Id
  */
-public class IfsaRequesterSender extends nl.nn.adapterframework.extensions.ifsa.jms.IfsaRequesterSender {
+public class IfsaRequesterSender extends nl.nn.adapterframework.extensions.ifsa.ejb.IfsaRequesterSender {
 
 }

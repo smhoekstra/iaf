@@ -1,6 +1,9 @@
 /*
  * $Log: IfsaProviderListener.java,v $
- * Revision 1.35  2007-10-16 08:21:13  europe\L190409
+ * Revision 1.35.2.1  2007-11-02 13:13:06  europe\M00035F
+ * Switch to IFSA - EJB implementation
+ *
+ * Revision 1.35  2007/10/16 08:21:13  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * added original javadoc
  *
  * Revision 1.34  2007/10/16 08:15:42  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -55,6 +58,6 @@ package nl.nn.adapterframework.extensions.ifsa;
  * @version Id
  */
 public class IfsaProviderListener
-	extends nl.nn.adapterframework.extensions.ifsa.jms.IfsaProviderListener {
+	extends nl.nn.adapterframework.extensions.ifsa.ejb.IfsaProviderListener {
 
 }
