@@ -1,10 +1,13 @@
 /*
  * $Log: CustomIfsaServiceLocatorEJB.java,v $
- * Revision 1.1.2.1  2007-11-02 11:47:06  europe\M00035F
+ * Revision 1.1.2.2  2007-11-02 11:48:36  europe\M00035F
+ * Add JavaDoc comment
+ *
+ * Revision 1.1.2.1  2007/11/02 11:47:06  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Add custom versions of IFSA MDB Receiver beans, and subclass of IFSA ServiceLocatorEJB
  *
  *
- * $Id: CustomIfsaServiceLocatorEJB.java,v 1.1.2.1 2007-11-02 11:47:06 europe\M00035F Exp $
+ * $Id: CustomIfsaServiceLocatorEJB.java,v 1.1.2.2 2007-11-02 11:48:36 europe\M00035F Exp $
  *
  */
 package nl.nn.adapterframework.extensions.ifsa.ejb;
@@ -16,7 +19,9 @@ import com.ing.ifsa.internal.exceptions.UnknownServiceException;
 import com.ing.ifsa.provider.ServiceLocatorEJB;
 
 /**
- *
+ * Override the IFSA SeriveLocatorEJB implementation to return the IBIS
+ * Service Dispatcher session bean for all IFSA service URLs.
+ * 
  * @author Tim van der Leeuw
  * @version Id
  */
