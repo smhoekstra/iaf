@@ -1,6 +1,9 @@
 /*
  * $Log: IfsaRequesterSender.java,v $
- * Revision 1.1.2.3  2007-10-29 12:25:34  europe\M00035F
+ * Revision 1.1.2.4  2007-11-05 13:51:37  europe\M00035F
+ * Add 'version' string to new IFSA classes
+ *
+ * Revision 1.1.2.3  2007/10/29 12:25:34  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Create EJb Beans required to connect to IFSA J2EE implementation as an IFSA Provider application
  *
  * Revision 1.1.2.2  2007/10/29 09:33:00  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -46,6 +49,8 @@ import nl.nn.adapterframework.parameters.ParameterValueList;
  * @version Id
  */
 public class IfsaRequesterSender extends IfsaEjbBase implements ISenderWithParameters, INamedObject, HasPhysicalDestination {
+    public static final String version = "$RCSfile: IfsaRequesterSender.java,v $ $Revision: 1.1.2.4 $ $Date: 2007-11-05 13:51:37 $";
+    
     protected ParameterList paramList = null;
     public void configure() throws ConfigurationException {
         if (paramList!=null) {
