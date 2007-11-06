@@ -1,6 +1,9 @@
 /*
  * $Log: IfsaProviderListener.java,v $
- * Revision 1.1.2.4  2007-11-05 13:51:37  europe\M00035F
+ * Revision 1.1.2.5  2007-11-06 10:36:49  europe\M00035F
+ * Make IfsaProviderListener follow state of it's ListenerPort, like with JmsListener
+ *
+ * Revision 1.1.2.4  2007/11/05 13:51:37  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Add 'version' string to new IFSA classes
  *
  * Revision 1.1.2.3  2007/10/29 12:25:34  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -20,8 +23,10 @@ package nl.nn.adapterframework.extensions.ifsa.ejb;
 import com.ing.ifsa.api.ServiceRequest;
 import java.util.Map;
 import nl.nn.adapterframework.configuration.ConfigurationException;
+import nl.nn.adapterframework.core.IListenerConnector;
 import nl.nn.adapterframework.core.IMessageHandler;
-import nl.nn.adapterframework.core.IPushingListener;
+import nl.nn.adapterframework.core.IPortConnectedListener;
+import nl.nn.adapterframework.core.IReceiver;
 import nl.nn.adapterframework.core.IbisExceptionListener;
 import nl.nn.adapterframework.core.ListenerException;
 import nl.nn.adapterframework.core.PipeLineResult;
@@ -31,11 +36,14 @@ import nl.nn.adapterframework.core.PipeLineResult;
  * @author Tim van der Leeuw
  * @version Id
  */
-public class IfsaProviderListener extends IfsaEjbBase implements IPushingListener {
-    public static final String version = "$RCSfile: IfsaProviderListener.java,v $ $Revision: 1.1.2.4 $ $Date: 2007-11-05 13:51:37 $";
+public class IfsaProviderListener extends IfsaEjbBase implements IPortConnectedListener {
+    public static final String version = "$RCSfile: IfsaProviderListener.java,v $ $Revision: 1.1.2.5 $ $Date: 2007-11-06 10:36:49 $";
     
     private IMessageHandler handler;
     private IbisExceptionListener exceptionListener;
+    private IReceiver receiver;
+    private IListenerConnector listenerPortConnector;
+    
     public void setHandler(IMessageHandler handler) {
         this.handler = handler;
     }
@@ -79,4 +87,24 @@ public class IfsaProviderListener extends IfsaEjbBase implements IPushingListene
         return handler;
     }
 
+    public IReceiver getReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(IReceiver receiver) {
+        this.receiver = receiver;
+    }
+
+    public String getListenerPort() {
+        String appIdName = getApplicationId().replaceFirst("IFSA://", "");
+        return "IFSA_" + appIdName + "_ListenerPort";
+    }
+
+    public IListenerConnector getListenerPortConnector() {
+        return listenerPortConnector;
+    }
+
+    public void setListenerPortConnector(IListenerConnector listenerPortConnector) {
+        this.listenerPortConnector = listenerPortConnector;
+    }
 }
