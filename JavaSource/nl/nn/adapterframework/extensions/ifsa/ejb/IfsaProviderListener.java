@@ -1,6 +1,9 @@
 /*
  * $Log: IfsaProviderListener.java,v $
- * Revision 1.1.2.5  2007-11-06 10:36:49  europe\M00035F
+ * Revision 1.1.2.6  2007-11-06 10:40:24  europe\M00035F
+ * Make IfsaProviderListener follow state of it's ListenerPort, like with JmsListener
+ *
+ * Revision 1.1.2.5  2007/11/06 10:36:49  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Make IfsaProviderListener follow state of it's ListenerPort, like with JmsListener
  *
  * Revision 1.1.2.4  2007/11/05 13:51:37  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -37,7 +40,7 @@ import nl.nn.adapterframework.core.PipeLineResult;
  * @version Id
  */
 public class IfsaProviderListener extends IfsaEjbBase implements IPortConnectedListener {
-    public static final String version = "$RCSfile: IfsaProviderListener.java,v $ $Revision: 1.1.2.5 $ $Date: 2007-11-06 10:36:49 $";
+    public static final String version = "$RCSfile: IfsaProviderListener.java,v $ $Revision: 1.1.2.6 $ $Date: 2007-11-06 10:40:24 $";
     
     private IMessageHandler handler;
     private IbisExceptionListener exceptionListener;
@@ -53,15 +56,15 @@ public class IfsaProviderListener extends IfsaEjbBase implements IPortConnectedL
     }
 
     public void configure() throws ConfigurationException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        listenerPortConnector.configureEndpointConnection(this);
     }
 
     public void open() throws ListenerException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        listenerPortConnector.start();
     }
 
     public void close() throws ListenerException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        listenerPortConnector.stop();
     }
 
     public String getIdFromRawMessage(Object rawMessage, Map context) throws ListenerException {
