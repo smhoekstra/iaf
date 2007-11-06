@@ -1,6 +1,9 @@
 /*
  * $Log: IPortConnectedListener.java,v $
- * Revision 1.2.2.2  2007-11-06 12:49:33  europe\M00035F
+ * Revision 1.2.2.3  2007-11-06 13:10:11  europe\M00035F
+ * Add exception to method signature
+ *
+ * Revision 1.2.2.2  2007/11/06 12:49:33  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Add methods 'populateThreadContext' and 'destroyThreadContext' to interface IPortConnectedListener
  *
  * Revision 1.2.2.1  2007/11/06 09:39:13  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -40,5 +43,5 @@ public interface IPortConnectedListener extends IPushingListener {
 
     void destroyThreadContext(Map threadContext);
 
-    void populateThreadContext(Object rawMessage, Map threadContext, Session session);
+    void populateThreadContext(Object rawMessage, Map threadContext, Session session) throws ListenerException;
 }
