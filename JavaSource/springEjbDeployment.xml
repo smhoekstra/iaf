@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   $Log: springEjbDeployment.xml,v $
-  Revision 1.3.2.2  2007-11-06 09:39:14  europe\M00035F
+  Revision 1.3.2.3  2007-11-06 10:10:13  europe\M00035F
+  Fix uncaught merge conflict
+
+  Revision 1.3.2.2  2007/11/06 09:39:14  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
   Merge refactoring/renaming from HEAD
 
   Revision 1.3.2.1  2007/10/24 15:04:44  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -44,15 +47,11 @@
         <property name="transactionManager" ref="txManager"/>
     </bean>
     
-<<<<<<< springEjbDeployment.xml
     <bean id="listenerPortPoller" class="nl.nn.adapterframework.ejb.ListenerPortPoller"
         autowire="byName" scope="singleton">
     </bean>
     
-    <bean id="jmsConfigurator" class="nl.nn.adapterframework.ejb.EjbJmsConfigurator"
-=======
     <bean name="jmsConnector" class="nl.nn.adapterframework.ejb.EjbListenerPortConnector"
->>>>>>> 1.5
         autowire="byName" scope="prototype">
     </bean>
     
