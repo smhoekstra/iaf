@@ -1,6 +1,9 @@
 /*
  * $Log: IfsaProviderListener.java,v $
- * Revision 1.1.2.8  2007-11-06 12:49:33  europe\M00035F
+ * Revision 1.1.2.9  2007-11-06 13:15:10  europe\M00035F
+ * Move code putting properties into threadContext from 'getIdFromRawMessage' to 'populateThreadContext'
+ *
+ * Revision 1.1.2.8  2007/11/06 12:49:33  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Add methods 'populateThreadContext' and 'destroyThreadContext' to interface IPortConnectedListener
  *
  * Revision 1.1.2.7  2007/11/06 12:33:07  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -54,7 +57,7 @@ import org.apache.commons.lang.StringUtils;
  * @version Id
  */
 public class IfsaProviderListener extends IfsaEjbBase implements IPortConnectedListener {
-    public static final String version = "$RCSfile: IfsaProviderListener.java,v $ $Revision: 1.1.2.8 $ $Date: 2007-11-06 12:49:33 $";
+    public static final String version = "$RCSfile: IfsaProviderListener.java,v $ $Revision: 1.1.2.9 $ $Date: 2007-11-06 13:15:10 $";
     
     private IMessageHandler handler;
     private IbisExceptionListener exceptionListener;
@@ -83,6 +86,54 @@ public class IfsaProviderListener extends IfsaEjbBase implements IPortConnectedL
     }
 
     public String getIdFromRawMessage(Object rawMessage, Map threadContext) throws ListenerException {
+        ServiceRequest request = (ServiceRequest) rawMessage;
+        return request.getUniqueId();
+    }
+
+    public String getStringFromRawMessage(Object rawMessage, Map threadContext) throws ListenerException {
+        ServiceRequest request = (ServiceRequest) rawMessage;
+        return request.getBusinessMessage().getText();
+    }
+
+    public void afterMessageProcessed(PipeLineResult processResult, Object rawMessage, Map context) throws ListenerException {
+        // Nothing to do here
+        return;
+    }
+
+    public IbisExceptionListener getExceptionListener() {
+        return exceptionListener;
+    }
+
+    public IMessageHandler getHandler() {
+        return handler;
+    }
+
+    public IReceiver getReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(IReceiver receiver) {
+        this.receiver = receiver;
+    }
+
+    public String getListenerPort() {
+        String appIdName = getApplicationId().replaceFirst("IFSA://", "");
+        return "IFSA_" + appIdName + "_ListenerPort";
+    }
+
+    public IListenerConnector getListenerPortConnector() {
+        return listenerPortConnector;
+    }
+
+    public void setListenerPortConnector(IListenerConnector listenerPortConnector) {
+        this.listenerPortConnector = listenerPortConnector;
+    }
+
+    public void destroyThreadContext(Map threadContext) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void populateThreadContext(Object rawMessage, Map threadContext, Session session) throws ListenerException {
         ServiceRequest request = (ServiceRequest) rawMessage;
         
         // Get variables from the IFSA Service Request, in as good manner
@@ -144,54 +195,5 @@ public class IfsaProviderListener extends IfsaEjbBase implements IPortConnectedL
                 log.debug(getLogPrefix()+ contextDump);
             }
         }
-
-        return id;
-    }
-
-    public String getStringFromRawMessage(Object rawMessage, Map threadContext) throws ListenerException {
-        ServiceRequest request = (ServiceRequest) rawMessage;
-        return request.getBusinessMessage().getText();
-    }
-
-    public void afterMessageProcessed(PipeLineResult processResult, Object rawMessage, Map context) throws ListenerException {
-        // Nothing to do here
-        return;
-    }
-
-    public IbisExceptionListener getExceptionListener() {
-        return exceptionListener;
-    }
-
-    public IMessageHandler getHandler() {
-        return handler;
-    }
-
-    public IReceiver getReceiver() {
-        return receiver;
-    }
-
-    public void setReceiver(IReceiver receiver) {
-        this.receiver = receiver;
-    }
-
-    public String getListenerPort() {
-        String appIdName = getApplicationId().replaceFirst("IFSA://", "");
-        return "IFSA_" + appIdName + "_ListenerPort";
-    }
-
-    public IListenerConnector getListenerPortConnector() {
-        return listenerPortConnector;
-    }
-
-    public void setListenerPortConnector(IListenerConnector listenerPortConnector) {
-        this.listenerPortConnector = listenerPortConnector;
-    }
-
-    public void destroyThreadContext(Map threadContext) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public void populateThreadContext(Object rawMessage, Map threadContext, Session session) {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
