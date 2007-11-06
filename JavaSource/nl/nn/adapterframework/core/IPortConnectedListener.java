@@ -1,6 +1,9 @@
 /*
  * $Log: IPortConnectedListener.java,v $
- * Revision 1.2.2.1  2007-11-06 09:39:13  europe\M00035F
+ * Revision 1.2.2.2  2007-11-06 12:49:33  europe\M00035F
+ * Add methods 'populateThreadContext' and 'destroyThreadContext' to interface IPortConnectedListener
+ *
+ * Revision 1.2.2.1  2007/11/06 09:39:13  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Merge refactoring/renaming from HEAD
  *
  * Revision 1.2  2007/11/05 13:06:55  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -14,6 +17,9 @@
  *
  */
 package nl.nn.adapterframework.core;
+
+import java.util.Map;
+import javax.jms.Session;
 
 /**
  * Interface extending IPushingListener for listeners which connect to a
@@ -31,4 +37,8 @@ public interface IPortConnectedListener extends IPushingListener {
     String getListenerPort();
     void setReceiver(IReceiver receiver);
     IReceiver getReceiver();
+
+    void destroyThreadContext(Map threadContext);
+
+    void populateThreadContext(Object rawMessage, Map threadContext, Session session);
 }

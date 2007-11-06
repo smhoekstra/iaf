@@ -1,6 +1,9 @@
 /*
  * $Log: IfsaProviderListener.java,v $
- * Revision 1.1.2.7  2007-11-06 12:33:07  europe\M00035F
+ * Revision 1.1.2.8  2007-11-06 12:49:33  europe\M00035F
+ * Add methods 'populateThreadContext' and 'destroyThreadContext' to interface IPortConnectedListener
+ *
+ * Revision 1.1.2.7  2007/11/06 12:33:07  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Implement more closely some of the details of original code
  *
  * Revision 1.1.2.6  2007/11/06 10:40:24  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -32,6 +35,7 @@ import com.ing.ifsa.api.ServiceURI;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+import javax.jms.Session;
 import nl.nn.adapterframework.configuration.ConfigurationException;
 import nl.nn.adapterframework.core.IListenerConnector;
 import nl.nn.adapterframework.core.IMessageHandler;
@@ -50,7 +54,7 @@ import org.apache.commons.lang.StringUtils;
  * @version Id
  */
 public class IfsaProviderListener extends IfsaEjbBase implements IPortConnectedListener {
-    public static final String version = "$RCSfile: IfsaProviderListener.java,v $ $Revision: 1.1.2.7 $ $Date: 2007-11-06 12:33:07 $";
+    public static final String version = "$RCSfile: IfsaProviderListener.java,v $ $Revision: 1.1.2.8 $ $Date: 2007-11-06 12:49:33 $";
     
     private IMessageHandler handler;
     private IbisExceptionListener exceptionListener;
@@ -181,5 +185,13 @@ public class IfsaProviderListener extends IfsaEjbBase implements IPortConnectedL
 
     public void setListenerPortConnector(IListenerConnector listenerPortConnector) {
         this.listenerPortConnector = listenerPortConnector;
+    }
+
+    public void destroyThreadContext(Map threadContext) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void populateThreadContext(Object rawMessage, Map threadContext, Session session) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

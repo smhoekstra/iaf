@@ -1,6 +1,9 @@
 /*
  * $Log: IfsaEjbBeanBase.java,v $
- * Revision 1.1.2.1  2007-10-29 12:25:35  europe\M00035F
+ * Revision 1.1.2.2  2007-11-06 12:49:33  europe\M00035F
+ * Add methods 'populateThreadContext' and 'destroyThreadContext' to interface IPortConnectedListener
+ *
+ * Revision 1.1.2.1  2007/10/29 12:25:35  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Create EJb Beans required to connect to IFSA J2EE implementation as an IFSA Provider application
  *
  * 
@@ -11,6 +14,8 @@ package nl.nn.adapterframework.extensions.ifsa.ejb;
 import com.ing.ifsa.api.ServiceRequest;
 import com.ing.ifsa.exceptions.ServiceException;
 import java.rmi.RemoteException;
+import java.util.HashMap;
+import java.util.Map;
 import javax.ejb.CreateException;
 import javax.ejb.EJBContext;
 import javax.ejb.EJBException;
@@ -48,16 +53,20 @@ abstract public class IfsaEjbBeanBase extends AbstractListenerConnectingEJB impl
     }
 
     protected String processRequest(ServiceRequest request) throws ServiceException {
+        Map threadContext = new HashMap();
         try {
-            GenericReceiver receiver = (GenericReceiver) listener.getHandler();
-            String message = listener.getStringFromRawMessage(request, null);
-            String id = listener.getIdFromRawMessage(request, null);
+            GenericReceiver receiver = (GenericReceiver) listener.getReceiver();
+            listener.populateThreadContext(request, threadContext, null);
+            String message = listener.getStringFromRawMessage(request, threadContext);
+            String id = listener.getIdFromRawMessage(request, threadContext);
             String cid = id;
-            String replyText = receiver.processRequest(listener, cid, message);
+            String replyText = receiver.processRequest(listener, cid, message, threadContext);
             return replyText;
         } catch (ListenerException ex) {
             listener.getExceptionListener().exceptionThrown(listener, ex);
             throw new ServiceException(ex);
+        } finally {
+            listener.destroyThreadContext(threadContext);
         }
     }
 
