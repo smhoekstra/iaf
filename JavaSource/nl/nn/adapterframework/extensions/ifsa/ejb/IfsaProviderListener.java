@@ -1,6 +1,9 @@
 /*
  * $Log: IfsaProviderListener.java,v $
- * Revision 1.1.2.9  2007-11-06 13:15:10  europe\M00035F
+ * Revision 1.1.2.10  2007-11-06 13:34:52  europe\M00035F
+ * Remove unused imports
+ *
+ * Revision 1.1.2.9  2007/11/06 13:15:10  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Move code putting properties into threadContext from 'getIdFromRawMessage' to 'populateThreadContext'
  *
  * Revision 1.1.2.8  2007/11/06 12:49:33  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -32,7 +35,6 @@
 
 package nl.nn.adapterframework.extensions.ifsa.ejb;
 
-import com.ing.ifsa.IFSAServiceName;
 import com.ing.ifsa.api.ServiceRequest;
 import com.ing.ifsa.api.ServiceURI;
 import java.util.Date;
@@ -47,8 +49,6 @@ import nl.nn.adapterframework.core.IReceiver;
 import nl.nn.adapterframework.core.IbisExceptionListener;
 import nl.nn.adapterframework.core.ListenerException;
 import nl.nn.adapterframework.core.PipeLineResult;
-import nl.nn.adapterframework.extensions.ifsa.IfsaMessageProtocolEnum;
-import org.apache.commons.lang.StringUtils;
 
 /**
  *
@@ -57,7 +57,7 @@ import org.apache.commons.lang.StringUtils;
  * @version Id
  */
 public class IfsaProviderListener extends IfsaEjbBase implements IPortConnectedListener {
-    public static final String version = "$RCSfile: IfsaProviderListener.java,v $ $Revision: 1.1.2.9 $ $Date: 2007-11-06 13:15:10 $";
+    public static final String version = "$RCSfile: IfsaProviderListener.java,v $ $Revision: 1.1.2.10 $ $Date: 2007-11-06 13:34:52 $";
     
     private IMessageHandler handler;
     private IbisExceptionListener exceptionListener;
