@@ -2,7 +2,10 @@
  * Created on 18-sep-07
  * 
  * $Log: PushingJmsListener.java,v $
- * Revision 1.1.2.1  2007-11-06 09:39:14  europe\M00035F
+ * Revision 1.1.2.2  2007-11-06 12:29:54  europe\M00035F
+ * Rename parameter 'context' to 'threadContext', in keeping with other code
+ *
+ * Revision 1.1.2.1  2007/11/06 09:39:14  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Merge refactoring/renaming from HEAD
  *
  * Revision 1.4  2007/11/05 13:06:55  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -72,7 +75,7 @@ import nl.nn.adapterframework.core.PipeLineResult;
  * 
  */
 public class PushingJmsListener extends JMSFacade implements IPortConnectedListener {
-    public static final String version="$RCSfile: PushingJmsListener.java,v $ $Revision: 1.1.2.1 $ $Date: 2007-11-06 09:39:14 $";
+    public static final String version="$RCSfile: PushingJmsListener.java,v $ $Revision: 1.1.2.2 $ $Date: 2007-11-06 12:29:54 $";
 
     private final static String THREAD_CONTEXT_SESSION_KEY="session";
     private final static String THREAD_CONTEXT_SESSION_OWNER_FLAG_KEY="isSessionOwner";
@@ -174,7 +177,7 @@ public class PushingJmsListener extends JMSFacade implements IPortConnectedListe
     /* (non-Javadoc)
      * @see nl.nn.adapterframework.core.IListener#getIdFromRawMessage(java.lang.Object, java.util.Map)
      */
-    public String getIdFromRawMessage(Object rawMessage, Map context)
+    public String getIdFromRawMessage(Object rawMessage, Map threadContext)
         throws ListenerException {
         TextMessage message = null;
         String cid = "unset";
@@ -256,10 +259,10 @@ public class PushingJmsListener extends JMSFacade implements IPortConnectedListe
                 + message.toString()
                 + "]");
     
-        context.put("id",id);
-        context.put("cid",cid);
-        context.put("timestamp",dTimeStamp);
-        context.put("replyTo",replyTo);
+        threadContext.put("id",id);
+        threadContext.put("cid",cid);
+        threadContext.put("timestamp",dTimeStamp);
+        threadContext.put("replyTo",replyTo);
         try {
             if (getAckMode() == Session.CLIENT_ACKNOWLEDGE) {
                 message.acknowledge();
@@ -274,7 +277,7 @@ public class PushingJmsListener extends JMSFacade implements IPortConnectedListe
     /* (non-Javadoc)
      * @see nl.nn.adapterframework.core.IListener#getStringFromRawMessage(java.lang.Object, java.util.Map)
      */
-    public String getStringFromRawMessage(Object rawMessage, Map context)
+    public String getStringFromRawMessage(Object rawMessage, Map threadContext)
         throws ListenerException {
         TextMessage message = null;
         try {
