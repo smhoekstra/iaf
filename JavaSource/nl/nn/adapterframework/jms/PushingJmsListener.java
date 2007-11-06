@@ -2,7 +2,10 @@
  * Created on 18-sep-07
  * 
  * $Log: PushingJmsListener.java,v $
- * Revision 1.1.2.2  2007-11-06 12:29:54  europe\M00035F
+ * Revision 1.1.2.3  2007-11-06 12:41:17  europe\M00035F
+ * Add original raw message as parameter to method 'createThreadContext' of 'pushingJmsListener' in preparation of adding it to interface
+ *
+ * Revision 1.1.2.2  2007/11/06 12:29:54  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Rename parameter 'context' to 'threadContext', in keeping with other code
  *
  * Revision 1.1.2.1  2007/11/06 09:39:14  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -75,7 +78,7 @@ import nl.nn.adapterframework.core.PipeLineResult;
  * 
  */
 public class PushingJmsListener extends JMSFacade implements IPortConnectedListener {
-    public static final String version="$RCSfile: PushingJmsListener.java,v $ $Revision: 1.1.2.2 $ $Date: 2007-11-06 12:29:54 $";
+    public static final String version="$RCSfile: PushingJmsListener.java,v $ $Revision: 1.1.2.3 $ $Date: 2007-11-06 12:41:17 $";
 
     private final static String THREAD_CONTEXT_SESSION_KEY="session";
     private final static String THREAD_CONTEXT_SESSION_OWNER_FLAG_KEY="isSessionOwner";
@@ -154,7 +157,7 @@ public class PushingJmsListener extends JMSFacade implements IPortConnectedListe
      * @param threadContext
      * @param session
      */
-    public void populateThreadContext(Map threadContext, Session session) {
+    public void populateThreadContext(Object rawMessage, Map threadContext, Session session) {
         if (session != null) {
             threadContext.put(THREAD_CONTEXT_SESSION_KEY, session);
             threadContext.put(THREAD_CONTEXT_SESSION_OWNER_FLAG_KEY, Boolean.FALSE);

@@ -1,6 +1,9 @@
 /*
  * $Log: GenericMDB.java,v $
- * Revision 1.4.2.5  2007-11-06 09:39:13  europe\M00035F
+ * Revision 1.4.2.6  2007-11-06 12:41:16  europe\M00035F
+ * Add original raw message as parameter to method 'createThreadContext' of 'pushingJmsListener' in preparation of adding it to interface
+ *
+ * Revision 1.4.2.5  2007/11/06 09:39:13  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Merge refactoring/renaming from HEAD
  *
  * Revision 1.4.2.4  2007/10/29 10:37:25  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -79,7 +82,7 @@ public class GenericMDB extends AbstractListenerConnectingEJB implements Message
                 (EjbListenerPortConnector)listener.getJmsConnector());
     }
 
-    public void onMessage(Message rawMessage) {
+    public void onMessage(Message message) {
         Map threadContext = new HashMap();
         try {
             // Code is not thread-safe but the same instance
@@ -90,8 +93,8 @@ public class GenericMDB extends AbstractListenerConnectingEJB implements Message
             }
 
             GenericReceiver receiver = (GenericReceiver) this.listener.getReceiver();
-            this.listener.populateThreadContext(threadContext, null);
-            receiver.processRawMessage(listener, rawMessage, threadContext);
+            this.listener.populateThreadContext(message,threadContext, null);
+            receiver.processRawMessage(listener, message, threadContext);
         } catch (ListenerException ex) {
             log.error(ex, ex);
             rollbackTransaction();
