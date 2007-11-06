@@ -1,6 +1,10 @@
 /*
  * $Log: ReceiverBase.java,v $
- * Revision 1.53.2.3  2007-10-24 09:39:49  europe\M00035F
+ * Revision 1.53.2.4  2007-11-06 09:39:13  europe\M00035F
+ * Merge refactoring/renaming from HEAD
+ *
+<<<<<<< ReceiverBase.java
+ * Revision 1.53.2.3  2007/10/24 09:39:49  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Merge changes from HEAD
  *
  * Revision 1.53.2.2  2007/10/16 14:18:09  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -8,6 +12,9 @@
  *
  * Revision 1.53.2.1  2007/10/16 13:32:59  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Merge changes from HEAD
+ *
+ * Revision 1.55  2007/11/05 10:33:16  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
+ * Move interface 'IJmsConfigurator' from package 'configuration' to package 'core' in preparation of renaming it
  *
  * Revision 1.54  2007/10/16 12:40:36  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * moved code to ReceiverBaseClassic

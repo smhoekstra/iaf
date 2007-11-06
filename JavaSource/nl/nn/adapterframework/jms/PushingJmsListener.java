@@ -2,7 +2,20 @@
  * Created on 18-sep-07
  * 
  * $Log: PushingJmsListener.java,v $
- * Revision 1.1  2007-10-16 09:52:35  europe\M00035F
+ * Revision 1.1.2.1  2007-11-06 09:39:14  europe\M00035F
+ * Merge refactoring/renaming from HEAD
+ *
+ * Revision 1.4  2007/11/05 13:06:55  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
+ * Rename and redefine methods in interface IListenerConnector to remove 'jms' from names
+ *
+ * Revision 1.3  2007/11/05 12:26:51  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
+ * * Implement new interface 'IPortConnectedListener'
+ * * Rename property 'jmsConfigurator' to 'jmsConnector'
+ *
+ * Revision 1.2  2007/11/05 10:33:15  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
+ * Move interface 'IListenerConnector' from package 'configuration' to package 'core' in preparation of renaming it
+ *
+ * Revision 1.1  2007/10/16 09:52:35  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Change over JmsListener to a 'switch-class' to facilitate smoother switchover from older version to spring version
  *
  * Revision 1.25.4.7  2007/10/12 09:09:06  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -38,9 +51,10 @@ import javax.jms.TextMessage;
 import javax.naming.NamingException;
 
 import nl.nn.adapterframework.configuration.ConfigurationException;
-import nl.nn.adapterframework.configuration.IJmsConfigurator;
+import nl.nn.adapterframework.core.IListenerConnector;
 import nl.nn.adapterframework.core.IMessageHandler;
-import nl.nn.adapterframework.core.IPushingListener;
+import nl.nn.adapterframework.core.IPortConnectedListener;
+import nl.nn.adapterframework.core.IReceiver;
 import nl.nn.adapterframework.core.ISender;
 import nl.nn.adapterframework.core.IbisExceptionListener;
 import nl.nn.adapterframework.core.ListenerException;
@@ -57,8 +71,8 @@ import nl.nn.adapterframework.core.PipeLineResult;
  * Configuration is same as JmsListener / PullingJmsListener.
  * 
  */
-public class PushingJmsListener extends JMSFacade implements IPushingListener {
-    public static final String version="$RCSfile: PushingJmsListener.java,v $ $Revision: 1.1 $ $Date: 2007-10-16 09:52:35 $";
+public class PushingJmsListener extends JMSFacade implements IPortConnectedListener {
+    public static final String version="$RCSfile: PushingJmsListener.java,v $ $Revision: 1.1.2.1 $ $Date: 2007-11-06 09:39:14 $";
 
     private final static String THREAD_CONTEXT_SESSION_KEY="session";
     private final static String THREAD_CONTEXT_SESSION_OWNER_FLAG_KEY="isSessionOwner";
@@ -77,8 +91,9 @@ public class PushingJmsListener extends JMSFacade implements IPushingListener {
     private String commitOnState="success";
 
     
-    private IJmsConfigurator jmsConfigurator;
+    private IListenerConnector jmsConnector;
     private IMessageHandler handler;
+    private IReceiver receiver;
     private IbisExceptionListener exceptionListener;
     
     /* (non-Javadoc)
@@ -104,7 +119,7 @@ public class PushingJmsListener extends JMSFacade implements IPushingListener {
         if (sender != null) {
             sender.configure();
         }
-        jmsConfigurator.configureJmsReceiver(this);
+        jmsConnector.configureEndpointConnection(this);
     }
 
     /* (non-Javadoc)
@@ -112,7 +127,7 @@ public class PushingJmsListener extends JMSFacade implements IPushingListener {
      */
     public void open() throws ListenerException {
         // DO NOT open JMSFacade!
-        jmsConfigurator.openJmsReceiver();
+        jmsConnector.start();
     }
 
     /* (non-Javadoc)
@@ -121,7 +136,7 @@ public class PushingJmsListener extends JMSFacade implements IPushingListener {
     public void close() throws ListenerException {
         try {
             // DO close JMSFacade - it might have been opened via other calls
-            jmsConfigurator.closeJmsReceiver();
+            jmsConnector.stop();
             closeFacade();
         } catch (JmsException ex) {
             throw new ListenerException(ex);
@@ -359,7 +374,7 @@ public class PushingJmsListener extends JMSFacade implements IPushingListener {
     }
 
     public Destination getDestination() {
-        Destination d = getJmsConfigurator().getDestination();
+        Destination d = getJmsConnector().getDestination();
         return d;
     }
 
@@ -371,15 +386,15 @@ public class PushingJmsListener extends JMSFacade implements IPushingListener {
     /**
      * @return
      */
-    public IJmsConfigurator getJmsConfigurator() {
-        return jmsConfigurator;
+    public IListenerConnector getJmsConnector() {
+        return jmsConnector;
     }
 
     /**
      * @param configurator
      */
-    public void setJmsConfigurator(IJmsConfigurator configurator) {
-        jmsConfigurator = configurator;
+    public void setJmsConnector(IListenerConnector configurator) {
+        jmsConnector = configurator;
     }
 
     /**
@@ -539,7 +554,7 @@ public class PushingJmsListener extends JMSFacade implements IPushingListener {
      * 
      * This property is only used in EJB Deployment mode and has no effect otherwise. 
      * If it is not set in EJB Deployment Mode, then the listener port name is
-     * constructed by the {@link nl.nn.adapterframework.ejb.EjbJmsConfigurator} from
+     * constructed by the {@link nl.nn.adapterframework.ejb.EjbListenerPortConnector} from
      * the Listener name, Adapter name and the Receiver name.
      * 
      * @return The name of the WebSphere Listener Port, as configured in the
@@ -554,7 +569,7 @@ public class PushingJmsListener extends JMSFacade implements IPushingListener {
      * 
      * This property is only used in EJB Deployment mode and has no effect otherwise. 
      * If it is not set in EJB Deployment Mode, then the listener port name is
-     * constructed by the {@link nl.nn.adapterframework.ejb.EjbJmsConfigurator} from
+     * constructed by the {@link nl.nn.adapterframework.ejb.EjbListenerPortConnector} from
      * the Listener name, Adapter name and the Receiver name.
      * 
      * @param listenerPort Name of the listener port, as configured in the application
@@ -568,4 +583,11 @@ public class PushingJmsListener extends JMSFacade implements IPushingListener {
         return super.getLogPrefix();
     }
     
+    public IReceiver getReceiver() {
+        return receiver;
+    }
+    
+    public void setReceiver(IReceiver receiver) {
+        this.receiver = receiver;
+    }
 }

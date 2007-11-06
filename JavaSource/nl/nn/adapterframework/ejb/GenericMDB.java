@@ -1,6 +1,9 @@
 /*
  * $Log: GenericMDB.java,v $
- * Revision 1.4.2.4  2007-10-29 10:37:25  europe\M00035F
+ * Revision 1.4.2.5  2007-11-06 09:39:13  europe\M00035F
+ * Merge refactoring/renaming from HEAD
+ *
+ * Revision 1.4.2.4  2007/10/29 10:37:25  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Fix method visibility error
  *
  * Revision 1.4.2.3  2007/10/29 10:29:13  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -72,8 +75,8 @@ public class GenericMDB extends AbstractListenerConnectingEJB implements Message
     
     public void ejbRemove() throws EJBException {
         log.info("Removing MDB");
-        listenerPortPoller.unregisterEjbJmsConfigurator(
-                (EjbJmsConfigurator)listener.getJmsConfigurator());
+        listenerPortPoller.unregisterEjbListenerPortConnector(
+                (EjbListenerPortConnector)listener.getJmsConnector());
     }
 
     public void onMessage(Message rawMessage) {
@@ -86,7 +89,7 @@ public class GenericMDB extends AbstractListenerConnectingEJB implements Message
                 this.listener = retrieveJmsListener();
             }
 
-            GenericReceiver receiver = (GenericReceiver) this.listener.getHandler();
+            GenericReceiver receiver = (GenericReceiver) this.listener.getReceiver();
             this.listener.populateThreadContext(threadContext, null);
             receiver.processRawMessage(listener, rawMessage, threadContext);
         } catch (ListenerException ex) {

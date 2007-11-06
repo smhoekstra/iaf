@@ -1,7 +1,13 @@
 /*
  * $Log: ReceiverBaseSpring.java,v $
- * Revision 1.1.2.3  2007-10-24 09:39:48  europe\M00035F
+ * Revision 1.1.2.4  2007-11-06 09:39:14  europe\M00035F
+ * Merge refactoring/renaming from HEAD
+ *
+ * Revision 1.1.2.3  2007/10/24 09:39:48  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Merge changes from HEAD
+ *
+ * Revision 1.5  2007/11/05 13:06:55  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
+ * Rename and redefine methods in interface IListenerConnector to remove 'jms' from names
  *
  * Revision 1.4  2007/10/23 12:58:23  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Improve changing InProcessStorage to ErrorStorge: Do it before propagating names, and add logging
@@ -224,6 +230,7 @@ import nl.nn.adapterframework.core.IAdapter;
 import nl.nn.adapterframework.core.IListener;
 import nl.nn.adapterframework.core.IMessageHandler;
 import nl.nn.adapterframework.core.INamedObject;
+import nl.nn.adapterframework.core.IPortConnectedListener;
 import nl.nn.adapterframework.core.IPullingListener;
 import nl.nn.adapterframework.core.IPushingListener;
 import nl.nn.adapterframework.core.IReceiver;
@@ -335,7 +342,7 @@ public class ReceiverBaseSpring implements IReceiver, IReceiverStatistics, IMess
 	private final static TransactionDefinition TXREQUIRED = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRED);
 	private final static TransactionDefinition TXSUPPORTS = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_SUPPORTS);
     
-	public static final String version="$RCSfile: ReceiverBaseSpring.java,v $ $Revision: 1.1.2.3 $ $Date: 2007-10-24 09:39:48 $";
+	public static final String version="$RCSfile: ReceiverBaseSpring.java,v $ $Revision: 1.1.2.4 $ $Date: 2007-11-06 09:39:14 $";
 	protected Logger log = LogUtil.getLogger(this);
     
 	private BeanFactory beanFactory;
@@ -684,6 +691,10 @@ public class ReceiverBaseSpring implements IReceiver, IReceiverStatistics, IMess
 				pl.setHandler(this);
 				pl.setExceptionListener(this);
 			}
+            if (getListener() instanceof IPortConnectedListener) {
+                IPortConnectedListener pcl = (IPortConnectedListener) getListener();
+                pcl.setReceiver(this);
+            }
 			if (getListener() instanceof IPullingListener) {
 				setListenerContainer(createListenerContainer());
 			}
