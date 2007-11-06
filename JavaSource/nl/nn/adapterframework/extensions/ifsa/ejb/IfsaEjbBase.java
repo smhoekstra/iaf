@@ -1,6 +1,9 @@
 /*
  * $Log: IfsaEjbBase.java,v $
- * Revision 1.1.2.2  2007-10-29 09:33:00  europe\M00035F
+ * Revision 1.1.2.3  2007-11-06 12:33:07  europe\M00035F
+ * Implement more closely some of the details of original code
+ *
+ * Revision 1.1.2.2  2007/10/29 09:33:00  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Refactor: pullup a number of methods to abstract base class so they can be shared between IFSA parts
  *
  * Revision 1.1.2.1  2007/10/25 15:03:44  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -21,6 +24,8 @@ import nl.nn.adapterframework.util.LogUtil;
 import org.apache.log4j.Logger;
 
 import com.ing.ifsa.api.ServiceRequest;
+import nl.nn.adapterframework.configuration.ConfigurationException;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Base class for the IFSA EJB implementation.
@@ -52,7 +57,19 @@ abstract public class IfsaEjbBase {
         return "IfsaRequester["+ getName()+ 
                 "] of Application [" + getApplicationId()+"] ";  
     }
-
+    
+    protected void configure() throws ConfigurationException {
+        // perform some basic checks
+        if (StringUtils.isEmpty(getApplicationId()))
+            throw new ConfigurationException(getLogPrefix()+"applicationId is not specified");
+        if (getMessageProtocolEnum() == null)
+            throw new ConfigurationException(getLogPrefix()+
+                "invalid messageProtocol specified ["
+                    + getMessageProtocolEnum()
+                    + "], should be one of the following "
+                    + IfsaMessageProtocolEnum.getNames());
+    }
+    
     protected void addUdzMapToRequest(Map udzMap, ServiceRequest request) {
         if (udzMap == null) {
             return;

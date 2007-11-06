@@ -1,6 +1,9 @@
 /*
  * $Log: IfsaProviderListener.java,v $
- * Revision 1.1.2.6  2007-11-06 10:40:24  europe\M00035F
+ * Revision 1.1.2.7  2007-11-06 12:33:07  europe\M00035F
+ * Implement more closely some of the details of original code
+ *
+ * Revision 1.1.2.6  2007/11/06 10:40:24  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Make IfsaProviderListener follow state of it's ListenerPort, like with JmsListener
  *
  * Revision 1.1.2.5  2007/11/06 10:36:49  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -23,7 +26,11 @@
 
 package nl.nn.adapterframework.extensions.ifsa.ejb;
 
+import com.ing.ifsa.IFSAServiceName;
 import com.ing.ifsa.api.ServiceRequest;
+import com.ing.ifsa.api.ServiceURI;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.Map;
 import nl.nn.adapterframework.configuration.ConfigurationException;
 import nl.nn.adapterframework.core.IListenerConnector;
@@ -33,14 +40,17 @@ import nl.nn.adapterframework.core.IReceiver;
 import nl.nn.adapterframework.core.IbisExceptionListener;
 import nl.nn.adapterframework.core.ListenerException;
 import nl.nn.adapterframework.core.PipeLineResult;
+import nl.nn.adapterframework.extensions.ifsa.IfsaMessageProtocolEnum;
+import org.apache.commons.lang.StringUtils;
 
 /**
  *
  * @author Tim van der Leeuw
+ * @since 4.8
  * @version Id
  */
 public class IfsaProviderListener extends IfsaEjbBase implements IPortConnectedListener {
-    public static final String version = "$RCSfile: IfsaProviderListener.java,v $ $Revision: 1.1.2.6 $ $Date: 2007-11-06 10:40:24 $";
+    public static final String version = "$RCSfile: IfsaProviderListener.java,v $ $Revision: 1.1.2.7 $ $Date: 2007-11-06 12:33:07 $";
     
     private IMessageHandler handler;
     private IbisExceptionListener exceptionListener;
@@ -56,6 +66,7 @@ public class IfsaProviderListener extends IfsaEjbBase implements IPortConnectedL
     }
 
     public void configure() throws ConfigurationException {
+        super.configure();
         listenerPortConnector.configureEndpointConnection(this);
     }
 
@@ -67,12 +78,73 @@ public class IfsaProviderListener extends IfsaEjbBase implements IPortConnectedL
         listenerPortConnector.stop();
     }
 
-    public String getIdFromRawMessage(Object rawMessage, Map context) throws ListenerException {
+    public String getIdFromRawMessage(Object rawMessage, Map threadContext) throws ListenerException {
         ServiceRequest request = (ServiceRequest) rawMessage;
-        return request.getUniqueId();
+        
+        // Get variables from the IFSA Service Request, in as good manner
+        // as possible to emulate the way that the JMS IfsaProviderListener works
+        String mode = getMessageProtocol().equals("RR")? "NON_PERSISTENT" : "PERSISTENT";
+        String id = request.getUniqueId();
+        String cid = id;
+        if (log.isDebugEnabled()) {
+            log.debug("Setting correlation ID to MessageId");
+        }
+        Date dTimeStamp = new Date();
+        String messageText = getStringFromRawMessage(rawMessage, threadContext);
+        
+        String fullIfsaServiceName = null;
+        ServiceURI requestedService = request.getServiceURI();
+        String ifsaServiceName=null, ifsaGroup=null, ifsaOccurrence=null, ifsaVersion=null;
+        
+        ifsaServiceName = requestedService.getService();
+        ifsaGroup = requestedService.getGroup();
+        ifsaOccurrence = requestedService.getOccurrence();
+        ifsaVersion = requestedService.getVersion();
+        
+        if (log.isDebugEnabled()) {
+                log.debug(getLogPrefix()+ "got message for [" + fullIfsaServiceName
+                                + "] with JMSDeliveryMode=[" + mode
+                                + "] \n  JMSMessageID=[" + id
+                                + "] \n  JMSCorrelationID=["+ cid
+                                + "] \n  ifsaServiceName=["+ ifsaServiceName
+                                + "] \n  ifsaGroup=["+ ifsaGroup
+                                + "] \n  ifsaOccurrence=["+ ifsaOccurrence
+                                + "] \n  ifsaVersion=["+ ifsaVersion
+                                + "] \n  Timestamp=[" + dTimeStamp.toString()
+                                + "] \n  ReplyTo=[none"
+                                + "] \n  MessageHeaders=[<unknown>"
+                                + "] \n  Message=[" + messageText+"\n]");
+
+        }
+        threadContext.put("id", id);
+        threadContext.put("cid", cid);
+        threadContext.put("timestamp", dTimeStamp);
+        threadContext.put("replyTo", "none");
+        threadContext.put("messageText", messageText);
+        threadContext.put("fullIfsaServiceName", fullIfsaServiceName);
+        threadContext.put("ifsaServiceName", ifsaServiceName);
+        threadContext.put("ifsaGroup", ifsaGroup);
+        threadContext.put("ifsaOccurrence", ifsaOccurrence);
+        threadContext.put("ifsaVersion", ifsaVersion);
+
+        Map udz = request.getAllUserDefinedZones();
+        if (udz!=null) {
+            String contextDump = "ifsaUDZ:";
+            for (Iterator it = udz.keySet().iterator(); it.hasNext();) {
+                String key = (String)it.next();
+                String value = (String)udz.get(key);
+                contextDump = contextDump + "\n " + key + "=[" + value + "]";
+                threadContext.put(key, value);
+            }
+            if (log.isDebugEnabled()) {
+                log.debug(getLogPrefix()+ contextDump);
+            }
+        }
+
+        return id;
     }
 
-    public String getStringFromRawMessage(Object rawMessage, Map context) throws ListenerException {
+    public String getStringFromRawMessage(Object rawMessage, Map threadContext) throws ListenerException {
         ServiceRequest request = (ServiceRequest) rawMessage;
         return request.getBusinessMessage().getText();
     }
