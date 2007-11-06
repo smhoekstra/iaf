@@ -1,6 +1,9 @@
 /*
  * $Log: IListenerConnector.java,v $
- * Revision 1.2.2.1  2007-11-06 09:39:13  europe\M00035F
+ * Revision 1.2.2.2  2007-11-06 09:41:29  europe\M00035F
+ * Remove unused import; fix error in comment
+ *
+ * Revision 1.2.2.1  2007/11/06 09:39:13  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Merge refactoring/renaming from HEAD
  *
  * Revision 1.2  2007/11/05 13:06:55  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -10,7 +13,7 @@
  * Rename interface IJmsConfigurator to IListenerConnector to make it more generic and make the name better match what the implementations do.
  *
  * Revision 1.1  2007/11/05 10:33:16  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
- * Move interface 'IListenerConnector' from package 'configuration' to package 'core' in preparation of renaming it
+ * Move interface 'IJmsConfigurator' from package 'configuration' to package 'core' in preparation of renaming it
  *
  * Revision 1.3  2007/10/16 09:52:35  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Change over JmsListener to a 'switch-class' to facilitate smoother switchover from older version to spring version
@@ -25,7 +28,6 @@ package nl.nn.adapterframework.core;
 import javax.jms.Destination;
 
 import nl.nn.adapterframework.configuration.ConfigurationException;
-import nl.nn.adapterframework.jms.PushingJmsListener;
 
 /**
  * Interface specifying method to configure a JMS receiver or some sort
