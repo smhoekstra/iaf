@@ -2,7 +2,10 @@
  * Created on 18-sep-07
  * 
  * $Log: PushingJmsListener.java,v $
- * Revision 1.1.2.3  2007-11-06 12:41:17  europe\M00035F
+ * Revision 1.1.2.4  2007-11-06 12:43:56  europe\M00035F
+ * Improve some JavaDoc
+ *
+ * Revision 1.1.2.3  2007/11/06 12:41:17  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Add original raw message as parameter to method 'createThreadContext' of 'pushingJmsListener' in preparation of adding it to interface
  *
  * Revision 1.1.2.2  2007/11/06 12:29:54  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -78,7 +81,7 @@ import nl.nn.adapterframework.core.PipeLineResult;
  * 
  */
 public class PushingJmsListener extends JMSFacade implements IPortConnectedListener {
-    public static final String version="$RCSfile: PushingJmsListener.java,v $ $Revision: 1.1.2.3 $ $Date: 2007-11-06 12:41:17 $";
+    public static final String version="$RCSfile: PushingJmsListener.java,v $ $Revision: 1.1.2.4 $ $Date: 2007-11-06 12:43:56 $";
 
     private final static String THREAD_CONTEXT_SESSION_KEY="session";
     private final static String THREAD_CONTEXT_SESSION_OWNER_FLAG_KEY="isSessionOwner";
@@ -154,8 +157,9 @@ public class PushingJmsListener extends JMSFacade implements IPortConnectedListe
      * This includes a Session. The Session object can be passed in
      * externally.
      * 
-     * @param threadContext
-     * @param session
+     * @param rawMessage - Original message received, can not be <code>null</code>
+     * @param threadContext - Thread context to be populated, can not be <code>null</code>
+     * @param session - JMS Session under which message was received; can be <code>null</code>
      */
     public void populateThreadContext(Object rawMessage, Map threadContext, Session session) {
         if (session != null) {
@@ -164,6 +168,12 @@ public class PushingJmsListener extends JMSFacade implements IPortConnectedListe
         }
     }
     
+    /**
+     * Perform any required cleanups on the thread context, such as closing
+     * a JMS Session if the session is owned by the JMS Listener.
+     * 
+     * @param threadContext
+     */
     public void destroyThreadContext(Map threadContext) {
         // Do we have a session in the thread-context, and do we need to close it?
         if (threadContext.containsKey(THREAD_CONTEXT_SESSION_KEY)) {
