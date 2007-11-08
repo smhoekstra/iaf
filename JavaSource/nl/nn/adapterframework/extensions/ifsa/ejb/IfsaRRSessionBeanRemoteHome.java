@@ -1,6 +1,9 @@
 /*
  * $Log: IfsaRRSessionBeanRemoteHome.java,v $
- * Revision 1.1.2.2  2007-11-08 13:31:36  europe\M00035F
+ * Revision 1.1.2.3  2007-11-08 13:51:30  europe\M00035F
+ * create() method should return Remote versions of EJB Bean interfaces
+ *
+ * Revision 1.1.2.2  2007/11/08 13:31:36  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * create() method should throw RemoteException
  *
  * Revision 1.1.2.1  2007/11/01 10:35:25  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -18,7 +21,7 @@ import javax.ejb.EJBHome;
  * @version Id
  */
 public interface IfsaRRSessionBeanRemoteHome extends EJBHome {
-    public IfsaRRSessionBeanLocal create()
+    public IfsaRRSessionBeanRemote create()
         throws javax.ejb.CreateException, java.rmi.RemoteException;
 
 }
