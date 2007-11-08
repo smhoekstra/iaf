@@ -1,6 +1,9 @@
 /*
  * $Log: CustomIfsaServiceLocatorEJB.java,v $
- * Revision 1.1.2.3  2007-11-08 09:47:54  europe\M00035F
+ * Revision 1.1.2.4  2007-11-08 12:29:42  europe\M00035F
+ * Instantiate Logger instance using LogUtil
+ *
+ * Revision 1.1.2.3  2007/11/08 09:47:54  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Look up bean from JNDI instead of via service-lookup method (since our JNDI name is not an IFSA service id!)
  *
  * Revision 1.1.2.2  2007/11/02 11:48:36  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -10,7 +13,7 @@
  * Add custom versions of IFSA MDB Receiver beans, and subclass of IFSA ServiceLocatorEJB
  *
  *
- * $Id: CustomIfsaServiceLocatorEJB.java,v 1.1.2.3 2007-11-08 09:47:54 europe\M00035F Exp $
+ * $Id: CustomIfsaServiceLocatorEJB.java,v 1.1.2.4 2007-11-08 12:29:42 europe\M00035F Exp $
  *
  */
 package nl.nn.adapterframework.extensions.ifsa.ejb;
@@ -26,6 +29,7 @@ import javax.ejb.EJBHome;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.rmi.PortableRemoteObject;
+import nl.nn.adapterframework.util.LogUtil;
 import org.apache.log4j.Logger;
 
 /**
@@ -36,7 +40,7 @@ import org.apache.log4j.Logger;
  * @version Id
  */
 public class CustomIfsaServiceLocatorEJB extends ServiceLocatorEJB {
-    private final static Logger log = Logger.getLogger(CustomIfsaServiceLocatorEJB.class);
+    private final static Logger log = LogUtil.getLogger(CustomIfsaServiceLocatorEJB.class);
     
     public final static String SERVICE_DISPATCHER_EJB_NAME = "java:comp/env/ejb/ibis/ServiceDispatcher";
     
