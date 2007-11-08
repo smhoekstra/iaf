@@ -1,6 +1,9 @@
 /*
  * $Log: IfsaFFSessionBeanRemoteHome.java,v $
- * Revision 1.1.2.1  2007-11-01 10:35:24  europe\M00035F
+ * Revision 1.1.2.2  2007-11-08 13:31:36  europe\M00035F
+ * create() method should throw RemoteException
+ *
+ * Revision 1.1.2.1  2007/11/01 10:35:24  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Add remote interfaces for IFSA Session beans, since that is what's expected by the IFSA libraries
  *
  */
@@ -16,6 +19,6 @@ import javax.ejb.EJBHome;
  */
 public interface IfsaFFSessionBeanRemoteHome extends EJBHome {
     public IfsaFFSessionBeanLocal create()
-        throws javax.ejb.CreateException;
+        throws javax.ejb.CreateException, java.rmi.RemoteException;
 
 }
