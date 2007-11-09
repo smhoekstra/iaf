@@ -1,6 +1,9 @@
 /*
  * $Log: ListenerFactory.java,v $
- * Revision 1.2.2.1  2007-10-24 09:39:48  europe\M00035F
+ * Revision 1.2.2.2  2007-11-09 11:59:46  europe\M00035F
+ * Reformat
+ *
+ * Revision 1.2.2.1  2007/10/24 09:39:48  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Merge changes from HEAD
  *
  * Revision 1.5  2007/10/24 08:04:23  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -58,18 +61,18 @@ public class ListenerFactory extends AbstractSpringPoweredDigesterFactory {
         return "proto-jmsListener";
     }
     
-	/**
-	 * @see nl.nn.adapterframework.configuration.AbstractSpringPoweredDigesterFactory#createObject(org.xml.sax.Attributes)
-	 */
-	public Object createObject(Attributes attrs) throws Exception {
-		String className = attrs.getValue("className");
-		if (className != null && getDigester().peek() instanceof MessageSendingPipe && className.endsWith(JMS_LISTENER_CLASSNAME_SUFFIX)) {
-			log.debug("JmsListener is created as part of a MessageSendingPipe; replace classname with '"
+    /**
+     * @see nl.nn.adapterframework.configuration.AbstractSpringPoweredDigesterFactory#createObject(org.xml.sax.Attributes)
+     */
+    public Object createObject(Attributes attrs) throws Exception {
+        String className = attrs.getValue("className");
+        if (className != null && getDigester().peek() instanceof MessageSendingPipe && className.endsWith(JMS_LISTENER_CLASSNAME_SUFFIX)) {
+            log.debug("JmsListener is created as part of a MessageSendingPipe; replace classname with '"
                     + CORRELATED_LISTENER_CLASSNAME + "' to ensure compatibility");
             return createBeanFromClassName(CORRELATED_LISTENER_CLASSNAME);
-		} else {
+        } else {
             return createBeanFromClassName(className);
-		}
-	}
+        }
+    }
 
 }
