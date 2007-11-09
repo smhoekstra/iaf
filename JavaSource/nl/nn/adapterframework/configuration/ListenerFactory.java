@@ -1,6 +1,9 @@
 /*
  * $Log: ListenerFactory.java,v $
- * Revision 1.2.2.3  2007-11-09 12:05:56  europe\M00035F
+ * Revision 1.2.2.4  2007-11-09 12:32:05  europe\M00035F
+ * Conditionalize logging for performance
+ *
+ * Revision 1.2.2.3  2007/11/09 12:05:56  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Improve logging of actions
  *
  * Revision 1.2.2.2  2007/11/09 11:59:46  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -70,11 +73,14 @@ public class ListenerFactory extends AbstractSpringPoweredDigesterFactory {
     public Object createObject(Attributes attrs) throws Exception {
         String className = attrs.getValue("className");
         if (className != null && getDigester().peek() instanceof MessageSendingPipe && className.endsWith(JMS_LISTENER_CLASSNAME_SUFFIX)) {
-            log.debug("JmsListener is created as part of a MessageSendingPipe; replace classname with '"
-                    + CORRELATED_LISTENER_CLASSNAME + "' to ensure compatibility");
+            if (log.isDebugEnabled()) {
+                log.debug("JmsListener is created as part of a MessageSendingPipe; replace classname with '" + CORRELATED_LISTENER_CLASSNAME + "' to ensure compatibility");
+            }
             return createBeanFromClassName(CORRELATED_LISTENER_CLASSNAME);
         } else {
-            log.debug("Creating Listener class '" + className + "'");
+            if (log.isDebugEnabled()) {
+                log.debug("Creating Listener class '" + className + "'");
+            }
             return createBeanFromClassName(className);
         }
     }
