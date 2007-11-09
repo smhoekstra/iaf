@@ -1,6 +1,9 @@
 /*
  * $Log: ListenerFactory.java,v $
- * Revision 1.2.2.2  2007-11-09 11:59:46  europe\M00035F
+ * Revision 1.2.2.3  2007-11-09 12:05:56  europe\M00035F
+ * Improve logging of actions
+ *
+ * Revision 1.2.2.2  2007/11/09 11:59:46  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Reformat
  *
  * Revision 1.2.2.1  2007/10/24 09:39:48  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -71,6 +74,7 @@ public class ListenerFactory extends AbstractSpringPoweredDigesterFactory {
                     + CORRELATED_LISTENER_CLASSNAME + "' to ensure compatibility");
             return createBeanFromClassName(CORRELATED_LISTENER_CLASSNAME);
         } else {
+            log.debug("Creating Listener class '" + className + "'");
             return createBeanFromClassName(className);
         }
     }
