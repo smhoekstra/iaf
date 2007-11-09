@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   $Log: springEjbDeployment.xml,v $
-  Revision 1.3.2.4  2007-11-06 10:36:49  europe\M00035F
+  Revision 1.3.2.5  2007-11-09 12:05:44  europe\M00035F
+  Explicitly add Ifsa Provider Listener bean to Spring context
+
+  Revision 1.3.2.4  2007/11/06 10:36:49  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
   Make IfsaProviderListener follow state of it's ListenerPort, like with JmsListener
 
   Revision 1.3.2.3  2007/11/06 10:10:13  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -41,6 +44,12 @@
             http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd
             ">
 
+    <!-- Prototype-beans for configuration -->
+    <bean id="proto-ifsaProviderListener" class="nl.nn.adapterframework.extensions.ifsa.IfsaProviderListener"
+    	autowire="byName" scope="prototype">
+    	<property name="listenerPortConnector" ref="listenerPortConnector"/>
+    </bean>
+    
     <!-- IBIS Beans -->
     <bean id="ibisManager" class="nl.nn.adapterframework.unmanaged.DefaultIbisManager"
         autowire="byName">
@@ -54,11 +63,9 @@
         autowire="byName" scope="singleton">
     </bean>
     
-    <bean name="jmsConnector" class="nl.nn.adapterframework.ejb.EjbListenerPortConnector"
+    <bean name="jmsConnector" name="listenerPortConnector" class="nl.nn.adapterframework.ejb.EjbListenerPortConnector"
         autowire="byName" scope="prototype">
     </bean>
-    
-    <alias name="jmsConnector" alias="listenerPortConnector" />
     
     <!-- set up Quartz Job to run the ListenerPortPoller every 5 secodns -->
     <bean id="portPollerJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
