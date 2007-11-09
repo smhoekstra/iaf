@@ -1,6 +1,9 @@
 /*
  * $Log: AbstractSpringPoweredDigesterFactory.java,v $
- * Revision 1.2.2.2  2007-11-09 12:05:57  europe\M00035F
+ * Revision 1.2.2.3  2007-11-09 12:32:25  europe\M00035F
+ * Conditionalize logging for performance; fix NPE in logging
+ *
+ * Revision 1.2.2.2  2007/11/09 12:05:57  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Improve logging of actions
  *
  * Revision 1.2.2.1  2007/10/24 09:39:47  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -233,15 +236,17 @@ public abstract class AbstractSpringPoweredDigesterFactory
             throw new ConfigurationException("Beans created from the BeanFactory must be prototype-beans, bean '"
                 + beanName + "' of class '" + className + "' is not.");
         }
-        log.debug("Creating bean with actual bean-name '" + beanName
-                + "', bean-class '" + beanClass.getName()
-                + "' from Spring Bean Factory.");
+        if (log.isDebugEnabled()) {
+            log.debug("Creating bean with actual bean-name [" + beanName + "], bean-class [" + (beanClass != null ? beanClass.getName() : "null") + "] from Spring Bean Factory.");
+        }
         return factory.getBean(beanName, beanClass);
     }
 
     protected Object createBeanAndAutoWire(Class beanClass)
         throws InstantiationException, IllegalAccessException {
-        log.debug("Bean class '" + beanClass.getName() + "' not found in Spring Bean Factory, instantiating directly and using Spring Factory for auto-wiring support.");
+        if (log.isDebugEnabled()) {
+            log.debug("Bean class '" + beanClass.getName() + "' not found in Spring Bean Factory, instantiating directly and using Spring Factory for auto-wiring support.");
+        }
         Object o = beanClass.newInstance();
         if (factory instanceof AutowireCapableBeanFactory) {
             ((AutowireCapableBeanFactory)factory)
