@@ -1,6 +1,9 @@
 /*
  * $Log: EjbListenerPortConnector.java,v $
- * Revision 1.2.2.1  2007-11-06 09:39:13  europe\M00035F
+ * Revision 1.2.2.2  2007-11-09 14:18:16  europe\M00035F
+ * Fix NPE when WAS ListenerPort not found; replace a lot more illegal characters
+ *
+ * Revision 1.2.2.1  2007/11/06 09:39:13  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Merge refactoring/renaming from HEAD
  *
  * Revision 1.2  2007/11/05 13:06:55  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -91,11 +94,13 @@ public class EjbListenerPortConnector implements IListenerConnector {
 
     public void start() throws ListenerException {
         try {
-            getAdminService().invoke(listenerPortMBean, "start", null, null);
-            // Register again, to be sure, b/c a registration can have been
-            // removed by some other controlling code.
-            listenerPortPoller.registerEjbListenerPortConnector(this);
-            closed = false;
+            if (listenerPortMBean != null) {
+                getAdminService().invoke(listenerPortMBean, "start", null, null);
+                // Register again, to be sure, b/c a registration can have been
+                // removed by some other controlling code.
+                listenerPortPoller.registerEjbListenerPortConnector(this);
+                closed = false;
+            }
         } catch (Exception ex) {
             throw new ListenerException(ex);
         }
@@ -103,7 +108,9 @@ public class EjbListenerPortConnector implements IListenerConnector {
 
     public void stop() throws ListenerException {
         try {
-            getAdminService().invoke(listenerPortMBean, "stop", null, null);
+            if (listenerPortMBean != null) {
+                getAdminService().invoke(listenerPortMBean, "stop", null, null);
+            }
             closed = true;
         } catch (Exception ex) {
             throw new ListenerException(ex);
@@ -184,7 +191,7 @@ public class EjbListenerPortConnector implements IListenerConnector {
             receiver = (GenericReceiver)jmsListener.getReceiver();
             name = configuration.getConfigurationName()
                     + '-' + receiver.getName() + LISTENER_PORTNAME_SUFFIX;
-            name = name.replace(' ', '-');
+            name = name.replace(' ', '-').replaceAll("(:|\\(|\\)|\\\\|/|\\||<|>|&|\\^|%)", "");
         }
         
         return name;
