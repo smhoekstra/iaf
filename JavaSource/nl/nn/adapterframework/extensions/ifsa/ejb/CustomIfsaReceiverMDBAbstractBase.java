@@ -1,6 +1,9 @@
 /*
  * $Log: CustomIfsaReceiverMDBAbstractBase.java,v $
- * Revision 1.1.2.1  2007-11-02 11:47:05  europe\M00035F
+ * Revision 1.1.2.2  2007-11-12 12:41:27  europe\M00035F
+ * Use LogUtil for obtaining logger
+ *
+ * Revision 1.1.2.1  2007/11/02 11:47:05  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Add custom versions of IFSA MDB Receiver beans, and subclass of IFSA ServiceLocatorEJB
  *
  * 
@@ -17,6 +20,9 @@ import javax.ejb.CreateException;
 import javax.ejb.EJBException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
+
+import nl.nn.adapterframework.util.LogUtil;
+
 import org.apache.log4j.Logger;
 
 
@@ -31,7 +37,7 @@ import org.apache.log4j.Logger;
  * @version Id
  */
 public abstract class CustomIfsaReceiverMDBAbstractBase implements MessageDrivenBean, MessageListener {
-    private static final Logger log = Logger.getLogger(CustomIfsaReceiverMDBAbstractBase.class);
+    private static final Logger log = LogUtil.getLogger(CustomIfsaReceiverMDBAbstractBase.class);
     protected static ServiceLocator serviceLocator = createServiceLocator();
     
     protected MessageDrivenContext ejbContext;
