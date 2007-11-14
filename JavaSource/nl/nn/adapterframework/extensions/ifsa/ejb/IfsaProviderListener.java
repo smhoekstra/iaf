@@ -1,6 +1,9 @@
 /*
  * $Log: IfsaProviderListener.java,v $
- * Revision 1.1.2.11  2007-11-06 14:03:10  europe\M00035F
+ * Revision 1.1.2.12  2007-11-14 09:11:50  europe\M00035F
+ * Fix unimplemented-method error (no implementation required, add no-op implementation)
+ *
+ * Revision 1.1.2.11  2007/11/06 14:03:10  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Fix method to get name of WebSphere Listener Port
  *
  * Revision 1.1.2.10  2007/11/06 13:34:52  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -60,7 +63,7 @@ import nl.nn.adapterframework.core.PipeLineResult;
  * @version Id
  */
 public class IfsaProviderListener extends IfsaEjbBase implements IPortConnectedListener {
-    public static final String version = "$RCSfile: IfsaProviderListener.java,v $ $Revision: 1.1.2.11 $ $Date: 2007-11-06 14:03:10 $";
+    public static final String version = "$RCSfile: IfsaProviderListener.java,v $ $Revision: 1.1.2.12 $ $Date: 2007-11-14 09:11:50 $";
     
     private IMessageHandler handler;
     private IbisExceptionListener exceptionListener;
@@ -133,7 +136,8 @@ public class IfsaProviderListener extends IfsaEjbBase implements IPortConnectedL
     }
 
     public void destroyThreadContext(Map threadContext) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        // Do nothing here
+        return;
     }
 
     public void populateThreadContext(Object rawMessage, Map threadContext, Session session) throws ListenerException {
