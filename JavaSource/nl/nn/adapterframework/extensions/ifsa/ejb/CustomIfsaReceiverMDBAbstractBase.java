@@ -1,6 +1,9 @@
 /*
  * $Log: CustomIfsaReceiverMDBAbstractBase.java,v $
- * Revision 1.1.2.2  2007-11-12 12:41:27  europe\M00035F
+ * Revision 1.1.2.3  2007-11-14 08:54:33  europe\M00035F
+ * Use LogUtil to initialize logging (since this class in in IBIS, not in IFSA, it doesn't use Log4j loaded/initalized from same classloader as IFSA); put logger as protected instance-variable in AbstractBaseMDB class
+ *
+ * Revision 1.1.2.2  2007/11/12 12:41:27  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Use LogUtil for obtaining logger
  *
  * Revision 1.1.2.1  2007/11/02 11:47:05  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -37,7 +40,7 @@ import org.apache.log4j.Logger;
  * @version Id
  */
 public abstract class CustomIfsaReceiverMDBAbstractBase implements MessageDrivenBean, MessageListener {
-    private static final Logger log = LogUtil.getLogger(CustomIfsaReceiverMDBAbstractBase.class);
+    protected final Logger log = LogUtil.getLogger(this);
     protected static ServiceLocator serviceLocator = createServiceLocator();
     
     protected MessageDrivenContext ejbContext;
