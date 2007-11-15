@@ -1,6 +1,9 @@
 /*
  * $Log: CustomIfsaRRReceiverMDB.java,v $
- * Revision 1.1.2.5  2007-11-15 13:01:50  europe\M00035F
+ * Revision 1.1.2.6  2007-11-15 13:44:29  europe\M00035F
+ * Add logging of success-case
+ *
+ * Revision 1.1.2.5  2007/11/15 13:01:50  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Remove unused import
  *
  * Revision 1.1.2.4  2007/11/15 13:01:26  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -16,7 +19,7 @@
  * Add custom versions of IFSA MDB Receiver beans, and subclass of IFSA ServiceLocatorEJB
  *
  *
- * $Id: CustomIfsaRRReceiverMDB.java,v 1.1.2.5 2007-11-15 13:01:50 europe\M00035F Exp $
+ * $Id: CustomIfsaRRReceiverMDB.java,v 1.1.2.6 2007-11-15 13:44:29 europe\M00035F Exp $
  *
  */
 package nl.nn.adapterframework.extensions.ifsa.ejb;
@@ -40,6 +43,10 @@ public class CustomIfsaRRReceiverMDB extends CustomIfsaReceiverMDBAbstractBase {
         if (!((RRReceiver) receiver).handleMessage(msg)) {
             log.warn("*** onMessage() message was not handled succesfully, rollback transaction");
             getMessageDrivenContext().setRollbackOnly();
+        } else {
+            if (log.isInfoEnabled()) {
+                log.info("Message was handled succesfully");
+            }
         }
         if (log.isInfoEnabled()) {
             log.info("<<< onMessage exit");
