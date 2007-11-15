@@ -1,6 +1,9 @@
 /*
  * $Log: CustomIfsaServiceLocatorEJB.java,v $
- * Revision 1.1.2.5  2007-11-15 12:54:50  europe\M00035F
+ * Revision 1.1.2.6  2007-11-15 14:02:24  europe\M00035F
+ * Don't use globally cached NamingHelper but only a locally cached NamingHelper; this prevents bug where JNDI lookups on fixed name are not properly redirected to per-EJB-different real EJBs.
+ *
+ * Revision 1.1.2.5  2007/11/15 12:54:50  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Add bit more logging
  *
  * Revision 1.1.2.4  2007/11/08 12:29:42  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -16,7 +19,7 @@
  * Add custom versions of IFSA MDB Receiver beans, and subclass of IFSA ServiceLocatorEJB
  *
  *
- * $Id: CustomIfsaServiceLocatorEJB.java,v 1.1.2.5 2007-11-15 12:54:50 europe\M00035F Exp $
+ * $Id: CustomIfsaServiceLocatorEJB.java,v 1.1.2.6 2007-11-15 14:02:24 europe\M00035F Exp $
  *
  */
 package nl.nn.adapterframework.extensions.ifsa.ejb;
@@ -46,6 +49,7 @@ public class CustomIfsaServiceLocatorEJB extends ServiceLocatorEJB {
     private final static Logger log = LogUtil.getLogger(CustomIfsaServiceLocatorEJB.class);
     
     public final static String SERVICE_DISPATCHER_EJB_NAME = "java:comp/env/ejb/ibis/ServiceDispatcher";
+    protected final NamingHelper namingHelper = new NamingHelper();
     
     public FireForgetService getFireForgetService(String service) throws UnknownServiceException, InvalidServiceException {
         try {
@@ -71,7 +75,7 @@ public class CustomIfsaServiceLocatorEJB extends ServiceLocatorEJB {
     
     protected Object getBeanFromJNDI(String beanHomeJNDIName) throws UnknownServiceException, InvalidServiceException {
         try {
-            Object obj = NamingHelper.getInstance().lookup(beanHomeJNDIName);
+            Object obj = namingHelper.lookup(beanHomeJNDIName);
             EJBHome svcHome = (EJBHome) PortableRemoteObject.narrow(obj, javax.ejb.EJBHome.class);
             
             Class homeClass = svcHome.getClass();
