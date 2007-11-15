@@ -1,6 +1,9 @@
 /*
  * $Log: CustomIfsaFFReceiverMDB.java,v $
- * Revision 1.1.2.4  2007-11-15 13:01:26  europe\M00035F
+ * Revision 1.1.2.5  2007-11-15 13:02:06  europe\M00035F
+ * Remove unused import
+ *
+ * Revision 1.1.2.4  2007/11/15 13:01:26  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Add bit more logging
  *
  * Revision 1.1.2.3  2007/11/14 08:54:33  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -13,7 +16,7 @@
  * Add custom versions of IFSA MDB Receiver beans, and subclass of IFSA ServiceLocatorEJB
  *
  *
- * $Id: CustomIfsaFFReceiverMDB.java,v 1.1.2.4 2007-11-15 13:01:26 europe\M00035F Exp $
+ * $Id: CustomIfsaFFReceiverMDB.java,v 1.1.2.5 2007-11-15 13:02:06 europe\M00035F Exp $
  *
  */
 package nl.nn.adapterframework.extensions.ifsa.ejb;
@@ -21,7 +24,6 @@ package nl.nn.adapterframework.extensions.ifsa.ejb;
 import com.ing.ifsa.provider.FFReceiver;
 import com.ing.ifsa.provider.Receiver;
 import javax.jms.Message;
-import org.apache.log4j.Logger;
 
 /**
  * IfsaReceiverMDB for FireForget services.
