@@ -1,6 +1,9 @@
 /*
  * $Log: DefaultIbisManager.java,v $
- * Revision 1.3.2.3  2007-11-15 10:22:29  europe\M00035F
+ * Revision 1.3.2.4  2007-11-15 12:24:30  europe\M00035F
+ * Formatting fixes
+ *
+ * Revision 1.3.2.3  2007/11/15 10:22:29  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * * Add more detailed logging
  *
  * Revision 1.3.2.2  2007/11/15 09:53:34  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -213,19 +216,18 @@ public class DefaultIbisManager implements IbisManager, BeanFactoryAware {
     
     public void startScheduledJobs() {
         List scheduledJobs = configuration.getScheduledJobs();
-        // TODO: ScheduleHelper: non-static class injected via Spring
         for (Iterator iter = scheduledJobs.iterator(); iter.hasNext();) {
-			JobDef jobdef = (JobDef) iter.next();
+            JobDef jobdef = (JobDef) iter.next();
             try {
                 schedulerHelper.scheduleJob(this, jobdef);
                 log.info("job scheduled with properties :" + jobdef.toString());
             } catch (Exception e) {
                 log.error("Could not schedule job ["+jobdef.getName()+"]",e);
             }
-			
         }
         try {
-                schedulerHelper.startScheduler();
+            schedulerHelper.startScheduler();
+            log.info("Scheduler started");
         } catch (SchedulerException e) {
             log.error("Could not start scheduler", e);
         }
@@ -298,7 +300,7 @@ public class DefaultIbisManager implements IbisManager, BeanFactoryAware {
         t.start();
         */
     }
-	public void stopAdapter(final IAdapter adapter) {
+    public void stopAdapter(final IAdapter adapter) {
         adapter.stopRunning();
         /*
         Object monitor = adapterThreads.get(adapter.getName());
@@ -306,29 +308,30 @@ public class DefaultIbisManager implements IbisManager, BeanFactoryAware {
             monitor.notify();
         }
         */
-	}
+    }
 
-	public void setConfiguration(Configuration configuration) {
-		this.configuration = configuration;
-	}
-	public Configuration getConfiguration() {
-		return configuration;
-	}
-
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
+    }
+    
+    public Configuration getConfiguration() {
+        return configuration;
+    }
 
     public void setSchedulerHelper(SchedulerHelper helper) {
         schedulerHelper = helper;
     }
-	public SchedulerHelper getSchedulerHelper() {
-		return schedulerHelper;
-	}
+    public SchedulerHelper getSchedulerHelper() {
+        return schedulerHelper;
+    }
 
     public void setConfigurationDigester(ConfigurationDigester configurationDigester) {
         this.configurationDigester = configurationDigester;
     }
-	public ConfigurationDigester getConfigurationDigester() {
-		return configurationDigester;
-	}
+    
+    public ConfigurationDigester getConfigurationDigester() {
+        return configurationDigester;
+    }
 
     public void setDeploymentMode(int deploymentMode) {
         if (deploymentMode < 0 || deploymentMode >= deploymentModes.length) {
@@ -337,9 +340,10 @@ public class DefaultIbisManager implements IbisManager, BeanFactoryAware {
         }
         this.deploymentMode = deploymentMode;
     }
-	public int getDeploymentMode() {
-		return deploymentMode;
-	}
+    public int getDeploymentMode() {
+        return deploymentMode;
+    }
+    
     public String getDeploymentModeString() {
         return deploymentModes[this.deploymentMode];
     }
