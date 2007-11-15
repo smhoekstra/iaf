@@ -2,7 +2,10 @@
  * ListenerPortPoller.java
  *  
  * $Log: ListenerPortPoller.java,v $
- * Revision 1.1.2.4  2007-11-15 09:54:23  europe\M00035F
+ * Revision 1.1.2.5  2007-11-15 10:34:31  europe\M00035F
+ * Method in references class was renamed
+ *
+ * Revision 1.1.2.4  2007/11/15 09:54:23  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * * Add more detailed logging
  * * Do not attempt to start/stop a receiver which is in state 'Starting'
  *
@@ -120,7 +123,7 @@ public class ListenerPortPoller implements DisposableBean {
             }
             // Check for each ListenerPort if it's state matches with the
             // state that IBIS thinks it should be in.
-            IPortConnectedListener listener = elpc.getJmsListener();
+            IPortConnectedListener listener = elpc.getListener();
             try {
                 if (elpc.isClosed() != elpc.isListenerPortClosed()) {
                     log.info("State of listener [" + listener.getName()
@@ -148,13 +151,13 @@ public class ListenerPortPoller implements DisposableBean {
      * WebSphere ListenerPort.
      */
     public void toggleConfiguratorState(EjbListenerPortConnector elpc) throws ConfigurationException {
-        GenericReceiver receiver = (GenericReceiver) elpc.getJmsListener().getReceiver();
+        GenericReceiver receiver = (GenericReceiver) elpc.getListener().getReceiver();
         if (elpc.isListenerPortClosed()) {
             if (receiver.isInRunState(RunStateEnum.STARTED)) {
                 log.info("Stopping Receiver [" + receiver.getName() + "] because the WebSphere Listener-Port is in state 'stopped' but the JmsConnector in state 'open' and the receiver is in state 'started'");
                 receiver.stopRunning();
             } else {
-                log.info("ListenerPort [" + elpc.getListenerPortName(elpc.getJmsListener())
+                log.info("ListenerPort [" + elpc.getListenerPortName(elpc.getListener())
                         + "] is in closed state, Listener is not in closed state, but Receiver is in state ["
                         + receiver.getRunState().getName() + "] so the state of Receiver will not be changed.");
                 
