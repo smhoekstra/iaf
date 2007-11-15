@@ -1,6 +1,10 @@
 /*
  * $Log: AbstractEJBBase.java,v $
- * Revision 1.3.2.2  2007-10-29 10:37:25  europe\M00035F
+ * Revision 1.3.2.3  2007-11-15 10:24:32  europe\M00035F
+ * * Add JavaDoc
+ * * Add AutoWiring by name of EJB Bean instances via the Spring Bean Factory
+ *
+ * Revision 1.3.2.2  2007/10/29 10:37:25  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Fix method visibility error
  *
  * Revision 1.3.2.1  2007/10/29 10:29:13  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -34,6 +38,8 @@ import nl.nn.adapterframework.configuration.IbisMain;
 import nl.nn.adapterframework.configuration.IbisManager;
 import nl.nn.adapterframework.util.LogUtil;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.jndi.JndiLookupFailureException;
 
 /**
@@ -49,7 +55,8 @@ abstract public class AbstractEJBBase {
     protected static IbisMain main;
     protected static IbisManager manager;
     protected static Configuration config;
-
+    protected static ListableBeanFactory beanFactory;
+    
     private Context context;
     
     static {
@@ -65,10 +72,28 @@ abstract public class AbstractEJBBase {
         manager = main.getIbisManager();
         config = main.getConfiguration();
         manager.startIbis();
+        beanFactory = main.getBeanFactory();
     }
     
     abstract protected EJBContext getEJBContext();
+
+    /**
+     * Let the Spring Bean Factory auto-write the EJB instance by name.
+     */
+    public AbstractEJBBase() {
+        // Apply auto-wiring and initialization to self
+        ((AutowireCapableBeanFactory)beanFactory)
+            .autowireBeanProperties(
+                this, 
+                AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
+                false);
+        ((AutowireCapableBeanFactory)beanFactory).initializeBean(this, "IbisEJB");
+    }
     
+    /**
+     * Get the JNDI Naming Context
+     * @return Default JNDI Naming Context
+     */
     protected Context getContext() {
         synchronized (this) {
             if (context == null) {
@@ -82,6 +107,16 @@ abstract public class AbstractEJBBase {
         return context;
     }
     
+    /**
+     * Get variable from Bean Environment. Not allowed to call before EJB Create.
+     * 
+     * @param varName Name of variable to retrieve. Will be prefixed with 
+     * "java:comp/env/" is needed.
+     * @return Value of the variable, as <code>java.lang.Object</code>.
+     * @throws org.springframework.jndi.JndiLookupFailureException If the lookup
+     * in the JNDI throws a NamingException, it will be wrapped in a JndiLookupFailureException
+     * (which is derived from RuntimeException).
+     */
     protected Object getContextVariable(String varName) throws JndiLookupFailureException {
         try {
             if (!varName.startsWith(COMP_ENV_JNDI_PREFIX)) {
