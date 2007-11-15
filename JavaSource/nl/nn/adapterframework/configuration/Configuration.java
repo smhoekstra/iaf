@@ -1,6 +1,9 @@
 /*
  * $Log: Configuration.java,v $
- * Revision 1.28  2007-10-16 08:40:36  europe\L190409
+ * Revision 1.28.2.1  2007-11-15 12:18:37  europe\M00035F
+ * Formatting fix
+ *
+ * Revision 1.28  2007/10/16 08:40:36  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * removed ifsa facade version display
  *
  * Revision 1.27  2007/10/09 15:07:44  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -101,11 +104,11 @@ import org.apache.log4j.Logger;
  * @see    nl.nn.adapterframework.core.IAdapter
  */
 public class Configuration {
-	public static final String version="$RCSfile: Configuration.java,v $ $Revision: 1.28 $ $Date: 2007-10-16 08:40:36 $";
+	public static final String version="$RCSfile: Configuration.java,v $ $Revision: 1.28.2.1 $ $Date: 2007-11-15 12:18:37 $";
     protected Logger log=LogUtil.getLogger(this); 
      
     private Map adapterTable = new Hashtable();
-	private List adapters = new ArrayList();
+    private List adapters = new ArrayList();
     private List scheduledJobs = new ArrayList();
     
     private URL configurationURL;
