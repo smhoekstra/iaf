@@ -1,6 +1,9 @@
 /*
  * $Log: IfsaFFSessionBean.java,v $
- * Revision 1.1.2.1  2007-10-29 12:25:34  europe\M00035F
+ * Revision 1.1.2.2  2007-11-15 12:59:51  europe\M00035F
+ * Add bit more logging
+ *
+ * Revision 1.1.2.1  2007/10/29 12:25:34  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Create EJb Beans required to connect to IFSA J2EE implementation as an IFSA Provider application
  *
  * 
@@ -22,7 +25,9 @@ import javax.ejb.SessionBean;
 public class IfsaFFSessionBean extends IfsaEjbBeanBase implements SessionBean, FireForgetService {
 
     public void onServiceRequest(ServiceRequest request) throws RemoteException, ServiceException {
+        log.debug(">>> onServiceRequest() Processing FF Request from IFSA");
         processRequest(request);
+        log.debug("<<< onServiceRequest() Done processing FF Request from IFSA");
     }
 
 }

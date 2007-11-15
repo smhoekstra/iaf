@@ -1,6 +1,9 @@
 /*
  * $Log: IfsaRRSessionBean.java,v $
- * Revision 1.1.2.2  2007-11-01 10:35:24  europe\M00035F
+ * Revision 1.1.2.3  2007-11-15 12:59:51  europe\M00035F
+ * Add bit more logging
+ *
+ * Revision 1.1.2.2  2007/11/01 10:35:24  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Add remote interfaces for IFSA Session beans, since that is what's expected by the IFSA libraries
  *
  * Revision 1.1.2.1  2007/10/29 12:25:34  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -28,9 +31,11 @@ public class IfsaRRSessionBean extends IfsaEjbBeanBase implements SessionBean, R
 {
 
     public ServiceReply onServiceRequest(ServiceRequest request) throws RemoteException, ServiceException {
+        log.debug(">>> onServiceRequest() Processing RR Request from IFSA");
         String replyText = processRequest(request);
 
         ServiceReply reply = new ServiceReply(request, new BusinessMessage(replyText));
+        log.debug("<<< onServiceRequest() Done processing RR Request from IFSA");
         return reply;
     }
 

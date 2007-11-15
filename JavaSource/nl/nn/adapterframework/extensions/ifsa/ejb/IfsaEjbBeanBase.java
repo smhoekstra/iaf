@@ -1,6 +1,9 @@
 /*
  * $Log: IfsaEjbBeanBase.java,v $
- * Revision 1.1.2.3  2007-11-15 10:27:07  europe\M00035F
+ * Revision 1.1.2.4  2007-11-15 12:59:51  europe\M00035F
+ * Add bit more logging
+ *
+ * Revision 1.1.2.3  2007/11/15 10:27:07  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * * Add logging of EJB Create / Remove events
  * * Move code up to parent class
  *
@@ -49,6 +52,7 @@ abstract public class IfsaEjbBeanBase extends AbstractListenerConnectingEJB impl
     }
 
     protected String processRequest(ServiceRequest request) throws ServiceException {
+        log.debug(">>> processRequest() Processing IFSA Request, generic handling");
         Map threadContext = new HashMap();
         try {
             GenericReceiver receiver = (GenericReceiver) listener.getReceiver();
@@ -57,6 +61,9 @@ abstract public class IfsaEjbBeanBase extends AbstractListenerConnectingEJB impl
             String id = listener.getIdFromRawMessage(request, threadContext);
             String cid = id;
             String replyText = receiver.processRequest(listener, cid, message, threadContext);
+            if (log.isDebugEnabled()) {
+                log.debug("processRequest(): ReplyText=[" + replyText + "]");
+            }
             return replyText;
         } catch (ListenerException ex) {
             log.error(ex, ex);
@@ -64,6 +71,7 @@ abstract public class IfsaEjbBeanBase extends AbstractListenerConnectingEJB impl
             // Do not invoke rollback, but let IFSA take care of that
             throw new ServiceException(ex);
         } finally {
+            log.debug("<<< processRequest() finished generic handling");
             listener.destroyThreadContext(threadContext);
         }
     }
