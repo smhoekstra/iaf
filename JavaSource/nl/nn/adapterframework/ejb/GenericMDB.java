@@ -1,6 +1,10 @@
 /*
  * $Log: GenericMDB.java,v $
- * Revision 1.4.2.6  2007-11-06 12:41:16  europe\M00035F
+ * Revision 1.4.2.7  2007-11-15 10:27:49  europe\M00035F
+ * * Add exception-registration via ExceptionListener of the listener
+ * * Move code up to parent class
+ *
+ * Revision 1.4.2.6  2007/11/06 12:41:16  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Add original raw message as parameter to method 'createThreadContext' of 'pushingJmsListener' in preparation of adding it to interface
  *
  * Revision 1.4.2.5  2007/11/06 09:39:13  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -53,7 +57,6 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 
 import nl.nn.adapterframework.core.ListenerException;
-import nl.nn.adapterframework.jms.PushingJmsListener;
 import nl.nn.adapterframework.receivers.GenericReceiver;
 
 /**
@@ -64,7 +67,7 @@ import nl.nn.adapterframework.receivers.GenericReceiver;
 public class GenericMDB extends AbstractListenerConnectingEJB implements MessageDrivenBean, MessageListener {
     
     protected MessageDrivenContext ejbContext;
-    protected PushingJmsListener listener;
+    
     public void setMessageDrivenContext(MessageDrivenContext ejbContext) throws EJBException {
         log.info("Received EJB-MDB Context");
         this.ejbContext = ejbContext;
@@ -72,14 +75,12 @@ public class GenericMDB extends AbstractListenerConnectingEJB implements Message
     
     public void ejbCreate() {
         log.info("Creating MDB");
-        this.listener = retrieveJmsListener();
-        this.containerManagedTransactions = retrieveTransactionType();
+        onEjbCreate();
     }
     
     public void ejbRemove() throws EJBException {
         log.info("Removing MDB");
-        listenerPortPoller.unregisterEjbListenerPortConnector(
-                (EjbListenerPortConnector)listener.getJmsConnector());
+        onEjbRemove();
     }
 
     public void onMessage(Message message) {
@@ -89,7 +90,7 @@ public class GenericMDB extends AbstractListenerConnectingEJB implements Message
             // should be looked up always so there's no point
             // in locking
             if (this.listener == null) {
-                this.listener = retrieveJmsListener();
+                this.listener = retrieveListener();
             }
 
             GenericReceiver receiver = (GenericReceiver) this.listener.getReceiver();
@@ -97,16 +98,11 @@ public class GenericMDB extends AbstractListenerConnectingEJB implements Message
             receiver.processRawMessage(listener, message, threadContext);
         } catch (ListenerException ex) {
             log.error(ex, ex);
+            listener.getExceptionListener().exceptionThrown(listener, ex);
             rollbackTransaction();
         } finally {
             this.listener.destroyThreadContext(threadContext);
         }
-    }
-
-    protected PushingJmsListener retrieveJmsListener() {
-        String adapterName = (String) getContextVariable("adapterName");
-        String receiverName = (String) getContextVariable("receiverName");
-        return (PushingJmsListener) retrieveListener(receiverName, adapterName);
     }
 
     /* (non-Javadoc)
