@@ -1,6 +1,9 @@
 /*
  * $Log: CustomIfsaReceiverMDBAbstractBase.java,v $
- * Revision 1.1.2.3  2007-11-14 08:54:33  europe\M00035F
+ * Revision 1.1.2.4  2007-11-15 14:10:39  europe\M00035F
+ * Don't use static (=global) instance of ServiceLocator, to avoid same EJB aliasing issues as happens when global NamingHelper instance is used (with it's globally cached EJB's keyed per JNDI lookup name).
+ *
+ * Revision 1.1.2.3  2007/11/14 08:54:33  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Use LogUtil to initialize logging (since this class in in IBIS, not in IFSA, it doesn't use Log4j loaded/initalized from same classloader as IFSA); put logger as protected instance-variable in AbstractBaseMDB class
  *
  * Revision 1.1.2.2  2007/11/12 12:41:27  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -41,14 +44,30 @@ import org.apache.log4j.Logger;
  */
 public abstract class CustomIfsaReceiverMDBAbstractBase implements MessageDrivenBean, MessageListener {
     protected final Logger log = LogUtil.getLogger(this);
-    protected static ServiceLocator serviceLocator = createServiceLocator();
+    /**
+     * Service Locator instance: Should be per-instance to avoid unwanted
+     * EJB aliasing effects.
+     */
+    protected ServiceLocator serviceLocator = createServiceLocator();
     
     protected MessageDrivenContext ejbContext;
     protected Receiver receiver;
     
-    protected static ServiceLocator createServiceLocator() {
+    /**
+     * Create ServiceLocator instance.
+     * 
+     * @return new instance of CustomIfsaServiceLocatorEJB
+     */
+    protected ServiceLocator createServiceLocator() {
         return new CustomIfsaServiceLocatorEJB();
     }
+    
+    /**
+     * Creating MDB
+     * 
+     * @throws javax.ejb.CreateException
+     * @throws javax.ejb.EJBException
+     */
     public void ejbCreate() throws CreateException, EJBException {
         if(log.isInfoEnabled()) {
             log.info(">>> ejbCreate()");
@@ -66,6 +85,11 @@ public abstract class CustomIfsaReceiverMDBAbstractBase implements MessageDriven
         }
     }
 
+    /**
+     * Removing MDB
+     * 
+     * @throws javax.ejb.EJBException
+     */
     public void ejbRemove() throws EJBException {
         if(log.isInfoEnabled()) {
             log.info(">>> ejbRemove()");
@@ -80,8 +104,21 @@ public abstract class CustomIfsaReceiverMDBAbstractBase implements MessageDriven
         ejbContext = ctx;
     }
 
+    /**
+     * onMessage is abstract with two identical implementations, simply because
+     * the IFSA Receiver abstract class doesn't contain an abstract definition of
+     * the method to process the request.
+     * 
+     * @param msg JMS Message to process as IFSA Request.
+     */
     public abstract void onMessage(Message msg);
 
+    /**
+     * Abstract method to create Receiver subclass; used in subclasses
+     * to create the FFReceiver or FFReceiver.
+     * 
+     * @return
+     */
     protected abstract Receiver createReceiver();
 
 }
