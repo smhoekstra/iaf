@@ -1,6 +1,9 @@
 /*
  * $Log: IPortConnectedListener.java,v $
- * Revision 1.2.2.3  2007-11-06 13:10:11  europe\M00035F
+ * Revision 1.2.2.4  2007-11-15 10:23:37  europe\M00035F
+ * Add extra methods for allow better configuration via the interface, instead of implementations
+ *
+ * Revision 1.2.2.3  2007/11/06 13:10:11  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Add exception to method signature
  *
  * Revision 1.2.2.2  2007/11/06 12:49:33  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -37,6 +40,8 @@ import javax.jms.Session;
  *
  */
 public interface IPortConnectedListener extends IPushingListener {
+
+    public IbisExceptionListener getExceptionListener();
     String getListenerPort();
     void setReceiver(IReceiver receiver);
     IReceiver getReceiver();
@@ -44,4 +49,6 @@ public interface IPortConnectedListener extends IPushingListener {
     void destroyThreadContext(Map threadContext);
 
     void populateThreadContext(Object rawMessage, Map threadContext, Session session) throws ListenerException;
+
+    IListenerConnector getListenerPortConnector();
 }
