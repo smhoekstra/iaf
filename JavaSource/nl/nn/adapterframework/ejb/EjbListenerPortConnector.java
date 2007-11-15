@@ -1,6 +1,9 @@
 /*
  * $Log: EjbListenerPortConnector.java,v $
- * Revision 1.2.2.3  2007-11-15 10:28:42  europe\M00035F
+ * Revision 1.2.2.4  2007-11-15 10:34:02  europe\M00035F
+ * Rename method 'getJmsListener' to 'getListener' to reflect fact that more types of listener can be controlled
+ *
+ * Revision 1.2.2.3  2007/11/15 10:28:42  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * * Add JavaDoc
  * * Refactor a number of fields & variables to more logical names
  *
@@ -241,7 +244,7 @@ public class EjbListenerPortConnector implements IListenerConnector {
         return closed;
     }
 
-    public IPortConnectedListener getJmsListener() {
+    public IPortConnectedListener getListener() {
         return listener;
     }
 
