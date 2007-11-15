@@ -1,6 +1,10 @@
 /*
  * $Log: IfsaEjbBeanBase.java,v $
- * Revision 1.1.2.2  2007-11-06 12:49:33  europe\M00035F
+ * Revision 1.1.2.3  2007-11-15 10:27:07  europe\M00035F
+ * * Add logging of EJB Create / Remove events
+ * * Move code up to parent class
+ *
+ * Revision 1.1.2.2  2007/11/06 12:49:33  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Add methods 'populateThreadContext' and 'destroyThreadContext' to interface IPortConnectedListener
  *
  * Revision 1.1.2.1  2007/10/29 12:25:35  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -21,6 +25,7 @@ import javax.ejb.EJBContext;
 import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
+import nl.nn.adapterframework.core.IPortConnectedListener;
 import nl.nn.adapterframework.core.ListenerException;
 import nl.nn.adapterframework.ejb.AbstractListenerConnectingEJB;
 import nl.nn.adapterframework.receivers.GenericReceiver;
@@ -32,24 +37,15 @@ import nl.nn.adapterframework.receivers.GenericReceiver;
  */
 abstract public class IfsaEjbBeanBase extends AbstractListenerConnectingEJB implements SessionBean {
     protected SessionContext ejbContext;
-    protected IfsaProviderListener listener;
     
     public void ejbCreate() throws CreateException {
-        // TODO: More can be pulled up when there's a proper interface
-        // implemented by both PushingJmsListener and IfsaProviderListener
-        this.listener = retrieveJmsListener();
-        this.containerManagedTransactions = retrieveTransactionType();
-        
+        log.info("Creating IFSA Handler Session Bean");
+        onEjbCreate();
     }
     
     public void ejbRemove() throws EJBException, RemoteException {
-        // TODO: ListenerPort unregistration
-    }
-
-    protected IfsaProviderListener retrieveJmsListener() {
-        String adapterName = (String) getContextVariable("adapterName");
-        String receiverName = (String) getContextVariable("receiverName");
-        return (IfsaProviderListener) retrieveListener(receiverName, adapterName);
+        log.info("Removing IFSA Handler Session Bean");
+        onEjbRemove();
     }
 
     protected String processRequest(ServiceRequest request) throws ServiceException {
@@ -63,7 +59,9 @@ abstract public class IfsaEjbBeanBase extends AbstractListenerConnectingEJB impl
             String replyText = receiver.processRequest(listener, cid, message, threadContext);
             return replyText;
         } catch (ListenerException ex) {
+            log.error(ex, ex);
             listener.getExceptionListener().exceptionThrown(listener, ex);
+            // Do not invoke rollback, but let IFSA take care of that
             throw new ServiceException(ex);
         } finally {
             listener.destroyThreadContext(threadContext);
