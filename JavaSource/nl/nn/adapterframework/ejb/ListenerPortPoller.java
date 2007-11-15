@@ -2,7 +2,10 @@
  * ListenerPortPoller.java
  *  
  * $Log: ListenerPortPoller.java,v $
- * Revision 1.1.2.5  2007-11-15 10:34:31  europe\M00035F
+ * Revision 1.1.2.6  2007-11-15 12:19:24  europe\M00035F
+ * Comment out some logging because it is overkill, and testing done proves that the poll() method is no longer called after stopping the IBIS application.
+ *
+ * Revision 1.1.2.5  2007/11/15 10:34:31  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Method in references class was renamed
  *
  * Revision 1.1.2.4  2007/11/15 09:54:23  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -111,9 +114,9 @@ public class ListenerPortPoller implements DisposableBean {
      * toggle their state if not.
      */
     public void poll() {
-        if (log.isDebugEnabled()) {
-            log.debug("Enter polling " + this.toString() + ", thread: " + Thread.currentThread().getName());
-        }
+//        if (log.isDebugEnabled()) {
+//            log.debug("Enter polling " + this.toString() + ", thread: " + Thread.currentThread().getName());
+//        }
         for (Iterator iter = portConnectorList.iterator(); iter.hasNext();) {
             WeakReference wr = (WeakReference)iter.next();
             EjbListenerPortConnector elpc = (EjbListenerPortConnector) wr.get();
@@ -139,9 +142,9 @@ public class ListenerPortPoller implements DisposableBean {
             }
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug("Exit polling " + this.toString() + ", thread: " + Thread.currentThread().getName());
-        }
+//        if (log.isDebugEnabled()) {
+//            log.debug("Exit polling " + this.toString() + ", thread: " + Thread.currentThread().getName());
+//        }
     }
 
     /**
@@ -149,6 +152,10 @@ public class ListenerPortPoller implements DisposableBean {
      * the receiver it is attached to (via the JmsListener).
      * This method changes the state of the Receiver to match the state of the
      * WebSphere ListenerPort.
+     * 
+     * @param elpc ListenerPortConnector for which state is to be changed.
+     * 
+     * @throws nl.nn.adapterframework.configuration.ConfigurationException
      */
     public void toggleConfiguratorState(EjbListenerPortConnector elpc) throws ConfigurationException {
         GenericReceiver receiver = (GenericReceiver) elpc.getListener().getReceiver();
@@ -182,6 +189,13 @@ public class ListenerPortPoller implements DisposableBean {
         }
     }
 
+    /**
+     * Callback method from the Spring Bean Factory to allow destruction on shutdown.
+     * 
+     * This method ensures that all registered listener are cleared.
+     * 
+     * @throws java.lang.Exception
+     */
     public void destroy() throws Exception {
         clear();
     }
