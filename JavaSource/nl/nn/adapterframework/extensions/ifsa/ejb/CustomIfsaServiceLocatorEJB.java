@@ -1,6 +1,9 @@
 /*
  * $Log: CustomIfsaServiceLocatorEJB.java,v $
- * Revision 1.1.2.4  2007-11-08 12:29:42  europe\M00035F
+ * Revision 1.1.2.5  2007-11-15 12:54:50  europe\M00035F
+ * Add bit more logging
+ *
+ * Revision 1.1.2.4  2007/11/08 12:29:42  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Instantiate Logger instance using LogUtil
  *
  * Revision 1.1.2.3  2007/11/08 09:47:54  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -13,7 +16,7 @@
  * Add custom versions of IFSA MDB Receiver beans, and subclass of IFSA ServiceLocatorEJB
  *
  *
- * $Id: CustomIfsaServiceLocatorEJB.java,v 1.1.2.4 2007-11-08 12:29:42 europe\M00035F Exp $
+ * $Id: CustomIfsaServiceLocatorEJB.java,v 1.1.2.5 2007-11-15 12:54:50 europe\M00035F Exp $
  *
  */
 package nl.nn.adapterframework.extensions.ifsa.ejb;
@@ -48,8 +51,10 @@ public class CustomIfsaServiceLocatorEJB extends ServiceLocatorEJB {
         try {
             return super.getFireForgetService(service);
         } catch (UnknownServiceException e) {
-            log.warn("Can not find EJB Bean for FF service [" + service + "], will look up generic FF service EJB", e);
-            return (FireForgetService) getBeanFromJNDI(SERVICE_DISPATCHER_EJB_NAME);
+            log.warn("Can not find EJB Bean for FF service [" + service + "], will look up generic FF service dispatcher EJB; original excpetion message: " + e.getMessage());
+            FireForgetService serviceDispatcherBean = (FireForgetService) getBeanFromJNDI(SERVICE_DISPATCHER_EJB_NAME);
+            log.debug("Service [" + service + "] will be handled by generic FF service dispatcher bean [" + serviceDispatcherBean.toString() + "]");
+            return serviceDispatcherBean;
         }
     }
 
@@ -57,8 +62,10 @@ public class CustomIfsaServiceLocatorEJB extends ServiceLocatorEJB {
         try {
             return super.getRequestReplyService(service);
         } catch (UnknownServiceException e) {
-            log.warn("Can not find EJB Bean for RR service [" + service + "], will look up generic RR service EJB", e);
-            return (RequestReplyService) getBeanFromJNDI(SERVICE_DISPATCHER_EJB_NAME);
+            log.warn("Can not find EJB Bean for RR service [" + service + "], will look up generic RR service dispatcher EJB; original excpetion message: " + e.getMessage());
+            RequestReplyService serviceDispatcherBean = (RequestReplyService) getBeanFromJNDI(SERVICE_DISPATCHER_EJB_NAME);
+            log.debug("Service [" + service + "] will be handled by generic RR service dispatcher bean [" + serviceDispatcherBean.toString() + "]");
+            return serviceDispatcherBean;
         }
     }
     
@@ -72,15 +79,19 @@ public class CustomIfsaServiceLocatorEJB extends ServiceLocatorEJB {
             Object remoteSvc = createMethod.invoke(svcHome, new Object[0]);
             return remoteSvc;
         } catch(ClassCastException e) {
+            log.error("Error creating EJB bean from JNDI Looking [" + beanHomeJNDIName + "]",e);
             throw new InvalidServiceException("Can not find bean home interface ["
                     + beanHomeJNDIName + "]", e);
         } catch(NameNotFoundException e) {
+            log.error("Can not find EJB bean in JNDI: [" + beanHomeJNDIName + "]",e);
             throw new UnknownServiceException("Can not find bean home interface ["
                     + beanHomeJNDIName + "]", e);
         } catch (NamingException e) {
+            log.error("Can not find EJB bean in JNDI: [" + beanHomeJNDIName + "]",e);
             throw new UnknownServiceException("JNDI error looking up bean home interface ["
                     + beanHomeJNDIName + "]", e);
         } catch (Exception e) {
+            log.error(e,e);
             throw new InvalidServiceException("Can not create bean ["
                     + beanHomeJNDIName + "]", e);
         }
