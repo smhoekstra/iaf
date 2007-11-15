@@ -1,6 +1,10 @@
 /*
  * $Log: DefaultIbisManager.java,v $
- * Revision 1.3.2.1  2007-10-25 08:36:58  europe\M00035F
+ * Revision 1.3.2.2  2007-11-15 09:53:34  europe\M00035F
+ * * Add JavaDoc
+ * * Extend shutdown-behaviour: destroy beans in the Spring Bean Factory; remove references to the Bean Factory (where reasonably possible)
+ *
+ * Revision 1.3.2.1  2007/10/25 08:36:58  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Add shutdown method for IBIS which shuts down the scheduler too, and which unregisters all EjbJmsConfigurators from the ListenerPortPoller.
  * Unregister JmsListener from ListenerPortPoller during ejbRemove method.
  * Both changes are to facilitate more proper shutdown of the IBIS adapters.
@@ -25,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import nl.nn.adapterframework.configuration.AbstractSpringPoweredDigesterFactory;
 import nl.nn.adapterframework.configuration.Configuration;
 import nl.nn.adapterframework.configuration.ConfigurationDigester;
 
@@ -40,6 +45,10 @@ import nl.nn.adapterframework.util.LogUtil;
 
 import org.apache.log4j.Logger;
 import org.quartz.SchedulerException;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.transaction.PlatformTransactionManager;
 
 /**
@@ -50,7 +59,7 @@ import org.springframework.transaction.PlatformTransactionManager;
  * @since   4.8
  * @version Id
  */
-public class DefaultIbisManager implements IbisManager {
+public class DefaultIbisManager implements IbisManager, BeanFactoryAware {
     protected Logger log=LogUtil.getLogger(this);
 	
     public static final String DFLT_DIGESTER_RULES = "digester-rules.xml";
@@ -61,6 +70,7 @@ public class DefaultIbisManager implements IbisManager {
     private int deploymentMode;
     private PlatformTransactionManager transactionManager;
     private ListenerPortPoller listenerPortPoller;
+    private XmlBeanFactory beanFactory;
     
     protected final String[] deploymentModes = new String[] {DEPLOYMENT_MODE_UNMANAGED_STRING, DEPLOYMENT_MODE_EJB_STRING};
     
@@ -84,17 +94,39 @@ public class DefaultIbisManager implements IbisManager {
     }
     
     
+    /**
+     * Start the already configured IBIS instance
+     */
     public void startIbis() {
         startAdapters();
         startScheduledJobs();
     }
 
+    /**
+     * Shut down the IBIS instance and clean up.
+     * 
+     * After execution of this method, the IBIS instance can not
+     * be used anymore.
+     * 
+     * TODO: Add shutdown-methods to Adapter, Receiver, Listener to make shutdown more complete.
+     */
     public void shutdownIbis() {
+        // Stop Adapters and the Scheduler
         stopAdapters();
         shutdownScheduler();
         if (listenerPortPoller != null) {
             listenerPortPoller.clear();
         }
+        
+        // Clean up the Spring Bean Factory and references to it
+        // In particular, clean up the static reference from the
+        // Digester factory, since that can cause the garbage-collector
+        // to never finalize the Bean Factory.
+        // Singleton Beans in the Bean Factory are explicitly destroyed,
+        // to ensure that they release their resources.
+        AbstractSpringPoweredDigesterFactory.factory = null;
+        beanFactory.destroySingletons();
+        beanFactory = null;
     }
     
     /**
@@ -312,5 +344,9 @@ public class DefaultIbisManager implements IbisManager {
 
     public void setListenerPortPoller(ListenerPortPoller listenerPortPoller) {
         this.listenerPortPoller = listenerPortPoller;
+    }
+
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = (XmlBeanFactory) beanFactory;
     }
 }
