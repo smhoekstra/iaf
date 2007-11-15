@@ -1,6 +1,10 @@
 /*
  * $Log: EjbListenerPortConnector.java,v $
- * Revision 1.2.2.2  2007-11-09 14:18:16  europe\M00035F
+ * Revision 1.2.2.3  2007-11-15 10:28:42  europe\M00035F
+ * * Add JavaDoc
+ * * Refactor a number of fields & variables to more logical names
+ *
+ * Revision 1.2.2.2  2007/11/09 14:18:16  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Fix NPE when WAS ListenerPort not found; replace a lot more illegal characters
  *
  * Revision 1.2.2.1  2007/11/06 09:39:13  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -61,7 +65,7 @@ import nl.nn.adapterframework.receivers.GenericReceiver;
 public class EjbListenerPortConnector implements IListenerConnector {
     private final static String LISTENER_PORTNAME_SUFFIX = "ListenerPort";
     
-    private IPortConnectedListener jmsListener;
+    private IPortConnectedListener listener;
     private ObjectName listenerPortMBean;
     private AdminService adminService;
     private Destination destination;
@@ -73,10 +77,10 @@ public class EjbListenerPortConnector implements IListenerConnector {
         return destination;
     }
 
-    public void configureEndpointConnection(IPortConnectedListener jmsListener) throws ConfigurationException {
+    public void configureEndpointConnection(IPortConnectedListener listener) throws ConfigurationException {
         try {
-            this.jmsListener = jmsListener;
-            this.listenerPortMBean = lookupListenerPortMBean(jmsListener);
+            this.listener = listener;
+            this.listenerPortMBean = lookupListenerPortMBean(listener);
             // TODO: Verification that the ListenerPort is configured same as JmsListener
             String destinationName = (String) getAdminService().getAttribute(listenerPortMBean, "jmsDestJNDIName");
             Context ctx = new InitialContext();
@@ -92,6 +96,13 @@ public class EjbListenerPortConnector implements IListenerConnector {
         }
     }
 
+    /**
+     * Start Listener-port to which the Listener is connected.
+     * 
+     * Sets internal stated to closed=false
+     * 
+     * @throws nl.nn.adapterframework.core.ListenerException
+     */
     public void start() throws ListenerException {
         try {
             if (listenerPortMBean != null) {
@@ -99,13 +110,20 @@ public class EjbListenerPortConnector implements IListenerConnector {
                 // Register again, to be sure, b/c a registration can have been
                 // removed by some other controlling code.
                 listenerPortPoller.registerEjbListenerPortConnector(this);
-                closed = false;
             }
+            closed = false;
         } catch (Exception ex) {
             throw new ListenerException(ex);
         }
     }
 
+    /**
+     * Stop Listener-port to which the Listener is connected.
+     * 
+     * Sets internal stated to closed=true
+     * 
+     * @throws nl.nn.adapterframework.core.ListenerException
+     */
     public void stop() throws ListenerException {
         try {
             if (listenerPortMBean != null) {
@@ -117,6 +135,14 @@ public class EjbListenerPortConnector implements IListenerConnector {
         }
     }
 
+    /**
+     * Check if ListenerPort to which the Listener is connected is
+     * closed, or started.
+     * 
+     * @return <code>true</code> if the ListenerPort is closed, or
+     * <code>false</code> if the ListenerPort is started.
+     * @throws nl.nn.adapterframework.configuration.ConfigurationException
+     */
     public boolean isListenerPortClosed() throws ConfigurationException {
         try {
             return !((Boolean)getAdminService().getAttribute(listenerPortMBean, "started")).booleanValue();
@@ -183,12 +209,12 @@ public class EjbListenerPortConnector implements IListenerConnector {
      * </ol>
      * 
      */
-    protected String getListenerPortName(IPortConnectedListener jmsListener) {
-        String name = jmsListener.getListenerPort();
+    protected String getListenerPortName(IPortConnectedListener listener) {
+        String name = listener.getListenerPort();
         
         if (name == null) {
             GenericReceiver receiver;
-            receiver = (GenericReceiver)jmsListener.getReceiver();
+            receiver = (GenericReceiver)listener.getReceiver();
             name = configuration.getConfigurationName()
                     + '-' + receiver.getName() + LISTENER_PORTNAME_SUFFIX;
             name = name.replace(' ', '-').replaceAll("(:|\\(|\\)|\\\\|/|\\||<|>|&|\\^|%)", "");
@@ -205,12 +231,18 @@ public class EjbListenerPortConnector implements IListenerConnector {
         this.configuration = configuration;
     }
 
+    /**
+     * Check if the Listener is supposed to be open, or closed.
+     * This attribute basically indicates what IBIS <i>thinks</i>
+     * should be the state of the WebSphere ListenerPort.
+     * @return
+     */
     public boolean isClosed() {
         return closed;
     }
 
     public IPortConnectedListener getJmsListener() {
-        return jmsListener;
+        return listener;
     }
 
     public ListenerPortPoller getListenerPortPoller() {
