@@ -1,6 +1,9 @@
 /*
  * $Log: DefaultIbisManager.java,v $
- * Revision 1.3.2.2  2007-11-15 09:53:34  europe\M00035F
+ * Revision 1.3.2.3  2007-11-15 10:22:29  europe\M00035F
+ * * Add more detailed logging
+ *
+ * Revision 1.3.2.2  2007/11/15 09:53:34  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * * Add JavaDoc
  * * Extend shutdown-behaviour: destroy beans in the Spring Bean Factory; remove references to the Bean Factory (where reasonably possible)
  *
@@ -65,6 +68,7 @@ public class DefaultIbisManager implements IbisManager, BeanFactoryAware {
     public static final String DFLT_DIGESTER_RULES = "digester-rules.xml";
     
     private Configuration configuration;
+    private String name;
     private ConfigurationDigester configurationDigester;
     private SchedulerHelper schedulerHelper;
     private int deploymentMode;
@@ -79,7 +83,7 @@ public class DefaultIbisManager implements IbisManager, BeanFactoryAware {
         
         // Reading in Apache Digester configuration file
         if (null == configurationFile) {
-			configurationFile = DFLT_CONFIGURATION;
+            configurationFile = DFLT_CONFIGURATION;
         }
         
         log.info("* IBIS Startup: Reading IBIS configuration from file [" + configurationFile + "]" + (DFLT_CONFIGURATION.equals(configurationFile) ?
@@ -88,6 +92,7 @@ public class DefaultIbisManager implements IbisManager, BeanFactoryAware {
             configurationDigester.unmarshalConfiguration(
                 ClassUtils.getResourceURL(configurationDigester, digesterRulesFile),
                 ClassUtils.getResourceURL(configurationDigester, configurationFile));
+            name = configuration.getConfigurationName();
         } catch (Throwable e) {
             log.error("Error occured unmarshalling configuration:", e);
         }
@@ -98,8 +103,10 @@ public class DefaultIbisManager implements IbisManager, BeanFactoryAware {
      * Start the already configured IBIS instance
      */
     public void startIbis() {
+        log.info("* IBIS Startup: Initiating startup of IBIS instance [" + name + "]");
         startAdapters();
         startScheduledJobs();
+        log.info("* IBIS Startup: Startup complete for instance [" + name + "]");
     }
 
     /**
@@ -111,6 +118,7 @@ public class DefaultIbisManager implements IbisManager, BeanFactoryAware {
      * TODO: Add shutdown-methods to Adapter, Receiver, Listener to make shutdown more complete.
      */
     public void shutdownIbis() {
+        log.info("* IBIS Shutdown: Initiating shutdown of IBIS instance [" + name + "]");
         // Stop Adapters and the Scheduler
         stopAdapters();
         shutdownScheduler();
@@ -127,10 +135,12 @@ public class DefaultIbisManager implements IbisManager, BeanFactoryAware {
         AbstractSpringPoweredDigesterFactory.factory = null;
         beanFactory.destroySingletons();
         beanFactory = null;
+        log.info("* IBIS Shutdown: Shutdown complete for instance [" + name + "]");
     }
     
     /**
-     * Utility function to give commands to Adapters and Receiverss
+     * Utility function to give commands to Adapters and Receivers
+     * 
      */
     public void handleAdapter(String action, String adapterName, String receiverName, String commandIssuedBy) {
         if (action.equalsIgnoreCase("STOPADAPTER")) {
@@ -194,6 +204,7 @@ public class DefaultIbisManager implements IbisManager, BeanFactoryAware {
     
     public void shutdownScheduler() {
         try {
+            log.info("Shutting down the scheduler");
             schedulerHelper.getScheduler().shutdown();
         } catch (SchedulerException e) {
             log.error("Could not stop scheduler", e);
@@ -220,24 +231,27 @@ public class DefaultIbisManager implements IbisManager, BeanFactoryAware {
         }
     }
     
-	/* (non-Javadoc)
-	 * @see nl.nn.adapterframework.configuration.IbisManager#startAdapters()
-	 */
-	public void startAdapters() {
+    /* (non-Javadoc)
+     * @see nl.nn.adapterframework.configuration.IbisManager#startAdapters()
+     */
+    public void startAdapters() {
+        log.info("Starting all autostart-configured adapters");
         List adapters = configuration.getRegisteredAdapters();
         for (Iterator iter = adapters.iterator(); iter.hasNext();) {
-			IAdapter adapter = (IAdapter) iter.next();
-			
+            IAdapter adapter = (IAdapter) iter.next();
+
             if (adapter.isAutoStart()) {
                 log.info("Starting adapter [" + adapter.getName()+"]");
                 startAdapter(adapter);
             }
-		}
-	}
-	/* (non-Javadoc)
-	 * @see nl.nn.adapterframework.configuration.IbisManager#stopAdapters()
-	 */
-	public void stopAdapters() {
+        }
+    }
+    
+    /* (non-Javadoc)
+     * @see nl.nn.adapterframework.configuration.IbisManager#stopAdapters()
+     */
+    public void stopAdapters() {
+        log.info("Stopping all adapters");
         List adapters = configuration.getRegisteredAdapters();
         for (ListIterator iter = adapters.listIterator(adapters.size()); iter.hasPrevious();) {
             IAdapter adapter = (IAdapter) iter.previous();
@@ -245,7 +259,7 @@ public class DefaultIbisManager implements IbisManager, BeanFactoryAware {
             log.info("Stopping adapter [" + adapter.getName() + "]");
 			stopAdapter(adapter);
         }
-	}
+    }
 
     /**
      * Start the adapter. The thread-name will be set tot the adapter's name.
