@@ -1,6 +1,10 @@
 /*
  * $Log: AbstractListenerConnectingEJB.java,v $
- * Revision 1.1.2.1  2007-10-29 10:29:13  europe\M00035F
+ * Revision 1.1.2.2  2007-11-15 10:26:12  europe\M00035F
+ * * Initialize logging with instance, instead of (incorrect) classname.
+ * * Add more common methods and instance-variables for both subclasses
+ *
+ * Revision 1.1.2.1  2007/10/29 10:29:13  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Refactor: pullup a number of methods to abstract base class so they can be shared with new IFSA Session EJBs
  *
  * 
@@ -10,6 +14,7 @@ package nl.nn.adapterframework.ejb;
 
 import nl.nn.adapterframework.core.IAdapter;
 import nl.nn.adapterframework.core.IListener;
+import nl.nn.adapterframework.core.IPortConnectedListener;
 import nl.nn.adapterframework.receivers.GenericReceiver;
 import nl.nn.adapterframework.util.LogUtil;
 
@@ -22,12 +27,35 @@ import org.springframework.jndi.JndiLookupFailureException;
  * @version Id
  */
 abstract public class AbstractListenerConnectingEJB extends AbstractEJBBase {
-    protected Logger log = LogUtil.getLogger(GenericMDB.class);
+    protected Logger log = LogUtil.getLogger(this);
 
+    /**
+     * This value is set in the EJB Create method
+     */
     protected boolean containerManagedTransactions;
 
+    protected IPortConnectedListener listener;
     protected ListenerPortPoller listenerPortPoller;
 
+    /**
+     * Common code to be executed when an EJB is created which is derived
+     * from this abstract class.
+     */
+    protected void onEjbCreate() {
+        this.listener = retrieveListener();
+        this.containerManagedTransactions = retrieveTransactionType();
+        log.info("onEjbCreate: Connected to Listener [" + listener.getName() + "]");
+    }
+    
+    /**
+     * Common code to be executed when an EJB is created which is derived
+     * from this abstract class.
+     */
+    protected void onEjbRemove() {
+        listenerPortPoller.unregisterEjbListenerPortConnector(
+                (EjbListenerPortConnector)listener.getListenerPortConnector());
+    }
+    
     protected boolean retrieveTransactionType() {
         try {
             Boolean txType = (Boolean) getContextVariable("containerTransactions");
@@ -75,6 +103,12 @@ abstract public class AbstractListenerConnectingEJB extends AbstractEJBBase {
 
     public void setListenerPortPoller(ListenerPortPoller listenerPortPoller) {
         this.listenerPortPoller = listenerPortPoller;
+    }
+
+    protected IPortConnectedListener retrieveListener() {
+        String adapterName = (String) getContextVariable("adapterName");
+        String receiverName = (String) getContextVariable("receiverName");
+        return (IPortConnectedListener) retrieveListener(receiverName, adapterName);
     }
 
 }
