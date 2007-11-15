@@ -2,7 +2,10 @@
  * Created on 18-sep-07
  * 
  * $Log: PushingJmsListener.java,v $
- * Revision 1.1.2.5  2007-11-06 13:15:10  europe\M00035F
+ * Revision 1.1.2.6  2007-11-15 10:35:24  europe\M00035F
+ * Add methods new in implemented interface
+ *
+ * Revision 1.1.2.5  2007/11/06 13:15:10  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Move code putting properties into threadContext from 'getIdFromRawMessage' to 'populateThreadContext'
  *
  * Revision 1.1.2.4  2007/11/06 12:43:56  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -84,7 +87,7 @@ import nl.nn.adapterframework.core.PipeLineResult;
  * 
  */
 public class PushingJmsListener extends JMSFacade implements IPortConnectedListener {
-    public static final String version="$RCSfile: PushingJmsListener.java,v $ $Revision: 1.1.2.5 $ $Date: 2007-11-06 13:15:10 $";
+    public static final String version="$RCSfile: PushingJmsListener.java,v $ $Revision: 1.1.2.6 $ $Date: 2007-11-15 10:35:24 $";
 
     private final static String THREAD_CONTEXT_SESSION_KEY="session";
     private final static String THREAD_CONTEXT_SESSION_OWNER_FLAG_KEY="isSessionOwner";
@@ -644,5 +647,9 @@ public class PushingJmsListener extends JMSFacade implements IPortConnectedListe
     
     public void setReceiver(IReceiver receiver) {
         this.receiver = receiver;
+    }
+
+    public IListenerConnector getListenerPortConnector() {
+        return jmsConnector;
     }
 }
