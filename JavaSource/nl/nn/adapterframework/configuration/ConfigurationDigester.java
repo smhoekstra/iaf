@@ -1,6 +1,9 @@
 /*
  * $Log: ConfigurationDigester.java,v $
- * Revision 1.17.2.4  2007-11-19 07:58:22  europe\M00035F
+ * Revision 1.17.2.5  2007-11-19 08:00:03  europe\M00035F
+ * Fix use of incorrect value for 'stackTop' when stackTop == null in include() (used local variable for the included config-file-URL, instead of the global Configuration object).
+ *
+ * Revision 1.17.2.4  2007/11/19 07:58:22  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
  * Reformat to use spaces instead of tab
  *
  * Revision 1.17.2.3  2007/10/24 09:39:48  Tim van der Leeuw <tim.van.der.leeuw@ibissource.org>
@@ -106,7 +109,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
  * @see Configuration
  */
 abstract public class ConfigurationDigester implements BeanFactoryAware {
-    public static final String version = "$RCSfile: ConfigurationDigester.java,v $ $Revision: 1.17.2.4 $ $Date: 2007-11-19 07:58:22 $";
+    public static final String version = "$RCSfile: ConfigurationDigester.java,v $ $Revision: 1.17.2.5 $ $Date: 2007-11-19 08:00:03 $";
     protected static Logger log = LogUtil.getLogger(ConfigurationDigester.class);
 
     private static final String CONFIGURATION_FILE_DEFAULT  = "Configuration.xml";
@@ -233,15 +236,15 @@ abstract public class ConfigurationDigester implements BeanFactoryAware {
     }
 
     public void include(Object stackTop) throws ConfigurationException {
-        URL configuration = ClassUtils.getResourceURL(this, getConfigurationFile());
-        if (configuration == null) {
+        URL includedConfigUrl = ClassUtils.getResourceURL(this, getConfigurationFile());
+        if (includedConfigUrl == null) {
             throw new ConfigurationException("cannot find resource ["+getConfigurationFile()+"] to include");
         }
         URL digesterRules = ClassUtils.getResourceURL(this, getDigesterRules());
         if (stackTop == null) {
-            stackTop = configuration;
+            stackTop = this.configuration;
         }
-        digestConfiguration(stackTop, digesterRules, configuration);
+        digestConfiguration(stackTop, digesterRules, includedConfigUrl);
     }
     
     public Configuration unmarshalConfiguration() throws ConfigurationException
