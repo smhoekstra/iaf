@@ -1,6 +1,9 @@
 /*
  * $Log: MessageSendingPipe.java,v $
- * Revision 1.64  2010-03-10 14:30:05  m168309
+ * Revision 1.64.2.1  2010-06-24 15:27:11  m00f069
+ * Removed IbisDebugger, made it possible to use AOP to implement IbisDebugger functionality.
+ *
+ * Revision 1.64  2010/03/10 14:30:05  Peter Leeuwenburgh <peter.leeuwenburgh@ibissource.org>
  * rolled back testtool adjustments (IbisDebuggerDummy)
  *
  * Revision 1.63  2010/03/05 15:49:51  Peter Leeuwenburgh <peter.leeuwenburgh@ibissource.org>
@@ -210,6 +213,8 @@ import nl.nn.adapterframework.monitoring.EventThrowing;
 import nl.nn.adapterframework.parameters.Parameter;
 import nl.nn.adapterframework.parameters.ParameterList;
 import nl.nn.adapterframework.parameters.ParameterResolutionContext;
+import nl.nn.adapterframework.processors.ListenerProcessor;
+import nl.nn.adapterframework.processors.SenderProcessor;
 import nl.nn.adapterframework.senders.MailSender;
 import nl.nn.adapterframework.statistics.HasStatistics;
 import nl.nn.adapterframework.statistics.StatisticsKeeperIterationHandler;
@@ -298,7 +303,7 @@ import org.apache.commons.lang.SystemUtils;
  */
 
 public class MessageSendingPipe extends FixedForwardPipe implements HasSender, HasStatistics, EventThrowing {
-	public static final String version = "$RCSfile: MessageSendingPipe.java,v $ $Revision: 1.64 $ $Date: 2010-03-10 14:30:05 $";
+	public static final String version = "$RCSfile: MessageSendingPipe.java,v $ $Revision: 1.64.2.1 $ $Date: 2010-06-24 15:27:11 $";
 
 	public static final String PIPE_TIMEOUT_MONITOR_EVENT = "Sender Timeout";
 	public static final String PIPE_CLEAR_TIMEOUT_MONITOR_EVENT = "Sender Received Result on Time";
@@ -336,6 +341,9 @@ public class MessageSendingPipe extends FixedForwardPipe implements HasSender, H
 	private IPipe outputValidator=null;
 	
 	private boolean timeoutPending=false;
+
+	protected SenderProcessor senderProcessor;
+	private ListenerProcessor listenerProcessor;
 
 	protected void propagateName() {
 		ISender sender=getSender();
@@ -511,7 +519,6 @@ public class MessageSendingPipe extends FixedForwardPipe implements HasSender, H
 				log.info(getLogPrefix(session)+"returning result from static stub ["+getStubFileName()+"]");
 			}
 		} else {
-			ICorrelatedPullingListener replyListener = getListener();
 			Map threadContext=new HashMap();
 			try {
 				String correlationID = session.getMessageId();
@@ -519,6 +526,8 @@ public class MessageSendingPipe extends FixedForwardPipe implements HasSender, H
 				String messageID = null;
 				// sendResult has a messageID for async senders, the result for sync senders
 				String sendResult = sendMessage(input, session, correlationID, getSender(), threadContext);
+
+
 				if (Thread.interrupted()) {
 					throw new TimeOutException(getLogPrefix(session)+"Thread interrupted");
 				}
@@ -578,19 +587,8 @@ public class MessageSendingPipe extends FixedForwardPipe implements HasSender, H
 					session.remove("messageInMailSafeForm");
 				}
 				
-				if (replyListener != null) {
-					if (log.isDebugEnabled()) {
-						log.debug(getLogPrefix(session)	+ "starts listening for return message with correlationID ["+ correlationID	+ "]");
-					}
-					threadContext = replyListener.openThread();
-					Object msg = replyListener.getRawMessage(correlationID, threadContext);
-					if (msg==null) {	
-						log.info(getLogPrefix(session)+"received null reply message");
-					} else {
-						log.info(getLogPrefix(session)+"received reply message");
-					}
-					result =
-						replyListener.getStringFromRawMessage(msg, threadContext);
+				if (getListener() != null) {
+					result = listenerProcessor.getMessage(getListener(), correlationID, session);
 				} else {
 					result = sendResult;
 				}
@@ -651,14 +649,6 @@ public class MessageSendingPipe extends FixedForwardPipe implements HasSender, H
 					return new PipeRunResult(exceptionForward,resultmsg);
 				}
 				throw new PipeRunException(this, getLogPrefix(session) + "caught exception", t);
-			} finally {
-				if (getListener()!=null)
-					try {
-						log.debug(getLogPrefix(session)+"is closing listener");
-						replyListener.closeThread(threadContext);
-					} catch (ListenerException le) {
-						log.error(getLogPrefix(session)+"got error closing listener", le);
-					}
 			}
 		}
 		if (!validResult(result)) {
@@ -684,20 +674,12 @@ public class MessageSendingPipe extends FixedForwardPipe implements HasSender, H
 		}
 		return validResult;
 	}
-
+	
+	// Pipes extending this class may overwrite this method
 	protected String sendMessage(Object input, PipeLineSession session, String correlationID, ISender sender, Map threadContext) throws SenderException, TimeOutException {
-		if (input!=null && !(input instanceof String)) {
-			throw new SenderException("String expected, got a [" + input.getClass().getName() + "]");
-		}
-		// sendResult has a messageID for async senders, the result for sync senders
-		if (sender instanceof ISenderWithParameters) { // do not only check own parameters, sender may have them by itself
-			ISenderWithParameters psender = (ISenderWithParameters) sender;
-			ParameterResolutionContext prc = new ParameterResolutionContext((String)input, session, isNamespaceAware());
-			return psender.sendMessage(correlationID, (String) input, prc);
-		} 
-		return sender.sendMessage(correlationID, (String) input);
+		return senderProcessor.sendMessage(getSender(), correlationID, input, session, isNamespaceAware());
 	}
-
+	
 	public void start() throws PipeStartException {
 		if (StringUtils.isEmpty(getStubFileName())) {
 			try {
@@ -925,5 +907,13 @@ public class MessageSendingPipe extends FixedForwardPipe implements HasSender, H
 	public String getCorrelationIDSessionKey() {
 		return correlationIDSessionKey;
 	}
-	
+
+	public void setSenderProcessor(SenderProcessor senderProcessor) {
+		this.senderProcessor = senderProcessor;
+	}
+
+	public void setListenerProcessor(ListenerProcessor listenerProcessor) {
+		this.listenerProcessor = listenerProcessor;
+	}
+
 }

@@ -1,6 +1,9 @@
 /*
  * $Log: Base64Pipe.java,v $
- * Revision 1.6  2010-04-28 09:53:22  L190409
+ * Revision 1.6.2.1  2010-06-24 15:27:11  m00f069
+ * Removed IbisDebugger, made it possible to use AOP to implement IbisDebugger functionality.
+ *
+ * Revision 1.6  2010/04/28 09:53:22  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * enabled use of InputStream as input. 
  * replaced Base64 codec by Apache Commons Codec 1.4
  *
@@ -57,7 +60,7 @@ import org.apache.commons.lang.StringUtils;
  * @version Id
  */
 public class Base64Pipe extends FixedForwardPipe {
-	public static final String version="$RCSfile: Base64Pipe.java,v $ $Revision: 1.6 $ $Date: 2010-04-28 09:53:22 $";
+	public static final String version="$RCSfile: Base64Pipe.java,v $ $Revision: 1.6.2.1 $ $Date: 2010-06-24 15:27:11 $";
 
 	private String direction="encode";
 	private boolean convert2String=true;

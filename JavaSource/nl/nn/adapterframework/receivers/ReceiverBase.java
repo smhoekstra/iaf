@@ -1,6 +1,9 @@
 /*
  * $Log: ReceiverBase.java,v $
- * Revision 1.94  2010-04-15 12:49:55  m168309
+ * Revision 1.94.2.1  2010-06-24 15:27:12  m00f069
+ * Removed IbisDebugger, made it possible to use AOP to implement IbisDebugger functionality.
+ *
+ * Revision 1.94  2010/04/15 12:49:55  Peter Leeuwenburgh <peter.leeuwenburgh@ibissource.org>
  * added facility for an infinite number of retries (maxRetries < 0)
  *
  * Revision 1.93  2010/03/17 14:06:59  Peter Leeuwenburgh <peter.leeuwenburgh@ibissource.org>
@@ -424,8 +427,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Map.Entry;
 
-import javax.xml.transform.TransformerConfigurationException;
-
 import nl.nn.adapterframework.configuration.ConfigurationException;
 import nl.nn.adapterframework.configuration.ConfigurationWarnings;
 import nl.nn.adapterframework.core.Adapter;
@@ -593,7 +594,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  */
 public class ReceiverBase implements IReceiver, IReceiverStatistics, IMessageHandler, EventThrowing, IbisExceptionListener, HasSender, HasStatistics, TracingEventNumbers, IThreadCountControllable, BeanFactoryAware {
     
-	public static final String version="$RCSfile: ReceiverBase.java,v $ $Revision: 1.94 $ $Date: 2010-04-15 12:49:55 $";
+	public static final String version="$RCSfile: ReceiverBase.java,v $ $Revision: 1.94.2.1 $ $Date: 2010-06-24 15:27:12 $";
 	protected Logger log = LogUtil.getLogger(this);
 
 	public final static TransactionDefinition TXNEW_CTRL = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRES_NEW);

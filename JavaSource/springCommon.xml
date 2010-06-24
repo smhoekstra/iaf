@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   $Log: springCommon.xml,v $
-  Revision 1.15  2010-02-03 15:00:21  L190409
+  Revision 1.15.2.1  2010-06-24 15:27:11  m00f069
+  Removed IbisDebugger, made it possible to use AOP to implement IbisDebugger functionality.
+
+  Revision 1.15  2010/02/03 15:00:21  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
   updated spring xsds to 2.5
 
   Revision 1.14  2009/12/29 14:48:05  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -61,13 +64,16 @@
   first version in HEAD
 
 -->
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:util="http://www.springframework.org/schema/util"
-       xsi:schemaLocation="
-            http://www.springframework.org/schema/beans xml/xsd/spring-beans-2.5.xsd
-            http://www.springframework.org/schema/util xml/xsd/spring-util-2.5.xsd
-            ">
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation=
+		"
+		http://www.springframework.org/schema/beans xml/xsd/spring-beans-2.5.xsd
+		http://www.springframework.org/schema/util xml/xsd/spring-util-2.5.xsd
+		"
+	>
 
     <!-- IBIS Beans -->
     <bean name="configuration" class="nl.nn.adapterframework.configuration.Configuration"
@@ -126,6 +132,10 @@
     </bean>
     
     <alias name="txManagerProxy" alias="txManager"/>
+
+    <bean name="isolatedServiceCaller" class="nl.nn.adapterframework.pipes.IsolatedServiceCaller"
+        autowire="byName" scope="singleton">
+    </bean>
     
     <!-- Beans created from Configuration.xml, but prototyped here for
          extra dependencies which cannot be created otherwise.
@@ -135,8 +145,85 @@
         autowire="byName" scope="prototype">
     </bean>
     
-    <bean name="proto-pipeline" class="nl.nn.adapterframework.core.PipeLine"
-        autowire="byName" scope="prototype">
+	<bean
+		name="proto-pipeline"
+		class="nl.nn.adapterframework.core.PipeLine"
+		autowire="byName"
+		scope="prototype"
+		>
+		<property name="pipeLineProcessor">
+			<bean
+				class="nl.nn.adapterframework.processors.InputOutputPipeLineProcessor"
+				autowire="byName"
+				scope="prototype"
+				>
+				<property name="pipeLineProcessor">
+					<bean
+						class="nl.nn.adapterframework.processors.TransactionAttributePipeLineProcessor"
+						autowire="byName"
+						scope="prototype"
+						>
+						<property name="pipeLineProcessor">
+							<bean
+								class="nl.nn.adapterframework.processors.CorePipeLineProcessor"
+								autowire="byName"
+								scope="prototype"
+								>
+
+		<property name="pipeProcessor">
+			<bean
+				class="nl.nn.adapterframework.processors.TracingEventsPipeProcessor"
+				autowire="byName"
+				scope="prototype"
+				>
+				<property name="pipeProcessor">
+					<bean
+						class="nl.nn.adapterframework.processors.InputOutputPipeProcessor"
+						autowire="byName"
+						scope="prototype"
+						>
+						<property name="pipeProcessor">
+							<bean
+								class="nl.nn.adapterframework.processors.CheckSemaphorePipeProcessor"
+								autowire="byName"
+								scope="prototype"
+								>
+								<property name="pipeProcessor">
+									<bean
+										class="nl.nn.adapterframework.processors.TransactionAttributePipeProcessor"
+										autowire="byName"
+										scope="prototype"
+										>
+										<property name="pipeProcessor">
+											<bean
+												class="nl.nn.adapterframework.processors.CheckMessageSizePipeProcessor"
+												autowire="byName"
+												scope="prototype"
+												>
+												<property name="pipeProcessor">
+													<bean
+														class="nl.nn.adapterframework.processors.CorePipeProcessor"
+														autowire="byName"
+														scope="prototype"
+													/>
+												</property>
+											</bean>
+										</property>
+									</bean>
+								</property>
+							</bean>
+						</property>
+					</bean>
+				</property>
+			</bean>
+		</property>
+
+							</bean>
+						</property>
+					</bean>
+				</property>
+			</bean>
+		</property>
     </bean>
     
     <bean name="proto-param" class="nl.nn.adapterframework.parameters.Parameter"
@@ -147,10 +234,111 @@
         autowire="byName" scope="prototype">
     </bean>
     
-    <!-- Default pipe is a message-sending pipe -->
-    <bean name="proto-pipe" class="nl.nn.adapterframework.pipes.GenericMessageSendingPipe"
+    <!-- Default pipe is a GenericMessageSendingPipe -->
+    <bean name="proto-pipe,proto-genericMessageSendingPipe" class="nl.nn.adapterframework.pipes.GenericMessageSendingPipe"
         autowire="byName" scope="prototype">
+		<property name="senderProcessor">
+			<bean
+				class="nl.nn.adapterframework.processors.InputOutputSenderProcessor"
+				autowire="byName"
+				scope="prototype"
+				>
+				<property name="senderProcessor">
+					<bean
+						class="nl.nn.adapterframework.processors.CoreSenderProcessor"
+						autowire="byName"
+						scope="prototype"
+					/>
+				</property>
+			</bean>
+		</property>
+		<property name="listenerProcessor">
+			<bean
+				class="nl.nn.adapterframework.processors.CoreListenerProcessor"
+				autowire="byName"
+				scope="prototype"
+			/>
+		</property>
     </bean>
+
+	<bean
+		name="proto-iteratingPipe"
+		class="nl.nn.adapterframework.pipes.IteratingPipe"
+		autowire="byName"
+		scope="prototype"
+		parent="proto-genericMessageSendingPipe"
+	/>
+
+	<bean
+		name="proto-forEachChildElementPipe"
+		class="nl.nn.adapterframework.pipes.ForEachChildElementPipe"
+		autowire="byName"
+		scope="prototype"
+		parent="proto-genericMessageSendingPipe"
+	/>
+
+	<bean
+		name="proto-jmsCommunicator"
+		class="nl.nn.adapterframework.pipes.JmsCommunicator"
+		autowire="byName"
+		scope="prototype"
+		parent="proto-genericMessageSendingPipe"
+	/>
+
+	<bean
+		name="proto-mailSenderPipe"
+		class="nl.nn.adapterframework.pipes.IteratingPipe"
+		autowire="byName"
+		scope="prototype"
+		parent="proto-genericMessageSendingPipe"
+	/>
+
+	<bean
+		name="proto-senderWrapperBase"
+		class="nl.nn.adapterframework.senders.SenderWrapperBase"
+		autowire="byName"
+		scope="prototype"
+		>
+		<property name="senderProcessor">
+			<bean
+				class="nl.nn.adapterframework.processors.InputOutputSenderProcessor"
+				autowire="byName"
+				scope="prototype"
+				>
+				<property name="senderProcessor">
+					<bean
+						class="nl.nn.adapterframework.processors.CoreSenderProcessor"
+						autowire="byName"
+						scope="prototype"
+					/>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean
+		name="proto-senderWrapper"
+		class="nl.nn.adapterframework.senders.SenderWrapper"
+		autowire="byName"
+		scope="prototype"
+		parent="proto-senderWrapperBase"
+	/>
+	
+	<bean
+		name="proto-sender"
+		class="nl.nn.adapterframework.senders.SenderSeries"
+		autowire="byName"
+		scope="prototype"
+		parent="proto-senderWrapperBase"
+	/>
+	
+	<bean
+		name="proto-parallelSenders"
+		class="nl.nn.adapterframework.senders.ParallelSenders"
+		autowire="byName"
+		scope="prototype"
+		parent="proto-senderWrapperBase"
+	/>
     
     <bean name="proto-jmsListener" class="nl.nn.adapterframework.jms.JmsListener"
         autowire="byName" scope="prototype">

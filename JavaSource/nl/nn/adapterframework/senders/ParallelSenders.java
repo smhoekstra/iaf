@@ -1,6 +1,9 @@
 /*
  * $Log: ParallelSenders.java,v $
- * Revision 1.7  2010-03-10 14:30:05  m168309
+ * Revision 1.7.2.1  2010-06-24 15:27:11  m00f069
+ * Removed IbisDebugger, made it possible to use AOP to implement IbisDebugger functionality.
+ *
+ * Revision 1.7  2010/03/10 14:30:05  Peter Leeuwenburgh <peter.leeuwenburgh@ibissource.org>
  * rolled back testtool adjustments (IbisDebuggerDummy)
  *
  * Revision 1.5  2009/12/29 14:37:28  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -28,14 +31,13 @@ import java.util.Iterator;
 import java.util.Map;
 
 import nl.nn.adapterframework.core.ISender;
-import nl.nn.adapterframework.core.ISenderWithParameters;
+import nl.nn.adapterframework.core.PipeLineSession;
+import nl.nn.adapterframework.core.RequestReplyExecutor;
 import nl.nn.adapterframework.core.SenderException;
 import nl.nn.adapterframework.core.TimeOutException;
-import nl.nn.adapterframework.parameters.ParameterResolutionContext;
 import nl.nn.adapterframework.statistics.StatisticsKeeper;
 import nl.nn.adapterframework.util.ClassUtils;
 import nl.nn.adapterframework.util.Guard;
-import nl.nn.adapterframework.util.Misc;
 import nl.nn.adapterframework.util.XmlBuilder;
 import nl.nn.adapterframework.util.XmlUtils;
 
@@ -72,18 +74,14 @@ public class ParallelSenders extends SenderSeries {
 	private TaskExecutor taskExecutor;
 
 
-	protected String doSendMessage(String correlationID, String message, ParameterResolutionContext prc) throws SenderException, TimeOutException {
+	public String sendMessage(String correlationID, Object message, PipeLineSession pipeLineSession, boolean namespaceAware) throws SenderException, TimeOutException {
 		Guard guard= new Guard();
 		Map executorMap = new HashMap();
 		for (Iterator it=getSenderIterator();it.hasNext();) {
 			ISender sender = (ISender)it.next();
-			String threadID = Misc.createSimpleUUID();
 			guard.addResource();
-			SenderExecutor se=new SenderExecutor(sender, correlationID, threadID, message, prc, guard);
+			SenderExecutor se=new SenderExecutor(sender, correlationID, message, pipeLineSession, namespaceAware, guard);
 			executorMap.put(sender,se);
-			if (log.isDebugEnabled() && ibisDebugger!=null) {
-				ibisDebugger.createThread(threadID, correlationID);
-			}
 			getTaskExecutor().execute(se);
 		}
 		try {
@@ -95,19 +93,21 @@ public class ParallelSenders extends SenderSeries {
 		for (Iterator it=getSenderIterator();it.hasNext();) {
 			ISender sender = (ISender)it.next();
 			SenderExecutor se = (SenderExecutor)executorMap.get(sender);
-			Object result = se.getResult();
 			XmlBuilder resultXml = new XmlBuilder("result");
 			resultXml.addAttribute("senderClass",ClassUtils.nameOf(sender));
 			resultXml.addAttribute("senderName",sender.getName());
-			if (result==null) {
-				resultXml.addAttribute("type","null");
-			} else {
-				resultXml.addAttribute("type",ClassUtils.nameOf(result));
-				if (result instanceof Throwable) {
-					resultXml.setValue(((Throwable)result).getMessage());
+			Throwable throwable = se.getThrowable();
+			if (throwable==null) {
+				Object result = se.getReply();
+				if (result==null) {
+					resultXml.addAttribute("type","null");
 				} else {
+					resultXml.addAttribute("type",ClassUtils.nameOf(result));
 					resultXml.setValue(XmlUtils.skipXmlDeclaration(result.toString()),false);
 				}
+			} else {
+				resultXml.addAttribute("type",ClassUtils.nameOf(throwable));
+				resultXml.setValue(throwable.getMessage());
 			}
 			resultsXml.addSubElement(resultXml); 
 		}
@@ -116,48 +116,31 @@ public class ParallelSenders extends SenderSeries {
 
 
 
-	private class SenderExecutor implements Runnable {
+	public class SenderExecutor extends RequestReplyExecutor {
 
 		ISender sender; 
-		String correlationID; 
-		String threadID;
-		String message;
-		ParameterResolutionContext prc;
+		PipeLineSession pipeLineSession;
+		boolean namespaceAware;
 		Guard guard;
-
-		Object result;
 		
-		public SenderExecutor(ISender sender, String correlationID, String threadID, String message, ParameterResolutionContext prc, Guard guard) {
+		public SenderExecutor(ISender sender, String correlationID, Object message, PipeLineSession pipeLineSession, boolean namespaceAware, Guard guard) {
 			super();
 			this.sender=sender;
 			this.correlationID=correlationID;
-			this.threadID = threadID;
-			this.message=message;
-			this.prc=prc;
+			request=message;
+			this.pipeLineSession=pipeLineSession;
+			this.namespaceAware=namespaceAware;
 			this.guard=guard;
 		}
 
 		public void run() {
 			try {
 				long t1 = System.currentTimeMillis();
-				if (log.isDebugEnabled() && ibisDebugger!=null) {
-					ibisDebugger.startThread(threadID, correlationID, message);
-				}
 				try {
-					if (sender instanceof ISenderWithParameters) {
-						result = ((ISenderWithParameters)sender).sendMessage(correlationID,message,prc);
-					} else {
-						result = sender.sendMessage(correlationID,message);
-					}
-					if (log.isDebugEnabled() && ibisDebugger!=null) {
-						ibisDebugger.endThread(correlationID, result);
-					}
+					reply = senderProcessor.sendMessage(sender, correlationID, request, pipeLineSession, namespaceAware);
 				} catch (Throwable tr) {
+					throwable = tr;
 					log.warn("SenderExecutor caught exception",tr);
-					if (log.isDebugEnabled() && ibisDebugger!=null) {
-						tr = ibisDebugger.abortThread(correlationID, tr);
-					}
-					result = tr;
 				}
 				long t2 = System.currentTimeMillis();
 				StatisticsKeeper sk = getStatisticsKeeper(sender);
@@ -166,10 +149,7 @@ public class ParallelSenders extends SenderSeries {
 				guard.releaseResource();
 			} 
 		}
-		
-		public Object getResult() throws SenderException, TimeOutException  {
-			return result;
-		}
+
 	}
 
 	public void setSynchronous(boolean value) {

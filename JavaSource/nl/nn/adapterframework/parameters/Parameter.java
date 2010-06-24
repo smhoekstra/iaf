@@ -1,6 +1,9 @@
 /*
  * $Log: Parameter.java,v $
- * Revision 1.36  2010-03-10 14:30:06  m168309
+ * Revision 1.36.2.1  2010-06-24 15:27:12  m00f069
+ * Removed IbisDebugger, made it possible to use AOP to implement IbisDebugger functionality.
+ *
+ * Revision 1.36  2010/03/10 14:30:06  Peter Leeuwenburgh <peter.leeuwenburgh@ibissource.org>
  * rolled back testtool adjustments (IbisDebuggerDummy)
  *
  * Revision 1.34  2009/11/20 10:18:17  Peter Leeuwenburgh <peter.leeuwenburgh@ibissource.org>
@@ -133,7 +136,6 @@ import nl.nn.adapterframework.configuration.ConfigurationException;
 import nl.nn.adapterframework.core.INamedObject;
 import nl.nn.adapterframework.core.IWithParameters;
 import nl.nn.adapterframework.core.ParameterException;
-import nl.nn.adapterframework.debug.IbisDebugger;
 import nl.nn.adapterframework.pipes.PutSystemDateInSession;
 import nl.nn.adapterframework.util.DateUtils;
 import nl.nn.adapterframework.util.DomBuilderException;
@@ -210,10 +212,8 @@ import org.w3c.dom.Node;
  * @author Gerrit van Brakel
  */
 public class Parameter implements INamedObject, IWithParameters {
-	public static final String version="$RCSfile: Parameter.java,v $ $Revision: 1.36 $ $Date: 2010-03-10 14:30:06 $";
+	public static final String version="$RCSfile: Parameter.java,v $ $Revision: 1.36.2.1 $ $Date: 2010-06-24 15:27:12 $";
 	protected Logger log = LogUtil.getLogger(this);
-
-	private IbisDebugger ibisDebugger;
 
 	public final static String TYPE_XML="xml";
 	public final static String TYPE_NODE="node";
@@ -319,7 +319,7 @@ public class Parameter implements INamedObject, IWithParameters {
 	 * @return the raw value as object
 	 * @throws IbisException
 	 */
-	Object getValue(ParameterValueList alreadyResolvedParameters, ParameterResolutionContext prc) throws ParameterException {
+	public Object getValue(ParameterValueList alreadyResolvedParameters, ParameterResolutionContext prc) throws ParameterException {
 		Object result = null;
 		log.debug("Calculating value for Parameter ["+getName()+"]");
 		if (!configured) {
@@ -381,7 +381,6 @@ public class Parameter implements INamedObject, IWithParameters {
 			log.debug("Parameter ["+getName()+"] resolved to defaultvalue ["+(isHidden()?hide(getDefaultValue()):getDefaultValue())+"]");
 			result=getDefaultValue();
 		}
-		if (log.isDebugEnabled() && ibisDebugger!=null) result = ibisDebugger.parameterResolvedTo(this, prc.getSession().getMessageId(), result);
 		if (result !=null && result instanceof String) {
 			if (TYPE_NODE.equals(getType())) {
 				try {
@@ -609,10 +608,6 @@ public class Parameter implements INamedObject, IWithParameters {
 	}
 	public String getGroupingSeparator() {
 		return groupingSeparator;
-	}
-	
-	public void setIbisDebugger(IbisDebugger ibisDebugger) {
-		this.ibisDebugger = ibisDebugger;
 	}
 
 	public void setHidden(boolean b) {

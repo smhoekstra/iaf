@@ -1,6 +1,9 @@
 /*
  * $Log: SenderSeries.java,v $
- * Revision 1.8  2009-12-29 14:37:28  L190409
+ * Revision 1.8.2.1  2010-06-24 15:27:11  m00f069
+ * Removed IbisDebugger, made it possible to use AOP to implement IbisDebugger functionality.
+ *
+ * Revision 1.8  2009/12/29 14:37:28  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * modified imports to reflect move of statistics classes to separate package
  *
  * Revision 1.7  2009/06/05 07:29:32  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -38,6 +41,7 @@ import java.util.Map;
 import nl.nn.adapterframework.configuration.ConfigurationException;
 import nl.nn.adapterframework.core.ISender;
 import nl.nn.adapterframework.core.ISenderWithParameters;
+import nl.nn.adapterframework.core.PipeLineSession;
 import nl.nn.adapterframework.core.SenderException;
 import nl.nn.adapterframework.core.TimeOutException;
 import nl.nn.adapterframework.parameters.ParameterResolutionContext;
@@ -103,22 +107,22 @@ public class SenderSeries extends SenderWrapperBase {
 		super.close();
 	}
 
-	protected String doSendMessage(String correlationID, String message, ParameterResolutionContext prc) throws SenderException, TimeOutException {
+	public String sendMessage(String correlationID, Object message, PipeLineSession pipeLineSession, boolean namespaceAware) throws SenderException, TimeOutException {
 		long t1 = System.currentTimeMillis();
 		for (Iterator it=senderList.iterator();it.hasNext();) {
 			ISender sender = (ISender)it.next();
 			if (log.isDebugEnabled()) log.debug(getLogPrefix()+"sending correlationID ["+correlationID+"] message ["+message+"] to sender ["+sender.getName()+"]");
-			if (sender instanceof ISenderWithParameters) {
-				message = ((ISenderWithParameters)sender).sendMessage(correlationID,message,prc);
-			} else {
-				message = sender.sendMessage(correlationID,message);
-			}
+			message = senderProcessor.sendMessage(sender, correlationID, message, pipeLineSession, namespaceAware);
 			long t2 = System.currentTimeMillis();
 			StatisticsKeeper sk = getStatisticsKeeper(sender);
 			sk.addValue(t2-t1);
 			t1=t2;
 		}
-		return message;
+		return (String)message;
+	}
+
+	public String sendMessage(String correlationID, String message, ParameterResolutionContext prc) throws SenderException, TimeOutException {
+		return sendMessage(correlationID, message, prc.getSession(), prc.isNamespaceAware());
 	}
 
 	public void iterateOverStatistics(StatisticsKeeperIterationHandler hski, Object data, int action) throws SenderException {
@@ -133,7 +137,7 @@ public class SenderSeries extends SenderWrapperBase {
 		//hski.closeGroup(senderData);
 	}
 
-	protected String getLogPrefix() {
+	public String getLogPrefix() {
 		return ClassUtils.nameOf(this)+" ["+getName()+"] ";
 	}
 
