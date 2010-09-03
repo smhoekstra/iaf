@@ -1,6 +1,9 @@
 /*
  * $Log: ConfigurationServlet.java,v $
- * Revision 1.17.2.1  2010-06-24 15:27:11  m00f069
+ * Revision 1.17.2.2  2010-09-03 13:56:28  m00f069
+ * Removed KEY_MANAGER from servlet context (ibisManager can be retrieved from ibisContext)
+ *
+ * Revision 1.17.2.1  2010/06/24 15:27:11  Jaco de Groot <jaco.de.groot@ibissource.org>
  * Removed IbisDebugger, made it possible to use AOP to implement IbisDebugger functionality.
  *
  * Revision 1.17  2009/12/22 16:42:21  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -100,11 +103,10 @@ import org.apache.log4j.Logger;
  * @version Id
  */
 public class ConfigurationServlet extends HttpServlet {
-	public static final String version = "$RCSfile: ConfigurationServlet.java,v $ $Revision: 1.17.2.1 $ $Date: 2010-06-24 15:27:11 $";
+	public static final String version = "$RCSfile: ConfigurationServlet.java,v $ $Revision: 1.17.2.2 $ $Date: 2010-09-03 13:56:28 $";
     protected Logger log = LogUtil.getLogger(this);
 
 	public static final String KEY_CONTEXT = "KEY_CONTEXT";
-	public static final String KEY_MANAGER = "KEY_MANAGER";
 
     //static final String DFLT_SPRING_CONTEXT = "springContext.xml";
     //static final String EJB_SPRING_CONTEXT = "springContextEjbWeb.xml";
@@ -250,9 +252,6 @@ public class ConfigurationServlet extends HttpServlet {
 			String attributeKey = AppConstants.getInstance().getResolvedProperty(KEY_CONTEXT);
 			ctx.setAttribute(attributeKey, ibisContext);
 			log.debug("stored IbisContext [" + ClassUtils.nameOf(ibisContext) + "]["+ ibisContext + "] in ServletContext under key ["+ attributeKey	+ "]");
-			attributeKey = AppConstants.getInstance().getResolvedProperty(KEY_MANAGER);
-			ctx.setAttribute(attributeKey, ibisContext.getIbisManager());
-			log.debug("stored IbisManager [" + ClassUtils.nameOf(ibisContext.getIbisManager()) + "]["+ ibisContext.getIbisManager() + "] in ServletContext under key ["+ attributeKey	+ "]");
 			return success;
 		} else {
 			log.warn("Not all adapters are stopped, cancelling ConfigurationServlet");
@@ -281,9 +280,11 @@ public class ConfigurationServlet extends HttpServlet {
 	}
     
     public IbisManager getIbisManager() {
-        ServletContext ctx = getServletContext();
+        IbisContext ibisContext = getIbisContext();
         IbisManager manager = null;
-        manager = (IbisManager) ctx.getAttribute(AppConstants.getInstance().getResolvedProperty(KEY_MANAGER));
+        if (ibisContext != null) {
+			manager = ibisContext.getIbisManager();
+        }
         return manager;
     }
     

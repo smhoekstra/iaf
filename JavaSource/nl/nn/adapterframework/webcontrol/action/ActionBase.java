@@ -1,6 +1,9 @@
 /*
  * $Log: ActionBase.java,v $
- * Revision 1.9  2009-09-02 13:22:31  L190409
+ * Revision 1.9.2.1  2010-09-03 13:56:27  m00f069
+ * Removed KEY_MANAGER from servlet context (ibisManager can be retrieved from ibisContext)
+ *
+ * Revision 1.9  2009/09/02 13:22:31  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
  * avoid NPE
  *
  * Revision 1.8  2008/05/22 07:29:29  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -30,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import nl.nn.adapterframework.configuration.Configuration;
+import nl.nn.adapterframework.configuration.IbisContext;
 import nl.nn.adapterframework.configuration.IbisManager;
 import nl.nn.adapterframework.util.AppConstants;
 import nl.nn.adapterframework.util.ClassUtils;
@@ -60,7 +64,7 @@ import org.apache.struts.util.MessageResources;
  * @see     org.apache.struts.action.Action
  */
 public abstract class ActionBase extends Action {
-	public static final String version="$RCSfile: ActionBase.java,v $ $Revision: 1.9 $ $Date: 2009-09-02 13:22:31 $";
+	public static final String version="$RCSfile: ActionBase.java,v $ $Revision: 1.9.2.1 $ $Date: 2010-09-03 13:56:27 $";
 	protected Logger log = LogUtil.getLogger(this);
 
     protected Locale locale;
@@ -182,8 +186,12 @@ public abstract class ActionBase extends Action {
         errors = new ActionErrors();
 
         session = request.getSession();
-        String attributeKey=AppConstants.getInstance().getProperty(ConfigurationServlet.KEY_MANAGER);
-        ibisManager = (IbisManager) getServlet().getServletContext().getAttribute(attributeKey);
+        String attributeKey=AppConstants.getInstance().getProperty(ConfigurationServlet.KEY_CONTEXT);
+		IbisContext ibisContext = (IbisContext) getServlet().getServletContext().getAttribute(attributeKey);
+        ibisManager = null;
+        if (ibisContext != null) {
+        	ibisManager = ibisContext.getIbisManager();
+        } 
 		if (ibisManager==null) {
 			log.warn("Could not retrieve ibisManager from context");
 		} else {
