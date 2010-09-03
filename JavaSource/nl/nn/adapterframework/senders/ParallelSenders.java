@@ -1,6 +1,9 @@
 /*
  * $Log: ParallelSenders.java,v $
- * Revision 1.7.2.1  2010-06-24 15:27:11  m00f069
+ * Revision 1.7.2.2  2010-09-03 13:48:42  m00f069
+ * Removed SenderProcessors, added SenderWrapperBaseProcessor
+ *
+ * Revision 1.7.2.1  2010/06/24 15:27:11  Jaco de Groot <jaco.de.groot@ibissource.org>
  * Removed IbisDebugger, made it possible to use AOP to implement IbisDebugger functionality.
  *
  * Revision 1.7  2010/03/10 14:30:05  Peter Leeuwenburgh <peter.leeuwenburgh@ibissource.org>
@@ -31,10 +34,12 @@ import java.util.Iterator;
 import java.util.Map;
 
 import nl.nn.adapterframework.core.ISender;
+import nl.nn.adapterframework.core.ISenderWithParameters;
 import nl.nn.adapterframework.core.PipeLineSession;
 import nl.nn.adapterframework.core.RequestReplyExecutor;
 import nl.nn.adapterframework.core.SenderException;
 import nl.nn.adapterframework.core.TimeOutException;
+import nl.nn.adapterframework.parameters.ParameterResolutionContext;
 import nl.nn.adapterframework.statistics.StatisticsKeeper;
 import nl.nn.adapterframework.util.ClassUtils;
 import nl.nn.adapterframework.util.Guard;
@@ -74,13 +79,13 @@ public class ParallelSenders extends SenderSeries {
 	private TaskExecutor taskExecutor;
 
 
-	public String sendMessage(String correlationID, Object message, PipeLineSession pipeLineSession, boolean namespaceAware) throws SenderException, TimeOutException {
+	public String doSendMessage(String correlationID, String message, ParameterResolutionContext prc) throws SenderException, TimeOutException {
 		Guard guard= new Guard();
 		Map executorMap = new HashMap();
 		for (Iterator it=getSenderIterator();it.hasNext();) {
 			ISender sender = (ISender)it.next();
 			guard.addResource();
-			SenderExecutor se=new SenderExecutor(sender, correlationID, message, pipeLineSession, namespaceAware, guard);
+			SenderExecutor se=new SenderExecutor(sender, correlationID, message, prc, guard);
 			executorMap.put(sender,se);
 			getTaskExecutor().execute(se);
 		}
@@ -119,17 +124,15 @@ public class ParallelSenders extends SenderSeries {
 	public class SenderExecutor extends RequestReplyExecutor {
 
 		ISender sender; 
-		PipeLineSession pipeLineSession;
-		boolean namespaceAware;
+		ParameterResolutionContext prc;
 		Guard guard;
 		
-		public SenderExecutor(ISender sender, String correlationID, Object message, PipeLineSession pipeLineSession, boolean namespaceAware, Guard guard) {
+		public SenderExecutor(ISender sender, String correlationID, String message, ParameterResolutionContext prc, Guard guard) {
 			super();
 			this.sender=sender;
 			this.correlationID=correlationID;
 			request=message;
-			this.pipeLineSession=pipeLineSession;
-			this.namespaceAware=namespaceAware;
+			this.prc=prc;
 			this.guard=guard;
 		}
 
@@ -137,7 +140,11 @@ public class ParallelSenders extends SenderSeries {
 			try {
 				long t1 = System.currentTimeMillis();
 				try {
-					reply = senderProcessor.sendMessage(sender, correlationID, request, pipeLineSession, namespaceAware);
+					if (sender instanceof ISenderWithParameters) {
+						reply = ((ISenderWithParameters)sender).sendMessage(correlationID,request,prc);
+					} else {
+						reply = sender.sendMessage(correlationID,request);
+					}
 				} catch (Throwable tr) {
 					throwable = tr;
 					log.warn("SenderExecutor caught exception",tr);

@@ -1,6 +1,9 @@
 /*
  * $Log: IteratingPipe.java,v $
- * Revision 1.18.2.1  2010-06-24 15:27:11  m00f069
+ * Revision 1.18.2.2  2010-09-03 13:48:43  m00f069
+ * Removed SenderProcessors, added SenderWrapperBaseProcessor
+ *
+ * Revision 1.18.2.1  2010/06/24 15:27:11  Jaco de Groot <jaco.de.groot@ibissource.org>
  * Removed IbisDebugger, made it possible to use AOP to implement IbisDebugger functionality.
  *
  * Revision 1.18  2010/03/25 12:57:53  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -184,7 +187,7 @@ import org.apache.commons.lang.StringUtils;
  * @version Id
  */
 public abstract class IteratingPipe extends MessageSendingPipe {
-	public static final String version="$RCSfile: IteratingPipe.java,v $ $Revision: 1.18.2.1 $ $Date: 2010-06-24 15:27:11 $";
+	public static final String version="$RCSfile: IteratingPipe.java,v $ $Revision: 1.18.2.2 $ $Date: 2010-09-03 13:48:43 $";
 
 	private String stopConditionXPathExpression=null;
 	private boolean removeXmlDeclarationInResults=false;
@@ -285,7 +288,12 @@ public abstract class IteratingPipe extends MessageSendingPipe {
 				} 
 			}
 			try {
-				itemResult = senderProcessor.sendMessage(sender, correlationID, item, session, isNamespaceAware());
+				if (psender!=null) {
+					//result = psender.sendMessage(correlationID, item, new ParameterResolutionContext(src, session));
+					itemResult = psender.sendMessage(correlationID, item, prc);
+				} else {
+					itemResult = sender.sendMessage(correlationID, item);
+				}
 			} catch (SenderException e) {
 				if (isIgnoreExceptions()) {
 					log.info(getLogPrefix(session)+"ignoring SenderException after excution of sender for item ["+item+"]",e);

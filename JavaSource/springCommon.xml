@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   $Log: springCommon.xml,v $
-  Revision 1.15.2.2  2010-06-25 13:03:54  m00f069
+  Revision 1.15.2.3  2010-09-03 13:48:43  m00f069
+  Removed SenderProcessors, added SenderWrapperBaseProcessor
+
+  Revision 1.15.2.2  2010/06/25 13:03:54  Jaco de Groot <jaco.de.groot@ibissource.org>
   Made processors top-level beans.
 
   Revision 1.15  2010/02/03 15:00:21  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -211,19 +214,11 @@
 	</bean>
     
     <bean
-		name="senderProcessor"
-		class="nl.nn.adapterframework.processors.InputOutputSenderProcessor"
+		name="senderWrapperBaseProcessor"
+		class="nl.nn.adapterframework.processors.SenderWrapperBaseProcessor"
 		autowire="byName"
 		scope="prototype"
-		>
-		<property name="senderProcessor">
-			<bean
-				class="nl.nn.adapterframework.processors.CoreSenderProcessor"
-				autowire="byName"
-				scope="prototype"
-			/>
-		</property>
-	</bean>
+	/>
 	
 	<bean
 		name="listenerProcessor"

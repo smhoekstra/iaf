@@ -1,6 +1,9 @@
 /*
  * $Log: IsolatedServiceCaller.java,v $
- * Revision 1.11.2.1  2010-06-24 15:27:11  m00f069
+ * Revision 1.11.2.2  2010-09-03 13:48:43  m00f069
+ * Removed SenderProcessors, added SenderWrapperBaseProcessor
+ *
+ * Revision 1.11.2.1  2010/06/24 15:27:11  Jaco de Groot <jaco.de.groot@ibissource.org>
  * Removed IbisDebugger, made it possible to use AOP to implement IbisDebugger functionality.
  *
  * Revision 1.11  2010/03/10 14:30:05  Peter Leeuwenburgh <peter.leeuwenburgh@ibissource.org>
@@ -58,7 +61,7 @@ import org.springframework.core.task.TaskExecutor;
  * @version Id
  */
 public class IsolatedServiceCaller {
-	public static final String version="$RCSfile: IsolatedServiceCaller.java,v $ $Revision: 1.11.2.1 $ $Date: 2010-06-24 15:27:11 $";
+	public static final String version="$RCSfile: IsolatedServiceCaller.java,v $ $Revision: 1.11.2.2 $ $Date: 2010-09-03 13:48:43 $";
 	protected Logger log = LogUtil.getLogger(this);
 	
 	/**
@@ -119,9 +122,9 @@ public class IsolatedServiceCaller {
 		public void run() {
 			try {
 				if (targetIsJavaListener) {
-					reply = JavaListener.getListener(serviceName).processRequest(correlationID, (String)request, context);
+					reply = JavaListener.getListener(serviceName).processRequest(correlationID, request, context);
 				} else {
-					reply = ServiceDispatcher.getInstance().dispatchRequestWithExceptions(serviceName, correlationID, (String)request, context);
+					reply = ServiceDispatcher.getInstance().dispatchRequestWithExceptions(serviceName, correlationID, request, context);
 				}
 			} catch (Throwable t) {
 				log.warn("IsolatedServiceCaller caught exception",t);

@@ -1,6 +1,9 @@
 /*
  * $Log: RequestReplyExecutor.java,v $
- * Revision 1.1.2.1  2010-06-24 15:27:12  m00f069
+ * Revision 1.1.2.2  2010-09-03 13:48:43  m00f069
+ * Removed SenderProcessors, added SenderWrapperBaseProcessor
+ *
+ * Revision 1.1.2.1  2010/06/24 15:27:12  Jaco de Groot <jaco.de.groot@ibissource.org>
  * Removed IbisDebugger, made it possible to use AOP to implement IbisDebugger functionality.
  *
  *
@@ -17,7 +20,7 @@ package nl.nn.adapterframework.core;
  */
 public abstract class RequestReplyExecutor implements Runnable {
 	protected String correlationID;
-	protected Object request;
+	protected String request;
 	protected Object reply;
 	protected Throwable throwable;
 
@@ -29,7 +32,7 @@ public abstract class RequestReplyExecutor implements Runnable {
 		return correlationID;
 	}
 
-	public void setRequest(Object request)  {
+	public void setRequest(String request)  {
 		this.request = request;
 	}
 		

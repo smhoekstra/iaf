@@ -1,6 +1,9 @@
 /*
  * $Log: SenderWrapper.java,v $
- * Revision 1.7.2.1  2010-06-24 15:27:11  m00f069
+ * Revision 1.7.2.2  2010-09-03 13:48:43  m00f069
+ * Removed SenderProcessors, added SenderWrapperBaseProcessor
+ *
+ * Revision 1.7.2.1  2010/06/24 15:27:11  Jaco de Groot <jaco.de.groot@ibissource.org>
  * Removed IbisDebugger, made it possible to use AOP to implement IbisDebugger functionality.
  *
  * Revision 1.7  2009/12/29 14:37:28  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -31,13 +34,12 @@ package nl.nn.adapterframework.senders;
 
 import nl.nn.adapterframework.configuration.ConfigurationException;
 import nl.nn.adapterframework.core.ISender;
-import nl.nn.adapterframework.core.PipeLineSession;
+import nl.nn.adapterframework.core.ISenderWithParameters;
 import nl.nn.adapterframework.core.SenderException;
 import nl.nn.adapterframework.core.TimeOutException;
 import nl.nn.adapterframework.parameters.ParameterResolutionContext;
 import nl.nn.adapterframework.statistics.HasStatistics;
 import nl.nn.adapterframework.statistics.StatisticsKeeperIterationHandler;
-import nl.nn.adapterframework.util.XmlUtils;
 
 /**
  * Wrapper for senders, that allows to get input from a session variable, and to store output in a session variable.
@@ -81,12 +83,14 @@ public class SenderWrapper extends SenderWrapperBase {
 		getSender().close();
 	}
 
-	public String sendMessage(String correlationID, Object message, PipeLineSession pipeLineSession, boolean namespaceAware) throws SenderException, TimeOutException {
-		return senderProcessor.sendMessage(sender, correlationID, message, pipeLineSession, namespaceAware);
-	}
-
-	public String sendMessage(String correlationID, String message, ParameterResolutionContext prc) throws SenderException, TimeOutException {
-		return sendMessage(correlationID, message, prc.getSession(), prc.isNamespaceAware());
+	public String doSendMessage(String correlationID, String message, ParameterResolutionContext prc) throws SenderException, TimeOutException {
+		String result;
+		if (sender instanceof ISenderWithParameters) {
+			result = ((ISenderWithParameters)sender).sendMessage(correlationID,message,prc);
+		} else {
+			result = sender.sendMessage(correlationID,message);
+		}
+		return result;
 	}
 
 	public void iterateOverStatistics(StatisticsKeeperIterationHandler hski, Object data, int action) throws SenderException {

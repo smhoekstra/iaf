@@ -1,6 +1,9 @@
 /*
  * $Log: MessageSendingPipe.java,v $
- * Revision 1.64.2.1  2010-06-24 15:27:11  m00f069
+ * Revision 1.64.2.2  2010-09-03 13:48:43  m00f069
+ * Removed SenderProcessors, added SenderWrapperBaseProcessor
+ *
+ * Revision 1.64.2.1  2010/06/24 15:27:11  Jaco de Groot <jaco.de.groot@ibissource.org>
  * Removed IbisDebugger, made it possible to use AOP to implement IbisDebugger functionality.
  *
  * Revision 1.64  2010/03/10 14:30:05  Peter Leeuwenburgh <peter.leeuwenburgh@ibissource.org>
@@ -214,7 +217,6 @@ import nl.nn.adapterframework.parameters.Parameter;
 import nl.nn.adapterframework.parameters.ParameterList;
 import nl.nn.adapterframework.parameters.ParameterResolutionContext;
 import nl.nn.adapterframework.processors.ListenerProcessor;
-import nl.nn.adapterframework.processors.SenderProcessor;
 import nl.nn.adapterframework.senders.MailSender;
 import nl.nn.adapterframework.statistics.HasStatistics;
 import nl.nn.adapterframework.statistics.StatisticsKeeperIterationHandler;
@@ -303,7 +305,7 @@ import org.apache.commons.lang.SystemUtils;
  */
 
 public class MessageSendingPipe extends FixedForwardPipe implements HasSender, HasStatistics, EventThrowing {
-	public static final String version = "$RCSfile: MessageSendingPipe.java,v $ $Revision: 1.64.2.1 $ $Date: 2010-06-24 15:27:11 $";
+	public static final String version = "$RCSfile: MessageSendingPipe.java,v $ $Revision: 1.64.2.2 $ $Date: 2010-09-03 13:48:43 $";
 
 	public static final String PIPE_TIMEOUT_MONITOR_EVENT = "Sender Timeout";
 	public static final String PIPE_CLEAR_TIMEOUT_MONITOR_EVENT = "Sender Received Result on Time";
@@ -342,7 +344,6 @@ public class MessageSendingPipe extends FixedForwardPipe implements HasSender, H
 	
 	private boolean timeoutPending=false;
 
-	protected SenderProcessor senderProcessor;
 	private ListenerProcessor listenerProcessor;
 
 	protected void propagateName() {
@@ -675,9 +676,17 @@ public class MessageSendingPipe extends FixedForwardPipe implements HasSender, H
 		return validResult;
 	}
 	
-	// Pipes extending this class may overwrite this method
 	protected String sendMessage(Object input, PipeLineSession session, String correlationID, ISender sender, Map threadContext) throws SenderException, TimeOutException {
-		return senderProcessor.sendMessage(getSender(), correlationID, input, session, isNamespaceAware());
+		if (input!=null && !(input instanceof String)) {
+			throw new SenderException("String expected, got a [" + input.getClass().getName() + "]");
+		}
+		// sendResult has a messageID for async senders, the result for sync senders
+		if (sender instanceof ISenderWithParameters) { // do not only check own parameters, sender may have them by itself
+			ISenderWithParameters psender = (ISenderWithParameters) sender;
+			ParameterResolutionContext prc = new ParameterResolutionContext((String)input, session, isNamespaceAware());
+			return psender.sendMessage(correlationID, (String) input, prc);
+		} 
+		return sender.sendMessage(correlationID, (String) input);
 	}
 	
 	public void start() throws PipeStartException {
@@ -906,10 +915,6 @@ public class MessageSendingPipe extends FixedForwardPipe implements HasSender, H
 
 	public String getCorrelationIDSessionKey() {
 		return correlationIDSessionKey;
-	}
-
-	public void setSenderProcessor(SenderProcessor senderProcessor) {
-		this.senderProcessor = senderProcessor;
 	}
 
 	public void setListenerProcessor(ListenerProcessor listenerProcessor) {

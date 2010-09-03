@@ -1,6 +1,9 @@
 /*
  * $Log: SenderWrapperBase.java,v $
- * Revision 1.8.2.1  2010-06-24 15:27:11  m00f069
+ * Revision 1.8.2.2  2010-09-03 13:48:42  m00f069
+ * Removed SenderProcessors, added SenderWrapperBaseProcessor
+ *
+ * Revision 1.8.2.1  2010/06/24 15:27:11  Jaco de Groot <jaco.de.groot@ibissource.org>
  * Removed IbisDebugger, made it possible to use AOP to implement IbisDebugger functionality.
  *
  * Revision 1.8  2010/03/10 14:30:05  Peter Leeuwenburgh <peter.leeuwenburgh@ibissource.org>
@@ -31,11 +34,11 @@ package nl.nn.adapterframework.senders;
 
 import nl.nn.adapterframework.configuration.ConfigurationException;
 import nl.nn.adapterframework.core.ISender;
-import nl.nn.adapterframework.core.PipeLineSession;
 import nl.nn.adapterframework.core.SenderException;
 import nl.nn.adapterframework.core.SenderWithParametersBase;
 import nl.nn.adapterframework.core.TimeOutException;
-import nl.nn.adapterframework.processors.SenderProcessor;
+import nl.nn.adapterframework.parameters.ParameterResolutionContext;
+import nl.nn.adapterframework.processors.SenderWrapperBaseProcessor;
 import nl.nn.adapterframework.statistics.HasStatistics;
 import nl.nn.adapterframework.util.ClassUtils;
 
@@ -64,7 +67,7 @@ public abstract class SenderWrapperBase extends SenderWithParametersBase impleme
 	private String getInputFromFixedValue=null;
 	private String storeResultInSessionKey; 
 	private boolean preserveInput=false; 
-	protected SenderProcessor senderProcessor;
+	protected SenderWrapperBaseProcessor senderWrapperBaseProcessor;
 
 	
 	public void configure() throws ConfigurationException {
@@ -79,7 +82,11 @@ public abstract class SenderWrapperBase extends SenderWithParametersBase impleme
 
 	protected abstract boolean isSenderConfigured();
 
-	public abstract String sendMessage(String correlationID, Object message, PipeLineSession pipeLineSession, boolean namespaceAware) throws SenderException, TimeOutException;
+	public abstract String doSendMessage(String correlationID, String message, ParameterResolutionContext prc) throws SenderException, TimeOutException; 
+
+	public String sendMessage(String correlationID, String message, ParameterResolutionContext prc) throws SenderException, TimeOutException {
+		return senderWrapperBaseProcessor.sendMessage(this, correlationID, message, prc);
+	}
 
 	public String getLogPrefix() {
 		return ClassUtils.nameOf(this)+" ["+getName()+"] ";
@@ -117,8 +124,8 @@ public abstract class SenderWrapperBase extends SenderWithParametersBase impleme
 		return preserveInput;
 	}
 
-	public void setSenderProcessor(SenderProcessor senderProcessor) {
-		this.senderProcessor = senderProcessor;
+	public void setSenderWrapperBaseProcessor(SenderWrapperBaseProcessor senderWrapperBaseProcessor) {
+		this.senderWrapperBaseProcessor = senderWrapperBaseProcessor;
 	}
 
 }

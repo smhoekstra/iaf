@@ -1,6 +1,9 @@
 /*
  * $Log: SenderSeries.java,v $
- * Revision 1.8.2.1  2010-06-24 15:27:11  m00f069
+ * Revision 1.8.2.2  2010-09-03 13:48:43  m00f069
+ * Removed SenderProcessors, added SenderWrapperBaseProcessor
+ *
+ * Revision 1.8.2.1  2010/06/24 15:27:11  Jaco de Groot <jaco.de.groot@ibissource.org>
  * Removed IbisDebugger, made it possible to use AOP to implement IbisDebugger functionality.
  *
  * Revision 1.8  2009/12/29 14:37:28  Gerrit van Brakel <gerrit.van.brakel@ibissource.org>
@@ -107,22 +110,22 @@ public class SenderSeries extends SenderWrapperBase {
 		super.close();
 	}
 
-	public String sendMessage(String correlationID, Object message, PipeLineSession pipeLineSession, boolean namespaceAware) throws SenderException, TimeOutException {
+	public String doSendMessage(String correlationID, String message, ParameterResolutionContext prc) throws SenderException, TimeOutException {
 		long t1 = System.currentTimeMillis();
 		for (Iterator it=senderList.iterator();it.hasNext();) {
 			ISender sender = (ISender)it.next();
 			if (log.isDebugEnabled()) log.debug(getLogPrefix()+"sending correlationID ["+correlationID+"] message ["+message+"] to sender ["+sender.getName()+"]");
-			message = senderProcessor.sendMessage(sender, correlationID, message, pipeLineSession, namespaceAware);
+			if (sender instanceof ISenderWithParameters) {
+				message = ((ISenderWithParameters)sender).sendMessage(correlationID,message,prc);
+			} else {
+				message = sender.sendMessage(correlationID,message);
+			}
 			long t2 = System.currentTimeMillis();
 			StatisticsKeeper sk = getStatisticsKeeper(sender);
 			sk.addValue(t2-t1);
 			t1=t2;
 		}
 		return (String)message;
-	}
-
-	public String sendMessage(String correlationID, String message, ParameterResolutionContext prc) throws SenderException, TimeOutException {
-		return sendMessage(correlationID, message, prc.getSession(), prc.isNamespaceAware());
 	}
 
 	public void iterateOverStatistics(StatisticsKeeperIterationHandler hski, Object data, int action) throws SenderException {
