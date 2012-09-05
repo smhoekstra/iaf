@@ -1,6 +1,9 @@
 /*
  * $Log: FxfWrapperPipe.java,v $
- * Revision 1.4  2012-08-21 10:01:20  m00f069
+ * Revision 1.4.2.1  2012-09-05 08:27:46  europe\m168309
+ * copied from v5.0-a19.3
+ *
+ * Revision 1.4  2012/08/21 10:01:20  Jaco de Groot <jaco.de.groot@ibissource.org>
  * Set destination parameter with default value when wrapping FxF message
  *
  * Revision 1.3  2012/08/17 15:46:44  Jaco de Groot <jaco.de.groot@ibissource.org>
@@ -195,7 +198,7 @@ public class FxfWrapperPipe extends EsbSoapWrapperPipe {
 			} catch (Throwable t) {
 				throw new PipeRunException(this, getLogPrefix(session) + " Unexpected exception during (un)wrapping ", t);
 			}
-			String flowId = transferFlowId.substring(0, 2) + "X" + transferFlowId.substring(3);
+			String flowId = transferFlowId.substring(0, 2) + "X" + transferFlowId.substring(3, transferFlowId.indexOf('-'));
 			session.put(getFlowIdSessionKey(), flowId);
 			session.put(getFxfDirSessionKey(), fxfDir);
 			// Transform the filename as it is known locally on the IUF state

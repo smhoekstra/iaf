@@ -1,6 +1,9 @@
 /*
  * $Log: EsbJmsSender.java,v $
- * Revision 1.7  2012-08-31 13:54:04  europe\m168309
+ * Revision 1.4.2.1  2012-09-05 08:27:46  europe\m168309
+ * copied from v5.0-a19.3
+ *
+ * Revision 1.7  2012/08/31 13:54:04  Peter Leeuwenburgh <peter.leeuwenburgh@ibissource.org>
  * changed derivation for soapAction attribute
  *
  * Revision 1.6  2012/08/30 14:08:24  Peter Leeuwenburgh <peter.leeuwenburgh@ibissource.org>

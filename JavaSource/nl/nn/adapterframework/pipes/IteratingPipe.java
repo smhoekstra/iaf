@@ -1,6 +1,9 @@
 /*
  * $Log: IteratingPipe.java,v $
- * Revision 1.27  2012-08-29 12:53:50  europe\m168309
+ * Revision 1.26.2.1  2012-09-05 08:27:46  europe\m168309
+ * copied from v5.0-a19.3
+ *
+ * Revision 1.27  2012/08/29 12:53:50  Peter Leeuwenburgh <peter.leeuwenburgh@ibissource.org>
  * added startPosition, endPosition, linePrefix and lineSuffix attributes
  *
  * Revision 1.26  2012/06/01 10:52:50  Jaco de Groot <jaco.de.groot@ibissource.org>
@@ -216,7 +219,7 @@ import org.apache.commons.lang.StringUtils;
  * @version Id
  */
 public abstract class IteratingPipe extends MessageSendingPipe {
-	public static final String version="$RCSfile: IteratingPipe.java,v $ $Revision: 1.27 $ $Date: 2012-08-29 12:53:50 $";
+	public static final String version="$RCSfile: IteratingPipe.java,v $ $Revision: 1.26.2.1 $ $Date: 2012-09-05 08:27:46 $";
 
 	private String stopConditionXPathExpression=null;
 	private boolean removeXmlDeclarationInResults=false;
